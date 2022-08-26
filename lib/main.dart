@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
@@ -111,5 +111,53 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+*/
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:near_you/screens/home_screen.dart';
+import 'package:near_you/screens/role_selection_screen.dart';
+
+import './screens/getting_started_screen.dart';
+import './screens/login_screen.dart';
+import './screens/signup_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Near you',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+      ),
+      home: getHome(),
+      routes: {
+        HomeScreen.routeName: (ctx) => HomeScreen(),
+        GettingStartedScreen.routeName: (ctx) => GettingStartedScreen(),
+        LoginScreen.routeName: (ctx) => LoginScreen(),
+        SignupScreen.routeName: (ctx) => SignupScreen(),
+        RoleSelectionScreen.routeName: (ctx) => RoleSelectionScreen(),
+      },
+    );
+  }
+
+  getHome() {
+    if (FirebaseAuth.instance.currentUser == null) {
+      return GettingStartedScreen();
+    }
+    return HomeScreen();
   }
 }

@@ -49,7 +49,7 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
+  static  FirebaseOptions android = const FirebaseOptions(
     apiKey: 'AIzaSyAtcnw9tLlzTaztOSdY4i2bC72w0i2mL6g',
     appId: '1:975549460764:android:e021c7a6de077c1d058ad9',
     messagingSenderId: '975549460764',
@@ -57,7 +57,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'nearyou-b2185.appspot.com',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
+  static FirebaseOptions ios = const FirebaseOptions(
     apiKey: 'AIzaSyDeQzG6bnNu-z5JSXWZzplTD663_CBgp5k',
     appId: '1:975549460764:ios:a2df244b26a58d9d058ad9',
     messagingSenderId: '975549460764',
