@@ -70,7 +70,7 @@ class _RoleSelectionWidgetState extends State<RoleSelectionWidget> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: Icon(null),
+              icon: const Icon(null),
               onPressed: () {
                 setState(() {});
               },
@@ -94,7 +94,7 @@ class _RoleSelectionWidgetState extends State<RoleSelectionWidget> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        SizedBox(
+                        const SizedBox(
                           height: 100,
                         ),
                         const Text(
@@ -105,18 +105,18 @@ class _RoleSelectionWidgetState extends State<RoleSelectionWidget> {
                             color: Color(0xff333333),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                          children: const [
                             Text(
                               'Indicanos',
                               style: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.bold),
                             ),
-                            const Text(
+                            Text(
                               ' ¿Quién eres?',
                               style: TextStyle(
                                   fontSize: 14,
@@ -125,7 +125,7 @@ class _RoleSelectionWidgetState extends State<RoleSelectionWidget> {
                             )
                           ],
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 32,
                         ),
                         Row(
@@ -134,12 +134,12 @@ class _RoleSelectionWidgetState extends State<RoleSelectionWidget> {
                             getUserRoleWidget(RoleSelectionScreen.PACIENTE),
                             SizedBox(
                               height: 226,
-                              child: Padding(
-                                  padding: const EdgeInsets.only(
+                              child: const Padding(
+                                  padding: EdgeInsets.only(
                                       left: 20, right: 20),
                                   child: VerticalDivider(
                                     thickness: 1,
-                                    color: Color(0xffCECECE),
+                                    color: const Color(0xffCECECE),
                                   )),
                             ),
                             getUserRoleWidget(RoleSelectionScreen.MEDICO)
@@ -160,7 +160,7 @@ class _RoleSelectionWidgetState extends State<RoleSelectionWidget> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          SizedBox(
+          const SizedBox(
             height: 30,
           ),
           GestureDetector(
@@ -177,7 +177,7 @@ class _RoleSelectionWidgetState extends State<RoleSelectionWidget> {
                 });
               }, // Image tapped
               child: getImageUserRole(roleName)),
-          SizedBox(
+          const SizedBox(
             height: 12,
           ),
           Text(roleName, style: getUserRoleStyle(roleName))

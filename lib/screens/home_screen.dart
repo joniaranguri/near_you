@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:near_you/screens/getting_started_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:near_you/screens/login_screen.dart';
 

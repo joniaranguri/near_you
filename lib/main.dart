@@ -124,16 +124,22 @@ import './screens/getting_started_screen.dart';
 import './screens/login_screen.dart';
 import './screens/signup_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'Constants.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  bool showIntroSlide = !pref.containsKey(SHOW_INTRO_SLIDE);
+  pref.setString(SHOW_INTRO_SLIDE, SHOW_INTRO_SLIDE);
+  runApp(MyApp(showIntroSlide));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final bool showIntro;
+
+  const MyApp(this.showIntro, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,20 +149,22 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
-      home: getHome(),
+      home: getHome(this.showIntro),
       routes: {
         HomeScreen.routeName: (ctx) => HomeScreen(),
         GettingStartedScreen.routeName: (ctx) => GettingStartedScreen(),
-        LoginScreen.routeName: (ctx) => LoginScreen(),
+        LoginScreen.routeName: (ctx) => const LoginScreen(),
         SignupScreen.routeName: (ctx) => SignupScreen(),
         RoleSelectionScreen.routeName: (ctx) => RoleSelectionScreen(),
       },
     );
   }
 
-  getHome() {
-    if (FirebaseAuth.instance.currentUser == null) {
+  getHome(bool showIntro) {
+    if (showIntro) {
       return GettingStartedScreen();
+    } else if (FirebaseAuth.instance.currentUser == null) {
+      return const LoginScreen();
     }
     return HomeScreen();
   }
