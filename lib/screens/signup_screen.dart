@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +7,8 @@ import 'package:near_you/screens/login_screen.dart';
 import 'package:near_you/screens/role_selection_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebaseAuth;
+
+import '../Constants.dart';
 
 class SignupScreen extends StatelessWidget {
   static const routeName = '/signup';
@@ -67,8 +71,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     final DateTime? d = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2015, 8),
-      lastDate: DateTime(2101),
+      firstDate: DateTime(1900, 8),
+      lastDate: DateTime(2100),
     );
     if (d != null) {
       setState(() {
@@ -647,8 +651,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         .then((result) {
       firebaseAuth.User? user = result.user;
       if (user != null) {
-        dialogSuccess();
-      }
+        saveUserDataInDatabase();
+         }
     }).catchError((e) {
       print(e);
     });
@@ -725,5 +729,24 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         );
       },
     );
+  }
+
+  void saveUserDataInDatabase() {
+    final db = FirebaseFirestore.instance;
+    final userData = <String, String>{
+      EMAIL_KEY: emailValue,
+      FULL_NAME_KEY: fullNameValue,
+      BIRTH_DAY_KEY: _selectedDate,
+      PHONE_KEY: phoneNumberValue,
+      AGE_KEY: ageValue,
+      ADDRESS_KEY: addressValue,
+      MEDICAL_CENTER_VALUE: medicalCenterValue,
+      GENDER_KEY: genderValue.toString(),
+      REFERENCE_KEY: referenceValue,
+      ALT_PHONE_NUMBER_KEY: altPhoneValue,
+      SMOKING_KEY: smokeValue.toString(),
+      ALLERGIES_KEY: allergiesValue,
+    };
+    db.collection(USERS_COLLECTION_KEY).doc(FirebaseAuth.instance.currentUser?.uid).set(userData).then((_) => dialogSuccess());
   }
 }
