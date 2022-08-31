@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/screens/home_screen.dart';
+
+import '../Constants.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
   static const routeName = '/role_selection';
@@ -168,6 +172,7 @@ class _RoleSelectionWidgetState extends State<RoleSelectionWidget> {
                 setState(() {
                   selectedPaciente = roleName == RoleSelectionScreen.PACIENTE;
                   selectedMedico = roleName == RoleSelectionScreen.MEDICO;
+                  updateInfoInFirebase();
                   Navigator.pushReplacement<void, void>(
                     context,
                     MaterialPageRoute<void>(
@@ -209,5 +214,15 @@ class _RoleSelectionWidgetState extends State<RoleSelectionWidget> {
       path,
       fit: BoxFit.none,
     );
+  }
+
+  Future<void> updateInfoInFirebase() async {
+    final db = FirebaseFirestore.instance;
+    var isPatientSelected = selectedPaciente == true;
+    var postDocRef= db.collection(USERS_COLLECTION_KEY).doc(FirebaseAuth.instance.currentUser?.uid);
+    await postDocRef.set({
+      USER_TYPE: isPatientSelected? USER_TYPE_PACIENTE: USER_TYPE_MEDICO,
+      // ....rest of your data
+    });
   }
 }

@@ -287,6 +287,12 @@ class _LoginWidgetState extends State<LoginWidget> {
     )).user;
 
     if (user != null) {
+      SharedPreferences.getInstance().then((prefValue) => {
+        setState(() {
+          showSelectRole = !prefValue.containsKey(user.uid);
+          prefValue.setString(user.uid, user.uid);
+        })
+      });
       Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute<void>(
