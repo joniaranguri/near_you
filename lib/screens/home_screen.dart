@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:near_you/screens/login_screen.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
+import '../widgets/grouped_bar_chart.dart';
+
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
 
@@ -12,8 +14,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double _maxExtent = 240;
+  static const double _maxExtent = 240;
   final VoidCallback onActionTap;
+  static double publicShrinkHome = 0;
 
   MySliverHeaderDelegate({
     required this.onActionTap,
@@ -22,6 +25,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
+    publicShrinkHome = shrinkOffset;
     debugPrint(shrinkOffset.toString());
     return Container(
       color: Color(0xff2F8F9D),
@@ -171,7 +175,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    //final expandedHeight = MediaQuery.of(context).size.height * 0.2;
+    final expandedHeight = MediaQuery.of(context).size.height * 0.2;
     return Stack(children: <Widget>[
       Scaffold(
         body: NestedScrollView(
@@ -185,34 +189,372 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ];
           },
-          body: CircularPercentIndicator(
-              radius: 100,
-              lineWidth: 10,
-              percent: 0.75,
-              //center: Text("75%", style: TextStyle(color: Color(0xFF1AB600), fontSize: 27, fontWeight: FontWeight.bold, backgroundColor: Colors.red)),
-              center: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  Text("75%",
-                      style: TextStyle(
-                          color: Color(0xff6EC6A4),
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold)),
-                  Text(
-                    'ADHERENCIA',
-                    style: TextStyle(fontSize: 16, color: Color(0xff999999)),
-                  ),
-                  Text('NORMAL',
-                      style: TextStyle(fontSize: 16, color: Color(0xff999999)))
-                ],
-              ),
-              linearGradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                  colors: <Color>[Color(0xff6EC6A4), Color(0xff6EC6A4)]),
-              rotateLinearGradient: true,
-              circularStrokeCap: CircularStrokeCap.round),
+          body: Stack(children: <Widget>[
+            Container(
+                width: double.maxFinite,
+                height: double.maxFinite,
+                child: FittedBox(
+                  fit: BoxFit.none,
+                  child: SvgPicture.asset('assets/images/backgroundHome.svg'),
+                )),
+            Scaffold(
+                backgroundColor: Colors.transparent,
+                body: LayoutBuilder(
+                  builder: (BuildContext context,
+                      BoxConstraints viewportConstraints) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 30,
+                      ),
+                      width: double.infinity,
+                      child: SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: viewportConstraints.maxHeight,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              SizedBox(
+                                height: getTopPaddingBody(),
+                              ),
+                              Card(
+                                elevation: 10,
+                                shadowColor: Colors.black,
+                                child: SizedBox(
+                                  width: 400,
+                                  height: 580,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      children: [
+                                        Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: <Widget>[
+                                              Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: <Widget>[
+                                                    IconButton(
+                                                      icon: Icon(
+                                                          Icons.arrow_back,
+                                                          color: Color(
+                                                              0xff2F8F9D)),
+                                                      onPressed: () {
+                                                        setState(() {});
+                                                      },
+                                                    ),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 40, right: 40),
+                                                      //apply padding to all four sides
+                                                      child: Text(
+                                                        'Adherencia',
+                                                        style: TextStyle(
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color:
+                                                              Color(0xff2F8F9D),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    IconButton(
+                                                      icon: Icon(
+                                                          Icons.arrow_forward,
+                                                          color: Color(
+                                                              0xff2F8F9D)),
+                                                      onPressed: () {
+                                                        setState(() {});
+                                                      },
+                                                    )
+                                                  ]),
+                                              const SizedBox(
+                                                height: 20,
+                                              ),
+                                              CircularPercentIndicator(
+                                                  radius: 100,
+                                                  lineWidth: 10,
+                                                  percent: 0.75,
+                                                  //center: Text("75%", style: TextStyle(color: Color(0xFF1AB600), fontSize: 27, fontWeight: FontWeight.bold, backgroundColor: Colors.red)),
+                                                  center: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: const [
+                                                      Text("75%",
+                                                          style: TextStyle(
+                                                              color: Color(
+                                                                  0xff6EC6A4),
+                                                              fontSize: 40,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                      const SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      Text(
+                                                        'ADHERENCIA',
+                                                        style: TextStyle(
+                                                            fontSize: 11,
+                                                            color: Color(
+                                                                0xff666666)),
+                                                      ),
+                                                      Text('NORMAL',
+                                                          style: TextStyle(
+                                                              fontSize: 11,
+                                                              color: Color(
+                                                                  0xff666666)))
+                                                    ],
+                                                  ),
+                                                  linearGradient:
+                                                      LinearGradient(
+                                                          begin: Alignment
+                                                              .topRight,
+                                                          end: Alignment
+                                                              .bottomLeft,
+                                                          colors: <Color>[
+                                                        Color(0xff6EC6A4),
+                                                        Color(0xff6EC6A4)
+                                                      ]),
+                                                  rotateLinearGradient: true,
+                                                  circularStrokeCap:
+                                                      CircularStrokeCap.round),
+                                              const SizedBox(
+                                                height: 20,
+                                              ),
+                                              const Text(
+                                                '¡Te felicito, sigue así!',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xff999999),
+                                                ),
+                                              )
+                                            ]),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: const <Widget>[
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 20, right: 20),
+                                                //apply padding to all four sides
+                                                child: Text(
+                                                  'Periodo',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    color: Color(0xffCECECE),
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                  child: Divider(
+                                                color: Color(0xffCECECE),
+                                                thickness: 1,
+                                              )),
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 20, right: 2),
+                                                //apply padding to all four sides
+                                                child: Text(
+                                                  'Lower',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    color: Color(0xffCECECE),
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                '53%',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.normal,
+                                                  color: Color(0xffF8191E),
+                                                ),
+                                              ),
+                                              Icon(Icons.keyboard_arrow_down,
+                                                  color: Color(0xffF8191E))
+                                            ]),
+                                        Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: <Widget>[
+                                              FlatButton(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
+                                                height: 20,
+                                                color: const Color(0xff3BACB6),
+                                                textColor: Colors.white,
+                                                onPressed: () {
+                                                  // _signInWithEmailAndPassword();
+                                                },
+                                                child: const Text(
+                                                  'Semanal',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                              FlatButton(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
+                                                height: 20,
+                                                color: const Color(0xff3BACB6),
+                                                textColor: Colors.white,
+                                                onPressed: () {
+                                                  // _signInWithEmailAndPassword();
+                                                },
+                                                child: const Text(
+                                                  'Semanal',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                              FlatButton(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
+                                                height: 20,
+                                                color: const Color(0xff3BACB6),
+                                                textColor: Colors.white,
+                                                onPressed: () {
+                                                  // _signInWithEmailAndPassword();
+                                                },
+                                                child: const Text(
+                                                  'Semanal',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              )
+                                            ]),
+                                        Container(
+                                            height: 76,
+                                            child: GroupedBarChart
+                                                .withSampleData()),
+                                        Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.stretch,
+                                            children: <Widget>[
+                                              Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 30, right: 30),
+                                                  child: FlatButton(
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              30),
+                                                    ),
+                                                    color:
+                                                        const Color(0xff3BACB6),
+                                                    textColor: Colors.white,
+                                                    onPressed: () {
+                                                      // _signInWithEmailAndPassword();
+                                                    },
+                                                    height: 27,
+                                                    child: const Text(
+                                                      'ver gráficos',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                      ),
+                                                    ),
+                                                  )),
+                                            ]),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: <Widget>[
+                                              Expanded(
+                                                  child: SizedBox(
+                                                height: 6,
+                                                child: Center(
+                                                  child: Container(
+                                                    height: 6,
+                                                    decoration: BoxDecoration(
+                                                        color:
+                                                            Color(0xff2F8F9D),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5),
+                                                        shape:
+                                                            BoxShape.rectangle),
+                                                  ),
+                                                ),
+                                              )),
+                                              Expanded(
+                                                  child: SizedBox(
+                                                height: 6,
+                                                child: Center(
+                                                  child: Container(
+                                                    height: 6,
+                                                    decoration: BoxDecoration(
+                                                        color:
+                                                            Color(0xffCCD6DD),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5),
+                                                        shape:
+                                                            BoxShape.rectangle),
+                                                  ),
+                                                ),
+                                              )),
+                                              Expanded(
+                                                  child: SizedBox(
+                                                height: 6,
+                                                child: Center(
+                                                  child: Container(
+                                                    height: 6,
+                                                    decoration: BoxDecoration(
+                                                        color:
+                                                            Color(0xffCCD6DD),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5),
+                                                        shape:
+                                                            BoxShape.rectangle),
+                                                  ),
+                                                ),
+                                              ))
+                                            ]),
+
+                                        //SizedBox
+                                      ],
+                                    ), //Column
+                                  ), //Padding
+                                ), //SizedBox
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ))
+          ]),
         ),
         bottomNavigationBar: _buildBottomBar(),
         floatingActionButton: Container(
@@ -260,5 +602,15 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  getTopPaddingBody() {
+    if (MySliverHeaderDelegate.publicShrinkHome < 120) {
+      return 7.toDouble();
+    } else {
+      var cant =
+          (MySliverHeaderDelegate.publicShrinkHome - 168.toDouble()) / 10;
+      return (50 + cant * 9.3).toDouble();
+    }
   }
 }
