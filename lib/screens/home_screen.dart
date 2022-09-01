@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Constants.dart';
 import '../widgets/grouped_bar_chart.dart';
 import '../model/user.dart' as user;
+import '../widgets/treatments_list.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -626,7 +629,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Color(0xff999999),
                 ),
               )
-            ])
+            ]),
+         SizedBox(
+          height: 500,
+        child: ListViewHomeLayout())
         //SizedBox
       ],
     );
