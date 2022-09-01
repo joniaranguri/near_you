@@ -14,6 +14,7 @@ const String SMOKING_KEY = "smoking";
 const String ALLERGIES_KEY = "allergies";
 const String USERS_COLLECTION_KEY = "users";
 const String USER_TYPE = "type";
+const String USER_ILLNESS = "illness";
 const String USER_TYPE_MEDICO = "MEDICO";
 const String USER_TYPE_PACIENTE = "PACIENTE";
 // Chequear el mostrar el role selection si es otro user

@@ -85,6 +85,7 @@ flutter:
     - assets/images/tab_metrics_unselected.svg
     - assets/images/tab_person_unselected.svg
     - assets/images/person_default.png
+    - assets/images/unlink_icon.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
