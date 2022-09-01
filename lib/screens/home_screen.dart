@@ -1,16 +1,13 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:near_you/screens/login_screen.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Constants.dart';
-import '../widgets/grouped_bar_chart.dart';
 import '../model/user.dart' as user;
+import '../widgets/grouped_bar_chart.dart';
 import '../widgets/treatments_list.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -63,9 +60,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                               fontWeight: FontWeight.bold))),
                   //apply padding to all four sides
                   Text(
-                    currentUser != null
-                        ? currentUser?.illness ?? 'Diabetes Typo 2'
-                        : 'Enfermedad',
+                    getTextSubtitleHeader(),
                     style: TextStyle(fontSize: 10, color: Colors.white),
                   ),
                   getButtonVinculation(context, shrinkOffset, _maxExtent)
@@ -83,10 +78,22 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                     right: 30,
                     bottom: 20),
                 child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xff7c94b6),
+                      image: DecorationImage(
+                        image: NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
+                        fit: BoxFit.cover,
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                      border: Border.all(
+                        color: Color(0xff47B4AC),
+                        width: 4.0,
+                      ),
+                    ),
                     child: Image.asset(
-                  'assets/images/person_default.png',
-                  height: 50,
-                )),
+                      'assets/images/person_default.png',
+                      height: 50,
+                    )),
               )
               /*SvgPicture.asset(
               'assets/images/tab_plus_selected.svg',
@@ -183,6 +190,18 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
       result = 0;
     }
     return result;
+  }
+
+  String getTextSubtitleHeader() {
+    if (currentUser == null) {
+      return "";
+    }
+
+    if (currentUser!.isPatiente()) {
+      return currentUser?.illness ?? 'Diabetes Typo 2';
+    }
+
+    return currentUser?.illness ?? '4 pacientes';
   }
 }
 
@@ -630,9 +649,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               )
             ]),
-         SizedBox(
-          height: 500,
-        child: ListViewHomeLayout())
+        SizedBox(height: 500, child: ListViewHomeLayout())
         //SizedBox
       ],
     );
