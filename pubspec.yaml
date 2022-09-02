@@ -54,6 +54,7 @@ dev_dependencies:
   shared_preferences: 2.0.15
   percent_indicator: ^4.2.2
   charts_flutter: ^0.12.0
+  flutter_speed_dial: ^6.0.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -82,6 +83,7 @@ flutter:
     - assets/images/log_out.svg
     - assets/images/warning_icon.svg
     - assets/images/tab_plus_selected.svg
+    - assets/images/tab_close_selected.svg
     - assets/images/tab_metrics_unselected.svg
     - assets/images/tab_person_unselected.svg
     - assets/images/person_default.png

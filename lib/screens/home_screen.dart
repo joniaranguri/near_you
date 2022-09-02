@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/screens/login_screen.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import '../Constants.dart';
 import '../model/user.dart' as user;
@@ -282,6 +283,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                   return CircularProgressIndicator();
                                 },
                               ),
+                              Row(
+                                children: [_getFABDial()],
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                              )
                             ],
                           ),
                         ),
@@ -292,15 +298,119 @@ class _HomeScreenState extends State<HomeScreen> {
           ]),
         ),
         bottomNavigationBar: _buildBottomBar(),
-        floatingActionButton: Container(
-          padding: EdgeInsets.only(top: 40),
-          child: SvgPicture.asset(
-            'assets/images/tab_plus_selected.svg',
+        floatingActionButton: /* _getEmptyFABDial() */
+            GestureDetector(
+          child: Container(
+            padding: EdgeInsets.only(top: 40),
+            child: SvgPicture.asset(
+              notifier.value
+                  ? 'assets/images/tab_close_selected.svg'
+                  : 'assets/images/tab_plus_selected.svg',
+            ),
           ),
+          onTap: () {
+            setState(() {
+              //howMenu = false;
+              notifier.value = true;
+            });
+          },
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       )
     ]);
+  }
+
+  bool showMenu = false;
+  ValueNotifier<bool> notifier = ValueNotifier(true);
+
+  Widget _getFABDial() {
+    return SpeedDial(
+      animatedIcon: AnimatedIcons.menu_close,
+      animatedIconTheme: IconThemeData(size: 22),
+      backgroundColor: Colors.transparent,
+      //backgroundColor: Color(0xFF2F8F9D),
+      visible: true,
+      curve: Curves.bounceIn,
+      onOpen: () {
+        setState(() {
+          //howMenu = false;
+          //notifier.value = true;
+        });
+      },
+      onClose: () {
+        setState(() {
+          //  showMenu = false;
+        });
+      },
+      openCloseDial: notifier,
+      //spaceBetweenChildren: 100,
+      spacing: 200,
+      children: [
+        SpeedDialChild(
+            child: Icon(Icons.list, color: Colors.white),
+            backgroundColor: Color(0xFF2F8F9D),
+            onTap: () {
+              /* do anything */
+            },
+            labelWidget: Text(
+              "Todas mis Rutinas",
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF47B4AC),
+                  fontSize: 16.0),
+            )),
+        SpeedDialChild(
+            child: Icon(Icons.playlist_add_check_outlined, color: Colors.white),
+            backgroundColor: Color(0xFF2F8F9D),
+            onTap: () {
+              /* do anything */
+            },
+            labelWidget: Text(
+              "Encuestas",
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF47B4AC),
+                  fontSize: 16.0),
+            )),
+        SpeedDialChild(
+            child: Icon(Icons.water_drop, color: Colors.white),
+            backgroundColor: Color(0xFF2F8F9D),
+            onTap: () {
+              /* do anything */
+            },
+            labelWidget: Text(
+              "Mi rutina",
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF47B4AC),
+                  fontSize: 16.0),
+            ))
+      ],
+    );
+  }
+
+  Widget _getEmptyFABDial() {
+    return SpeedDial(
+      animatedIcon: AnimatedIcons.menu_close,
+      animatedIconTheme: IconThemeData(size: 22),
+      backgroundColor: Color(0xFF2F8F9D),
+      visible: true,
+      curve: Curves.bounceIn,
+      onOpen: () {
+        setState(() {
+          notifier.value = true;
+        });
+      },
+      onClose: () {
+        setState(() {
+          //  showMenu = false;
+        });
+      },
+      openCloseDial: notifier,
+      //spaceBetweenChildren: 100,
+      spacing: 200,
+      children: [],
+    );
   }
 
   var _currentIndex = 1;
@@ -315,7 +425,6 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 0,
           onTap: (index) {
             _currentIndex = index;
-            setState(() {});
           },
           backgroundColor: Colors.transparent,
           currentIndex: _currentIndex,
