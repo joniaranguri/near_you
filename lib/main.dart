@@ -119,6 +119,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:near_you/screens/home_screen.dart';
 import 'package:near_you/screens/role_selection_screen.dart';
+import 'package:near_you/widgets/patient_detail.dart';
 
 import './screens/getting_started_screen.dart';
 import './screens/login_screen.dart';

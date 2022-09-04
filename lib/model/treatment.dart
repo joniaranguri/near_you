@@ -7,6 +7,6 @@ class Treatment {
       required this.adherenceLevel});
 
   String? fullName;
-  String? userId;
+  String userId;
   int? adherenceLevel;
 }
