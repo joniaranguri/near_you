@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/model/treatment.dart';
-import 'package:near_you/widgets/patient_detail.dart';
+import 'package:near_you/screens/patient_detail_screen.dart';
 
 class ListViewHomeLayout extends StatefulWidget {
   @override

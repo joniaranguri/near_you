@@ -1,181 +1,34 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-import '../model/user.dart' as user;
 import '../widgets/grouped_bar_chart.dart';
-import 'firebase_utils.dart';
+import '../model/user.dart' as user;
 
-class PatientDetailScreen extends StatefulWidget {
-  String userId;
+class PatientDetail extends StatefulWidget {
+  final bool isDoctorView;
+  user.User? detailedUser;
 
-  PatientDetailScreen(this.userId);
+  PatientDetail(this.detailedUser, {required this.isDoctorView});
 
-  static const routeName = '/patient_detail';
-
-  @override
-  _PatientDetailScreenState createState() => _PatientDetailScreenState(userId);
-}
-
-class _PatientDetailScreenState extends State<PatientDetailScreen> {
-  String userId;
-  user.User? patientUser;
-  late final Future<DocumentSnapshot> futureUser;
-
-  _PatientDetailScreenState(this.userId);
-
-  var _currentIndex = 1;
-
-  @override
-  void initState() {
-    futureUser = getUserById(userId);
-    futureUser.then((value) => {
-          setState(() {
-            patientUser = user.User.fromSnapshot(value);
-          })
-        });
-    super.initState();
-    //initStateAsync();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(children: <Widget>[
-      Scaffold(
-        appBar: PreferredSize(
-            preferredSize: Size.fromHeight(80), // here the desired height
-            child: AppBar(
-              backgroundColor: Color(0xff2F8F9D),
-              centerTitle: true,
-              title: Padding(
-                  padding: EdgeInsets.only(top: 40),
-                  child: Text(
-                      patientUser != null
-                          ? patientUser?.fullName ??
-                              patientUser?.type ??
-                              "Nombre"
-                          : "Nombre",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold))),
-              elevation: 0,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            )),
-        body: Stack(children: <Widget>[
-          Container(
-              width: double.maxFinite,
-              height: double.maxFinite,
-              child: FittedBox(
-                fit: BoxFit.none,
-                child: SvgPicture.asset('assets/images/backgroundHome.svg'),
-              )),
-          Scaffold(
-              backgroundColor: Colors.transparent,
-              body: LayoutBuilder(
-                builder:
-                    (BuildContext context, BoxConstraints viewportConstraints) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                    ),
-                    width: double.infinity,
-                    child: SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: viewportConstraints.maxHeight,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            SizedBox(
-                              height: 10,
-                            ),
-                            FutureBuilder(
-                              future: futureUser,
-                              builder: (context, AsyncSnapshot snapshot) {
-                                //patientUser = user.User.fromSnapshot(snapshot.data);
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  return getScreenType();
-                                }
-                                return CircularProgressIndicator();
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ))
-        ]),
-        bottomNavigationBar: _buildBottomBar(),
-        floatingActionButton: /* _getEmptyFABDial() */
-            GestureDetector(
-          child: Container(
-            padding: EdgeInsets.only(top: 40),
-            child: SvgPicture.asset('assets/images/tab_plus_selected.svg'),
-          ),
-          onTap: () {
-            setState(() {
-              startPatientVinculation();
-            });
-          },
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      )
-    ]);
-  }
-
-  Widget _buildBottomBar() {
-    return Container(
-      margin: EdgeInsets.only(bottom: 20),
-      child: Material(
-        elevation: 0.0,
-        color: Colors.white,
-        child: BottomNavigationBar(
-          elevation: 0,
-          onTap: (index) {
-            _currentIndex = index;
-          },
-          backgroundColor: Colors.transparent,
-          currentIndex: _currentIndex,
-          type: BottomNavigationBarType.fixed,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: [
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_metrics_unselected.svg',
-                ),
-                label: ""),
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_person_unselected.svg',
-                ),
-                label: "")
-          ],
-        ),
-      ),
+  factory PatientDetail.forDoctorView(user.User? paramUser) {
+    return PatientDetail(
+      paramUser,
+      isDoctorView: true,
     );
   }
 
-  getScreenType() {
-    if (patientUser == null) {
-      return CircularProgressIndicator();
-    }
-    return patientScreen();
-  }
+  @override
+  PatientDetailState createState() => PatientDetailState(this.detailedUser);
 
-  patientScreen() {
+}
+
+class PatientDetailState extends State<PatientDetail> {
+  user.User? detailedUser;
+
+  PatientDetailState(this.detailedUser);
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       elevation: 10,
       shadowColor: Colors.black,
@@ -211,7 +64,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                       ),
                       IconButton(
                         icon:
-                            Icon(Icons.arrow_forward, color: Color(0xff2F8F9D)),
+                        Icon(Icons.arrow_forward, color: Color(0xff2F8F9D)),
                         onPressed: () {
                           setState(() {});
                         },
@@ -240,7 +93,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                         Text(
                           'ADHERENCIA',
                           style:
-                              TextStyle(fontSize: 11, color: Color(0xff666666)),
+                          TextStyle(fontSize: 11, color: Color(0xff666666)),
                         ),
                         Text('NORMAL',
                             style: TextStyle(
@@ -285,9 +138,9 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                     ),
                     Expanded(
                         child: Divider(
-                      color: Color(0xffCECECE),
-                      thickness: 1,
-                    )),
+                          color: Color(0xffCECECE),
+                          thickness: 1,
+                        )),
                     Padding(
                       padding: EdgeInsets.only(left: 20, right: 2),
                       //apply padding to all four sides
@@ -397,43 +250,43 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                   children: <Widget>[
                     Expanded(
                         child: SizedBox(
-                      height: 6,
-                      child: Center(
-                        child: Container(
                           height: 6,
-                          decoration: BoxDecoration(
-                              color: Color(0xff2F8F9D),
-                              borderRadius: BorderRadius.circular(5),
-                              shape: BoxShape.rectangle),
-                        ),
-                      ),
-                    )),
+                          child: Center(
+                            child: Container(
+                              height: 6,
+                              decoration: BoxDecoration(
+                                  color: Color(0xff2F8F9D),
+                                  borderRadius: BorderRadius.circular(5),
+                                  shape: BoxShape.rectangle),
+                            ),
+                          ),
+                        )),
                     Expanded(
                         child: SizedBox(
-                      height: 6,
-                      child: Center(
-                        child: Container(
                           height: 6,
-                          decoration: BoxDecoration(
-                              color: Color(0xffCCD6DD),
-                              borderRadius: BorderRadius.circular(5),
-                              shape: BoxShape.rectangle),
-                        ),
-                      ),
-                    )),
+                          child: Center(
+                            child: Container(
+                              height: 6,
+                              decoration: BoxDecoration(
+                                  color: Color(0xffCCD6DD),
+                                  borderRadius: BorderRadius.circular(5),
+                                  shape: BoxShape.rectangle),
+                            ),
+                          ),
+                        )),
                     Expanded(
                         child: SizedBox(
-                      height: 6,
-                      child: Center(
-                        child: Container(
                           height: 6,
-                          decoration: BoxDecoration(
-                              color: Color(0xffCCD6DD),
-                              borderRadius: BorderRadius.circular(5),
-                              shape: BoxShape.rectangle),
-                        ),
-                      ),
-                    ))
+                          child: Center(
+                            child: Container(
+                              height: 6,
+                              decoration: BoxDecoration(
+                                  color: Color(0xffCCD6DD),
+                                  borderRadius: BorderRadius.circular(5),
+                                  shape: BoxShape.rectangle),
+                            ),
+                          ),
+                        ))
                   ]),
 
               //SizedBox
@@ -443,6 +296,4 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
       ), //SizedBox
     );
   }
-
-  void startPatientVinculation() {}
 }
