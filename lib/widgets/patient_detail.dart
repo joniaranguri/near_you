@@ -17,6 +17,13 @@ class PatientDetail extends StatefulWidget {
     );
   }
 
+  factory PatientDetail.forPatientView(user.User? paramUser) {
+    return PatientDetail(
+      paramUser,
+      isDoctorView: false,
+    );
+  }
+
   @override
   PatientDetailState createState() => PatientDetailState(this.detailedUser);
 
@@ -24,11 +31,41 @@ class PatientDetail extends StatefulWidget {
 
 class PatientDetailState extends State<PatientDetail> {
   user.User? detailedUser;
+  int _currentPage = 0;
+  final PageController _pageController = PageController(initialPage: 0);
 
   PatientDetailState(this.detailedUser);
 
   @override
   Widget build(BuildContext context) {
+    return Container(
+      height: 580,
+      child: PageView.builder(
+          scrollDirection: Axis.horizontal,
+          controller: _pageController,
+          onPageChanged: _onPageChanged,
+          itemCount: 2,
+          itemBuilder: (ctx, i) => getCurrentPageByIndex(ctx, i)
+      ),
+    );
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    _pageController.dispose();
+  }
+
+
+  _onPageChanged(int index) {
+    setState(() {
+      _currentPage = index;
+    });
+  }
+
+  getCurrentPageByIndex(BuildContext ctx, int i) {
+    if(i !=0)
+      return Text("Hello world");
+
     return Card(
       elevation: 10,
       shadowColor: Colors.black,
@@ -47,7 +84,7 @@ class PatientDetailState extends State<PatientDetail> {
                       IconButton(
                         icon: Icon(Icons.arrow_back, color: Color(0xff2F8F9D)),
                         onPressed: () {
-                          setState(() {});
+                         goBack();
                         },
                       ),
                       Padding(
@@ -66,7 +103,7 @@ class PatientDetailState extends State<PatientDetail> {
                         icon:
                         Icon(Icons.arrow_forward, color: Color(0xff2F8F9D)),
                         onPressed: () {
-                          setState(() {});
+                          goAhead();
                         },
                       )
                     ]),
@@ -294,6 +331,21 @@ class PatientDetailState extends State<PatientDetail> {
           ), //Column
         ), //Padding
       ), //SizedBox
+    );
+  }
+
+  void goBack() {
+    _pageController.animateToPage(
+      --_currentPage,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeIn,
+    );
+  }
+  void goAhead() {
+    _pageController.animateToPage(
+      ++_currentPage,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeIn,
     );
   }
 }
