@@ -113,7 +113,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                   'assets/images/log_out.svg',
                 ),
                 onPressed: () {
-                  logOut(context);
+                  showLogoutModal(context);
                 }),
           ),
         ],
@@ -203,6 +203,106 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     }
 
     return currentUser?.illness ?? '4 pacientes';
+  }
+
+  void showLogoutModal(context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Wrap(alignment: WrapAlignment.center, children: [
+              AlertDialog(
+                  title: Column(children: [const SizedBox(
+                    height: 20,
+                  ),
+                    Text("Cerrar sesión")]),
+                  titleTextStyle: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff67757F)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Text('¿Estás seguro que deseas ',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff999999))),
+                      const Text('cerrar la sesión?',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff999999))),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 17,
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.all(15),
+                              color: const Color(0xff3BACB6),
+                              textColor: Colors.white,
+                              onPressed: () {
+                                logOut(context);
+                              },
+                              child: const Text(
+                                'Aceptar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 12,
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid)                              ),
+                              padding: const EdgeInsets.all(15),
+                              color: Colors.white,
+                              textColor: const Color(0xff9D9CB5),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                'Cancelar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 12,
+                            )
+
+                          ])
+                    ],
+                  ))
+            ])
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -322,6 +422,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool showMenu = false;
+
   Widget _getFABDial() {
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
@@ -330,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen> {
       visible: false,
       curve: Curves.bounceIn,
       openCloseDial: notifier,
-      onClose: (){
+      onClose: () {
         setState(() {
           notifier.value = false;
         });
@@ -380,7 +481,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-var _currentIndex = 1;
+
+  var _currentIndex = 1;
 
   Widget _buildBottomBar() {
     return Container(
