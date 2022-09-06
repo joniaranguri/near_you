@@ -40,6 +40,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Stack(children: <Widget>[
       Scaffold(
         appBar: PreferredSize(
@@ -81,9 +82,6 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                 builder:
                     (BuildContext context, BoxConstraints viewportConstraints) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                    ),
                     width: double.infinity,
                     child: SingleChildScrollView(
                       child: ConstrainedBox(
@@ -117,18 +115,21 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
               ))
         ]),
         bottomNavigationBar: _buildBottomBar(),
-        floatingActionButton: /* _getEmptyFABDial() */
-            GestureDetector(
-          child: Container(
-            padding: EdgeInsets.only(top: 40),
-            child: SvgPicture.asset('assets/images/tab_plus_selected.svg'),
-          ),
-          onTap: () {
-            setState(() {
-              startPatientVinculation();
-            });
-          },
-        ),
+        //TODO : REVIEW THIS
+        floatingActionButton: keyboardIsOpened
+            ? null
+            : GestureDetector(
+                child: Container(
+                  padding: EdgeInsets.only(top: 40),
+                  child:
+                      SvgPicture.asset('assets/images/tab_plus_selected.svg'),
+                ),
+                onTap: () {
+                  setState(() {
+                    startPatientVinculation();
+                  });
+                },
+              ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       )
     ]);
@@ -173,7 +174,6 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
     }
     return PatientDetail.forDoctorView(patientUser);
   }
-
 
   void startPatientVinculation() {}
 }

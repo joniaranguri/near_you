@@ -358,9 +358,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (BuildContext context,
                       BoxConstraints viewportConstraints) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 30,
-                      ),
                       width: double.infinity,
                       child: SingleChildScrollView(
                         child: ConstrainedBox(
@@ -539,29 +536,34 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   medicoScreen() {
-    return Column(
-      children: [
-        Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[]),
-        const SizedBox(
-          height: 20,
+    return Container(
+        margin: const EdgeInsets.symmetric(
+          horizontal: 30,
         ),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: const <Widget>[
-              Text(
-                'Mis pacientes',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xff999999),
-                ),
-              )
-            ]),
-        SizedBox(height: 500, child: ListViewHomeLayout())
-        //SizedBox
-      ],
+        child: Column(
+          children: [
+            Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[]),
+            const SizedBox(
+              height: 20,
+            ),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: const <Widget>[
+                  Text(
+                    'Mis pacientes',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xff999999),
+                    ),
+                  )
+                ]),
+            SizedBox(height: 500, child: ListViewHomeLayout())
+            //SizedBox
+          ],
+        )
     );
   }
 }
