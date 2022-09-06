@@ -117,6 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:near_you/screens/add_treatment_screen.dart';
 import 'package:near_you/screens/home_screen.dart';
 import 'package:near_you/screens/role_selection_screen.dart';
 import 'package:near_you/screens/patient_detail_screen.dart';

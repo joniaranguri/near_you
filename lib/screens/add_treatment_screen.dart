@@ -1,0 +1,995 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:near_you/widgets/static_components.dart';
+
+import '../model/user.dart' as user;
+import '../widgets/firebase_utils.dart';
+
+class AddTreatmentScreen extends StatefulWidget {
+  String userId;
+
+  AddTreatmentScreen(this.userId);
+
+  static const routeName = '/add_treatment';
+
+  @override
+  _AddTreatmentScreenState createState() => _AddTreatmentScreenState(userId);
+}
+
+class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
+  static List<String> durationsList = ["días", "semanas", "meses", "años"];
+  static List<String> statesList = ["Activo", "Inactivo"];
+  String? stateValue;
+  String userId;
+  user.User? patientUser;
+  late final Future<DocumentSnapshot> futureUser;
+  static StaticComponents staticComponents = StaticComponents();
+  String? durationTypeValue;
+
+  _AddTreatmentScreenState(this.userId);
+
+  var _currentIndex = 1;
+
+  get borderWhite => OutlineInputBorder(
+      borderSide: const BorderSide(color: Colors.white),
+      borderRadius: BorderRadius.circular(5));
+
+  get borderGray => OutlineInputBorder(
+      borderSide: const BorderSide(color: Color(0xffD9D9D9)),
+      borderRadius: BorderRadius.circular(5));
+
+  @override
+  void initState() {
+    futureUser = getUserById(userId);
+    futureUser.then((value) => {
+          setState(() {
+            patientUser = user.User.fromSnapshot(value);
+          })
+        });
+    super.initState();
+    //initStateAsync();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
+    return Stack(children: <Widget>[
+      Scaffold(
+        appBar: PreferredSize(
+            preferredSize: Size.fromHeight(80), // here the desired height
+            child: AppBar(
+              backgroundColor: Color(0xff2F8F9D),
+              centerTitle: true,
+              title: Padding(
+                  padding: EdgeInsets.only(top: 40),
+                  child: Text("Tratamiento",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold))),
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            )),
+        body: Stack(children: <Widget>[
+          Container(
+              width: double.maxFinite,
+              height: double.maxFinite,
+              child: FittedBox(
+                fit: BoxFit.none,
+                child: SvgPicture.asset('assets/images/backgroundHome.svg'),
+              )),
+          Scaffold(
+              backgroundColor: Colors.transparent,
+              body: LayoutBuilder(
+                builder:
+                    (BuildContext context, BoxConstraints viewportConstraints) {
+                  return Container(
+                    width: double.infinity,
+                    child: SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: viewportConstraints.maxHeight,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            SizedBox(
+                              height: 10,
+                            ),
+                            FutureBuilder(
+                              future: futureUser,
+                              builder: (context, AsyncSnapshot snapshot) {
+                                //patientUser = user.User.fromSnapshot(snapshot.data);
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  return getScreenType();
+                                }
+                                return CircularProgressIndicator();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ))
+        ]),
+        bottomNavigationBar: _buildBottomBar(),
+        //TODO : REVIEW THIS
+        floatingActionButton: keyboardIsOpened
+            ? null
+            : GestureDetector(
+                child: Container(
+                  padding: EdgeInsets.only(top: 40),
+                  child:
+                      SvgPicture.asset('assets/images/tab_plus_selected.svg'),
+                ),
+                onTap: () {
+                  setState(() {
+                    startPatientVinculation();
+                  });
+                },
+              ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      )
+    ]);
+  }
+
+  Widget _buildBottomBar() {
+    return Container(
+      margin: EdgeInsets.only(bottom: 20),
+      child: Material(
+        elevation: 0.0,
+        color: Colors.white,
+        child: BottomNavigationBar(
+          elevation: 0,
+          onTap: (index) {
+            _currentIndex = index;
+          },
+          backgroundColor: Colors.transparent,
+          currentIndex: _currentIndex,
+          type: BottomNavigationBarType.fixed,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          items: [
+            BottomNavigationBarItem(
+                icon: SvgPicture.asset(
+                  'assets/images/tab_metrics_unselected.svg',
+                ),
+                label: ""),
+            BottomNavigationBarItem(
+                icon: SvgPicture.asset(
+                  'assets/images/tab_person_unselected.svg',
+                ),
+                label: "")
+          ],
+        ),
+      ),
+    );
+  }
+
+  getScreenType() {
+    if (patientUser == null) {
+      return CircularProgressIndicator();
+    }
+    return getCurrentTreatment();
+  }
+
+  getCurrentTreatment() {
+    return SizedBox(
+      width: 400,
+      height: 580,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
+                Widget>[
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text(
+                      'Completa las casillas',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xff2F8F9D),
+                      ),
+                    )
+                  ]),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 50,
+                ),
+                width: double.infinity,
+                height: 520,
+                child: SingleChildScrollView(
+                    child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: 200,
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Container(
+                                      padding: EdgeInsets.only(
+                                          top: 5,
+                                          left: 15,
+                                          right: 15,
+                                          bottom: 5),
+                                      child: Text(
+                                        "ID Tratamiento",
+                                        style: TextStyle(
+                                            color: Color(0xff999999),
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 14),
+                                      )),
+                                  Container(
+                                      padding: EdgeInsets.only(
+                                          top: 5,
+                                          left: 20,
+                                          right: 20,
+                                          bottom: 5),
+                                      decoration: BoxDecoration(
+                                          color: const Color(0xff2F8F9D),
+                                          border: Border.all(
+                                              width: 1,
+                                              color: const Color(0xff2F8F9D)),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          shape: BoxShape.rectangle),
+                                      child: Text(
+                                        "#T00003",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 14),
+                                      ))
+                                ]),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Fecha de inicio",
+                                    style: TextStyle(
+                                        fontSize: 14, color: Color(0xff999999)))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            SizedBox(
+                                height: 35,
+                                child: TextField(
+                                  readOnly: true,
+                                  // controller: TextEditingController(text: _selectedDate),
+                                  onTap: () {
+                                    //_selectDate(context);
+                                  },
+                                  style: TextStyle(fontSize: 14),
+                                  decoration: InputDecoration(
+                                      filled: true,
+                                      prefixIcon: IconButton(
+                                        padding: EdgeInsets.only(bottom: 5),
+                                        onPressed: () {},
+                                        icon: const Icon(
+                                            Icons.calendar_today_outlined,
+                                            color: Color(
+                                                0xff999999)), // myIcon is a 48px-wide widget.
+                                      ),
+                                      hintText: '18 - Jul 2022  15:00',
+                                      hintStyle: const TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xff999999)),
+                                      contentPadding: EdgeInsets.zero,
+                                      fillColor: Colors.white,
+                                      enabledBorder:
+                                          staticComponents.middleInputBorder,
+                                      border:
+                                          staticComponents.middleInputBorder,
+                                      focusedBorder:
+                                          staticComponents.middleInputBorder),
+                                )),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Fecha de fin",
+                                    style: TextStyle(
+                                        fontSize: 14, color: Color(0xff999999)))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            SizedBox(
+                                height: 35,
+                                child: TextField(
+                                  readOnly: true,
+                                  // controller: TextEditingController(text: _selectedDate),
+                                  onTap: () {
+                                    //_selectDate(context);
+                                  },
+                                  style: TextStyle(fontSize: 14),
+                                  decoration: InputDecoration(
+                                      filled: true,
+                                      prefixIcon: IconButton(
+                                        padding: EdgeInsets.only(bottom: 5),
+                                        onPressed: () {},
+                                        icon: const Icon(
+                                            Icons.calendar_today_outlined,
+                                            color: Color(
+                                                0xff999999)), // myIcon is a 48px-wide widget.
+                                      ),
+                                      hintText: '18 - Jul 2022  15:00',
+                                      hintStyle: const TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xff999999)),
+                                      contentPadding: EdgeInsets.zero,
+                                      fillColor: Colors.white,
+                                      enabledBorder:
+                                          staticComponents.middleInputBorder,
+                                      border:
+                                          staticComponents.middleInputBorder,
+                                      focusedBorder:
+                                          staticComponents.middleInputBorder),
+                                )),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Duración",
+                                    style: TextStyle(
+                                        fontSize: 14, color: Color(0xff999999)))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                new Flexible(
+                                  child: SizedBox(
+                                      height: 35,
+                                      width: 111,
+                                      child: TextField(
+                                        controller: TextEditingController(
+                                            text: "emailValue"),
+                                        onChanged: (value) {
+                                          //emailValue = value;
+                                        },
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xFF999999)),
+                                        decoration: staticComponents
+                                            .getMiddleInputDecoration('15'),
+                                      )),
+                                ),
+                                Flexible(
+                                    child: SizedBox(
+                                        height: 35,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Color(0xFF999999),
+                                                width: 1),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(
+                                                    10) //         <--- border radius here
+                                                ),
+                                          ),
+                                          child: Container(
+                                            width: 150,
+                                            child: DropdownButtonHideUnderline(
+                                              child: ButtonTheme(
+                                                alignedDropdown: true,
+                                                child: DropdownButton<String>(
+                                                  hint: Text(
+                                                    'Seleccionar',
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color:
+                                                            Color(0xFF999999)),
+                                                  ),
+                                                  dropdownColor: Colors.white,
+                                                  value: durationTypeValue,
+                                                  icon: Padding(
+                                                    padding:
+                                                        const EdgeInsetsDirectional
+                                                            .only(end: 12.0),
+                                                    child: Icon(
+                                                        Icons
+                                                            .keyboard_arrow_down,
+                                                        color: Color(
+                                                            0xff999999)), // myIcon is a 48px-wide widget.
+                                                  ),
+                                                  onChanged: (newValue) {
+                                                    setState(() {
+                                                      durationTypeValue =
+                                                          newValue.toString();
+                                                    });
+                                                  },
+                                                  items: durationsList
+                                                      .map((String item) {
+                                                    return DropdownMenuItem(
+                                                      value: item,
+                                                      child: Text(
+                                                        item,
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: Color(
+                                                                0xFF999999)),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Estado",
+                                    style: TextStyle(
+                                        fontSize: 14, color: Color(0xff999999)))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Color(0xFF999999), width: 1),
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                        10) //         <--- border radius here
+                                    ),
+                              ),
+                              child: Container(
+                                height: 35,
+                                width: double.infinity,
+                                child: DropdownButtonHideUnderline(
+                                  child: ButtonTheme(
+                                    alignedDropdown: true,
+                                    child: DropdownButton<String>(
+                                      hint: Text(
+                                        'Seleccionar',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xFF999999)),
+                                      ),
+                                      dropdownColor: Colors.white,
+                                      value: stateValue,
+                                      icon: Padding(
+                                        padding:
+                                            const EdgeInsetsDirectional.only(
+                                                end: 12.0),
+                                        child: Icon(Icons.keyboard_arrow_down,
+                                            color: Color(
+                                                0xff999999)), // myIcon is a 48px-wide widget.
+                                      ),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          stateValue = newValue.toString();
+                                        });
+                                      },
+                                      items: statesList.map((String item) {
+                                        return DropdownMenuItem(
+                                          value: item,
+                                          child: Text(
+                                            item,
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Color(0xFF999999)),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Descripción",
+                                    style: TextStyle(
+                                        fontSize: 14, color: Color(0xff999999)))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextField(
+                                minLines: 1,
+                                maxLines: 10,
+                                controller: TextEditingController(text: ""),
+                                onChanged: (value) {
+                                  //emailValue = value;
+                                },
+                                style: const TextStyle(
+                                    fontSize: 14, color: Color(0xFF999999)),
+                                decoration: InputDecoration(
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 20),
+                                  prefixIcon: Icon(Icons.circle,
+                                      color: Color(0xff999999)),
+                                  suffixIcon: IconButton(
+                                      onPressed: () {},
+                                      icon: Icon(Icons.delete,
+                                          color: Color(0xff999999))),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  hintText:
+                                      "Glucosa 110ml/g\nActividad física: 1hora",
+                                  hintStyle: const TextStyle(
+                                      fontSize: 14, color: Color(0xFF999999)),
+                                  focusedBorder: borderWhite,
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                )
+                                // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+
+                                ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            GestureDetector(
+                                onTap: () {
+                                  addPrescription();
+                                },
+                                child: TextField(
+                                    minLines: 1,
+                                    maxLines: 10,
+                                    enabled: false,
+                                    style: const TextStyle(
+                                        fontSize: 14, color: Color(0xFF999999)),
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.symmetric(vertical: 10),
+                                      prefixIcon: Icon(Icons.circle,
+                                          color: Colors.white),
+                                      filled: true,
+                                      fillColor: Color(0xffD9D9D9),
+                                      hintText:
+                                          "Agregar una nueva\n prescripción",
+                                      hintStyle: const TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xFF999999)),
+                                      focusedBorder: borderGray,
+                                      border: borderGray,
+                                      enabledBorder: borderGray,
+                                    )
+                                    // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+
+                                    )),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: <Widget>[
+                                  Text(
+                                    "Prescripción",
+                                    style: TextStyle(
+                                        color: Color(0xff2F8F9D),
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 14),
+                                  )
+                                ]),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            getMedicationTreatmentCard(),
+                            getNutritionTreatmentCard(),
+                            getActivityTreatmentCard(),
+                            getOtherTreatmentCard(),
+                            getTreatmentButtons()
+                          ],
+                        ))),
+              ),
+            ])
+
+            //SizedBox
+          ],
+        ), //Column
+      ), //Padding
+    );
+  }
+
+  getMedicationTreatmentCard() {
+    return InkWell(
+      onTap: () {
+        /* Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PatientDetailScreen(treatments[index].userId),
+        )
+      );*/
+      },
+      child: Card(
+          color: Color(0xffF1F1F1),
+          margin: EdgeInsets.only(top: 10, bottom: 10),
+          child: ClipPath(
+            child: Container(
+                height: 75,
+                decoration: BoxDecoration(
+                    border: Border(
+                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                child: Column(
+                  children: [
+                    Padding(
+                        padding:
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                "Medicación",
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xff2F8F9D),
+                                ),
+                              )
+                            ])),
+                    Padding(
+                        padding:
+                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Flexible(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        "Haga click para agregar una preescripción de glucosa",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.normal,
+                                          color: Color(0xff67757F),
+                                        ),
+                                      )
+                                    ]),
+                              ),
+                              Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: Container(
+                                      width: 24,
+                                      height: 24,
+                                      child: Icon(Icons.chevron_right,
+                                          color: Color(0xff2F8F9D))))
+                            ]))
+                    //SizedBox
+                  ],
+                )),
+            clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3))),
+          )),
+    );
+    return SizedBox(
+      height: 0,
+    );
+  }
+
+  getNutritionTreatmentCard() {
+    return InkWell(
+      onTap: () {
+        /* Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PatientDetailScreen(treatments[index].userId),
+        )
+      );*/
+      },
+      child: Card(
+          color: Color(0xffF1F1F1),
+          margin: EdgeInsets.only(top: 10, bottom: 10),
+          child: ClipPath(
+            child: Container(
+                height: 75,
+                decoration: BoxDecoration(
+                    border: Border(
+                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                child: Column(
+                  children: [
+                    Padding(
+                        padding:
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                "Alimentación",
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xff2F8F9D),
+                                ),
+                              )
+                            ])),
+                    Padding(
+                        padding:
+                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Flexible(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        "Haga click para agregar una preescripción de alimentación",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.normal,
+                                          color: Color(0xff67757F),
+                                        ),
+                                      )
+                                    ]),
+                              ),
+                              Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: Container(
+                                      width: 24,
+                                      height: 24,
+                                      child: Icon(Icons.chevron_right,
+                                          color: Color(0xff2F8F9D))))
+                            ]))
+                    //SizedBox
+                  ],
+                )),
+            clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3))),
+          )),
+    );
+    return SizedBox(
+      height: 0,
+    );
+  }
+
+  getOtherTreatmentCard() {
+    return InkWell(
+      onTap: () {
+        /* Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PatientDetailScreen(treatments[index].userId),
+        )
+      );*/
+      },
+      child: Card(
+          color: Color(0xffF1F1F1),
+          margin: EdgeInsets.only(top: 10, bottom: 10),
+          child: ClipPath(
+            child: Container(
+                height: 75,
+                decoration: BoxDecoration(
+                    border: Border(
+                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                child: Column(
+                  children: [
+                    Padding(
+                        padding:
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                "Otros",
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xff2F8F9D),
+                                ),
+                              )
+                            ])),
+                    Padding(
+                        padding:
+                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Flexible(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        "Haga click para agregar una preescripción de otro tipo",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.normal,
+                                          color: Color(0xff67757F),
+                                        ),
+                                      )
+                                    ]),
+                              ),
+                              Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: Container(
+                                      width: 24,
+                                      height: 24,
+                                      child: Icon(Icons.chevron_right,
+                                          color: Color(0xff2F8F9D))))
+                            ]))
+                    //SizedBox
+                  ],
+                )),
+            clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3))),
+          )),
+    );
+    return SizedBox(
+      height: 0,
+    );
+  }
+
+  getActivityTreatmentCard() {
+    return InkWell(
+      onTap: () {
+        /* Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PatientDetailScreen(treatments[index].userId),
+        )
+      );*/
+      },
+      child: Card(
+          color: Color(0xffF1F1F1),
+          margin: EdgeInsets.only(top: 10, bottom: 10),
+          child: ClipPath(
+            child: Container(
+                height: 75,
+                decoration: BoxDecoration(
+                    border: Border(
+                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                child: Column(
+                  children: [
+                    Padding(
+                        padding:
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                "Actividad Física",
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xff2F8F9D),
+                                ),
+                              )
+                            ])),
+                    Padding(
+                        padding:
+                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Flexible(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        "Haga click para agregar una preescripción de Actividad Física",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.normal,
+                                          color: Color(0xff67757F),
+                                        ),
+                                      )
+                                    ]),
+                              ),
+                              Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: Container(
+                                      width: 24,
+                                      height: 24,
+                                      child: Icon(Icons.chevron_right,
+                                          color: Color(0xff2F8F9D))))
+                            ]))
+                    //SizedBox
+                  ],
+                )),
+            clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3))),
+          )),
+    );
+    return SizedBox(
+      height: 0,
+    );
+  }
+
+  getTreatmentButtons() {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          const SizedBox(
+            height: 17,
+          ),
+          FlatButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            color: const Color(0xff2F8F9D),
+            textColor: Colors.white,
+            onPressed: () {
+              // _signInWithEmailAndPassword();
+            },
+            child: const Text(
+              'Guardar',
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+          ),
+          FlatButton(
+            shape: RoundedRectangleBorder(
+                side: const BorderSide(
+                    color: Color(0xff9D9CB5),
+                    width: 1,
+                    style: BorderStyle.solid),
+                borderRadius: BorderRadius.circular(30)),
+            textColor: const Color(0xff9D9CB5),
+            onPressed: () {
+              //Navigator.of(context).pushNamed(SignupScreen.routeName);
+            },
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+        ]);
+  }
+
+  void startPatientVinculation() {}
+
+  void addPrescription() {}
+}

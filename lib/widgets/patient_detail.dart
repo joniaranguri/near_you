@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:near_you/screens/add_treatment_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:near_you/widgets/treatments_list.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -558,7 +559,8 @@ class PatientDetailState extends State<PatientDetail> {
   }
 
   getCurrentTreatmentOrEmptyState() {
-    var hasCurrentTreatment = true;
+    var hasCurrentTreatment = false;
+    var isPatient = false;
     if (hasCurrentTreatment) {
       return Container(
         padding: const EdgeInsets.symmetric(
@@ -815,55 +817,9 @@ class PatientDetailState extends State<PatientDetail> {
                   ],
                 ))),
       );
-    } else
-      return Container(
-        width: double.infinity,
-        height: 470,
-        child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  const SizedBox(
-                    height: 200,
-                  ),
-                  const Text(
-                    'Aún no se tiene un\n tratamiento actual creado\n para este paciente. Haga\n click en agregar',
-                    textAlign: TextAlign.center,
-                    maxLines: 5,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xff999999),
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 100,
-                  ),
-                  SizedBox(
-                    height: 27,
-                    child: FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      color: const Color(0xff2F8F9D),
-                      textColor: Colors.white,
-                      onPressed: () {
-                        // _signInWithEmailAndPassword();
-                      },
-                      child: const Text(
-                        'Agregar',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                ])),
-      );
+    } else {
+      return getEmptyStateCard( 'Aún no se tiene un\n tratamiento actual creado\n para este paciente. Haga\n click en agregar', !isPatient);
+    }
   }
 
   getMedicationTreatmentCard() {
@@ -1251,6 +1207,67 @@ class PatientDetailState extends State<PatientDetail> {
     );
     return SizedBox(
       height: 0,
+    );
+  }
+
+  getEmptyStateCard(String message, bool showButton) {
+    return Container(
+      width: double.infinity,
+      height: 470,
+      child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 40),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const SizedBox(
+                  height: 200,
+                ),
+                 Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  maxLines: 5,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xff999999),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(
+                  height: 100,
+                ),
+                showButton? SizedBox(
+                  height: 27,
+                  child: FlatButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: const Color(0xff2F8F9D),
+                    textColor: Colors.white,
+                    onPressed: () {
+                      goToAddTreatment();
+                    },
+                    child: const Text(
+                      'Agregar',
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ):SizedBox(),
+                const SizedBox(
+                  height: 10,
+                ),
+              ])),
+    );
+  }
+
+  void goToAddTreatment() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        //TODO: Review this
+        builder: (context) => AddTreatmentScreen("0jtMapJzMfQ5miwcKSqd2oY8ZgX2"),
+      ),
     );
   }
 }
