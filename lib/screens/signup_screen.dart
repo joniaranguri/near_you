@@ -720,7 +720,9 @@ class _SignUpWidgetState extends State<SignUpWidget> {
 
   void saveUserDataInDatabase() {
     final db = FirebaseFirestore.instance;
+    String? newUserId = FirebaseAuth.instance.currentUser?.uid;
     final userData = <String, String>{
+      USER_ID_KEY: newUserId!,
       EMAIL_KEY: emailValue,
       FULL_NAME_KEY: fullNameValue,
       BIRTH_DAY_KEY: _selectedDate,
@@ -734,6 +736,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       SMOKING_KEY: smokeValue.toString(),
       ALLERGIES_KEY: allergiesValue,
     };
-    db.collection(USERS_COLLECTION_KEY).doc(FirebaseAuth.instance.currentUser?.uid).set(userData).then((_) => dialogSuccess());
+    db.collection(USERS_COLLECTION_KEY).doc(newUserId).set(userData).then((_) => dialogSuccess());
   }
 }

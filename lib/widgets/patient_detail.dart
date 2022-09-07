@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:near_you/model/treatment.dart';
 import 'package:near_you/screens/add_treatment_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:near_you/widgets/treatments_list.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-import '../widgets/grouped_bar_chart.dart';
 import '../model/user.dart' as user;
+import '../widgets/grouped_bar_chart.dart';
 
 class PatientDetail extends StatefulWidget {
   final bool isDoctorView;
@@ -28,16 +29,19 @@ class PatientDetail extends StatefulWidget {
   }
 
   @override
-  PatientDetailState createState() => PatientDetailState(this.detailedUser);
+  PatientDetailState createState() =>
+      PatientDetailState(this.detailedUser, this.isDoctorView);
 }
 
 class PatientDetailState extends State<PatientDetail> {
   static StaticComponents staticComponents = StaticComponents();
   user.User? detailedUser;
+  Treatment? currentTreatment;
   int _currentPage = 0;
   final PageController _pageController = PageController(initialPage: 0);
+  bool isDoctorView;
 
-  PatientDetailState(this.detailedUser);
+  PatientDetailState(this.detailedUser, this.isDoctorView);
 
   get blueIndicator => Expanded(
           child: SizedBox(
@@ -437,32 +441,34 @@ class PatientDetailState extends State<PatientDetail> {
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
-                  Widget>[
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.arrow_back, color: Color(0xff2F8F9D)),
-                        onPressed: () {
-                          goBack();
-                        },
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(right: 15),
-                        //apply padding to all four sides
-                        child: Text(
-                          'Historial del Tratamiento',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xff2F8F9D),
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(Icons.arrow_back,
+                                color: Color(0xff2F8F9D)),
+                            onPressed: () {
+                              goBack();
+                            },
                           ),
-                        ),
-                      ),
-                    ]),
-                SizedBox(height: 470, child: ListViewHomeLayout())
-              ]),
+                          Padding(
+                            padding: EdgeInsets.only(right: 15),
+                            //apply padding to all four sides
+                            child: Text(
+                              'Historial del Tratamiento',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xff2F8F9D),
+                              ),
+                            ),
+                          ),
+                        ]),
+                    SizedBox(height: 470, child: ListViewHomeLayout())
+                  ]),
               const SizedBox(
                 height: 20,
               ),
@@ -483,84 +489,86 @@ class PatientDetailState extends State<PatientDetail> {
   }
 
   getTreatmentButtons() {
-    return Container(
-      child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                const SizedBox(
-                  height: 17,
-                ),
-                SizedBox(
-                  height: 27,
-                  child: FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    color: const Color(0xff2F8F9D),
-                    textColor: Colors.white,
-                    onPressed: () {
-                      // _signInWithEmailAndPassword();
-                    },
-                    child: const Text(
-                      'Agregar',
-                      style: TextStyle(
-                        fontSize: 14,
+    return isDoctorView
+        ? Container(
+            child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 17,
                       ),
-                    ),
-                  ),
-                ),
-                FlatButton(
-                  height: 27,
-                  shape: RoundedRectangleBorder(
-                      side: const BorderSide(
-                          color: Color(0xff9D9CB5),
-                          width: 1,
-                          style: BorderStyle.solid),
-                      borderRadius: BorderRadius.circular(30)),
-                  textColor: const Color(0xff9D9CB5),
-                  onPressed: () {
-                    //Navigator.of(context).pushNamed(SignupScreen.routeName);
-                  },
-                  child: const Text(
-                    'Actualizar',
-                    style: TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                    height: 27,
-                    child: FlatButton(
-                      height: 27,
-                      shape: RoundedRectangleBorder(
-                          side: const BorderSide(
-                              color: Color(0xff9D9CB5),
-                              width: 1,
-                              style: BorderStyle.solid),
-                          borderRadius: BorderRadius.circular(30)),
-                      textColor: const Color(0xff9D9CB5),
-                      onPressed: () {
-                        //Navigator.of(context).pushNamed(SignupScreen.routeName);
-                      },
-                      child: const Text(
-                        'Eliminar',
-                        style: TextStyle(
-                          fontSize: 14,
+                      SizedBox(
+                        height: 27,
+                        child: FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          color: const Color(0xff2F8F9D),
+                          textColor: Colors.white,
+                          onPressed: () {
+                            goToAddTreatment();
+                          },
+                          child: const Text(
+                            'Agregar',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
                         ),
                       ),
-                    )),
-                const SizedBox(
-                  height: 10,
-                ),
-              ])),
-    );
+                      FlatButton(
+                        height: 27,
+                        shape: RoundedRectangleBorder(
+                            side: const BorderSide(
+                                color: Color(0xff9D9CB5),
+                                width: 1,
+                                style: BorderStyle.solid),
+                            borderRadius: BorderRadius.circular(30)),
+                        textColor: const Color(0xff9D9CB5),
+                        onPressed: () {
+                          goToAddTreatment();
+                        },
+                        child: const Text(
+                          'Actualizar',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                          height: 27,
+                          child: FlatButton(
+                            height: 27,
+                            shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(30)),
+                            textColor: const Color(0xff9D9CB5),
+                            onPressed: () {
+                              deleteCurrentTreatment();
+                            },
+                            child: const Text(
+                              'Eliminar',
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          )),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ])),
+          )
+        : SizedBox(height: 0);
   }
 
   getCurrentTreatmentOrEmptyState() {
-    var hasCurrentTreatment = false;
-    var isPatient = false;
+    var hasCurrentTreatment = detailedUser?.currentTreatment != null;
+    bool isPatient = !isDoctorView;
     if (hasCurrentTreatment) {
       return Container(
         padding: const EdgeInsets.symmetric(
@@ -604,7 +612,8 @@ class PatientDetailState extends State<PatientDetail> {
                                   borderRadius: BorderRadius.circular(5),
                                   shape: BoxShape.rectangle),
                               child: Text(
-                                "#T00003",
+                                currentTreatment?.treatmentId.toString() ??
+                                    "#T00003",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.normal,
@@ -629,10 +638,8 @@ class PatientDetailState extends State<PatientDetail> {
                         height: 35,
                         child: TextField(
                           readOnly: true,
-                          // controller: TextEditingController(text: _selectedDate),
-                          onTap: () {
-                            //_selectDate(context);
-                          },
+                          controller: TextEditingController(
+                              text: currentTreatment?.startDate),
                           style: TextStyle(fontSize: 14),
                           decoration: InputDecoration(
                               filled: true,
@@ -671,10 +678,8 @@ class PatientDetailState extends State<PatientDetail> {
                         height: 35,
                         child: TextField(
                           readOnly: true,
-                          // controller: TextEditingController(text: _selectedDate),
-                          onTap: () {
-                            //_selectDate(context);
-                          },
+                          controller: TextEditingController(
+                              text: currentTreatment?.endDate),
                           style: TextStyle(fontSize: 14),
                           decoration: InputDecoration(
                               filled: true,
@@ -712,14 +717,15 @@ class PatientDetailState extends State<PatientDetail> {
                     SizedBox(
                         height: 35,
                         child: TextField(
-                          controller: TextEditingController(text: "emailValue"),
-                          onChanged: (value) {
-                            //emailValue = value;
-                          },
+                          readOnly: true,
+                          controller: TextEditingController(
+                              text: currentTreatment != null
+                                  ? '${currentTreatment!.durationNumber} ${currentTreatment!.durationType}'
+                                  : ''),
                           style: const TextStyle(
                               fontSize: 14, color: Color(0xFF999999)),
                           decoration: staticComponents
-                              .getLittleInputDecoration('Correo Electrónico'),
+                              .getLittleInputDecoration('15 dias'),
                         )),
                     const SizedBox(
                       height: 10,
@@ -738,10 +744,9 @@ class PatientDetailState extends State<PatientDetail> {
                     SizedBox(
                         height: 35,
                         child: TextField(
-                          controller: TextEditingController(text: "Activo"),
-                          onChanged: (value) {
-                            //emailValue = value;
-                          },
+                          controller: TextEditingController(
+                              text: currentTreatment?.state),
+                          readOnly: true,
                           style: const TextStyle(
                               fontSize: 14, color: Color(0xFF999999)),
                           decoration: staticComponents
@@ -764,10 +769,9 @@ class PatientDetailState extends State<PatientDetail> {
                     TextField(
                       minLines: 1,
                       maxLines: 10,
-                      controller: TextEditingController(text: ""),
-                      onChanged: (value) {
-                        //emailValue = value;
-                      },
+                      readOnly: true,
+                      controller: TextEditingController(
+                          text: currentTreatment?.description),
                       style: const TextStyle(
                           fontSize: 14, color: Color(0xFF999999)),
                       decoration: staticComponents.getLittleInputDecoration(
@@ -818,7 +822,9 @@ class PatientDetailState extends State<PatientDetail> {
                 ))),
       );
     } else {
-      return getEmptyStateCard( 'Aún no se tiene un\n tratamiento actual creado\n para este paciente. Haga\n click en agregar', !isPatient);
+      return getEmptyStateCard(
+          'Aún no se tiene un\n tratamiento actual creado\n para este paciente. Haga\n click en agregar',
+          !isPatient);
     }
   }
 
@@ -867,10 +873,11 @@ class PatientDetailState extends State<PatientDetail> {
                             children: <Widget>[
                               Flexible(
                                 child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -879,7 +886,7 @@ class PatientDetailState extends State<PatientDetail> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -888,7 +895,7 @@ class PatientDetailState extends State<PatientDetail> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -942,7 +949,7 @@ class PatientDetailState extends State<PatientDetail> {
                   children: [
                     Padding(
                         padding:
-                        const EdgeInsets.only(left: 12, top: 5, right: 12),
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
@@ -957,17 +964,18 @@ class PatientDetailState extends State<PatientDetail> {
                             ])),
                     Padding(
                         padding:
-                        const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Flexible(
                                 child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -976,7 +984,7 @@ class PatientDetailState extends State<PatientDetail> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -985,7 +993,7 @@ class PatientDetailState extends State<PatientDetail> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -1039,7 +1047,7 @@ class PatientDetailState extends State<PatientDetail> {
                   children: [
                     Padding(
                         padding:
-                        const EdgeInsets.only(left: 12, top: 5, right: 12),
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
@@ -1054,17 +1062,18 @@ class PatientDetailState extends State<PatientDetail> {
                             ])),
                     Padding(
                         padding:
-                        const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Flexible(
                                 child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -1073,7 +1082,7 @@ class PatientDetailState extends State<PatientDetail> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -1082,7 +1091,7 @@ class PatientDetailState extends State<PatientDetail> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -1136,7 +1145,7 @@ class PatientDetailState extends State<PatientDetail> {
                   children: [
                     Padding(
                         padding:
-                        const EdgeInsets.only(left: 12, top: 5, right: 12),
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
@@ -1151,17 +1160,18 @@ class PatientDetailState extends State<PatientDetail> {
                             ])),
                     Padding(
                         padding:
-                        const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Flexible(
                                 child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -1170,7 +1180,7 @@ class PatientDetailState extends State<PatientDetail> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -1179,7 +1189,7 @@ class PatientDetailState extends State<PatientDetail> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        "• 3Prescripción dfa asdfadsf asdfadsf asdfasdasfasfasd",
+                                        "• To be completed, to be completed, to be completed",
                                         style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.normal,
@@ -1222,8 +1232,8 @@ class PatientDetailState extends State<PatientDetail> {
                 const SizedBox(
                   height: 200,
                 ),
-                 Text(
-                  message,
+                Text(
+                  showButton?message:'No cuentas con un \ntratamiento actual',
                   textAlign: TextAlign.center,
                   maxLines: 5,
                   style: TextStyle(
@@ -1235,25 +1245,27 @@ class PatientDetailState extends State<PatientDetail> {
                 const SizedBox(
                   height: 100,
                 ),
-                showButton? SizedBox(
-                  height: 27,
-                  child: FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    color: const Color(0xff2F8F9D),
-                    textColor: Colors.white,
-                    onPressed: () {
-                      goToAddTreatment();
-                    },
-                    child: const Text(
-                      'Agregar',
-                      style: TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ):SizedBox(),
+                showButton
+                    ? SizedBox(
+                        height: 27,
+                        child: FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          color: const Color(0xff2F8F9D),
+                          textColor: Colors.white,
+                          onPressed: () {
+                            goToAddTreatment();
+                          },
+                          child: const Text(
+                            'Agregar',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
                 const SizedBox(
                   height: 10,
                 ),
@@ -1266,8 +1278,11 @@ class PatientDetailState extends State<PatientDetail> {
       context,
       MaterialPageRoute(
         //TODO: Review this
-        builder: (context) => AddTreatmentScreen("0jtMapJzMfQ5miwcKSqd2oY8ZgX2"),
+        builder: (context) =>
+            AddTreatmentScreen(detailedUser!.userId!, currentTreatment),
       ),
     );
   }
+
+  void deleteCurrentTreatment() {}
 }

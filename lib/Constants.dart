@@ -25,6 +25,16 @@ const String PATIENT_ID_KEY = "patientId";
 const String USER_ID_KEY = "userId";
 const String VINCULATIONS_KEY = "vinculations";
 const String ADHERENCE_LEVEL_KEY = "adherenceLevel";
+const String PATIENT_CURRENT_TREATMENT_KEY = "currentTreatment";
 
+
+const String TREATMENT_ID_KEY = "treatmentId";
+const String TREATMENT_START_DATE_KEY = "startDate";
+const String TREATMENT_END_DATE_KEY = "endDate";
+const String TREATMENT_DURATION_NUMBER_KEY = "durationNumber";
+const String TREATMENT_DURATION_TYPE_KEY = "durationType";
+const String TREATMENT_DESCRIPTION_KEY = "description";
+const String TREATMENT_PRESCRIPTIONS_KEY = "prescriptions";
+const String TREATMENT_STATE_KEY = "state";
 
 //TODO  Chequear el mostrar el role selection si es otro user

@@ -220,7 +220,7 @@ class _RoleSelectionWidgetState extends State<RoleSelectionWidget> {
     final db = FirebaseFirestore.instance;
     var isPatientSelected = selectedPaciente == true;
     var postDocRef= db.collection(USERS_COLLECTION_KEY).doc(FirebaseAuth.instance.currentUser?.uid);
-    await postDocRef.set({
+    await postDocRef.update({
       USER_TYPE: isPatientSelected? USER_TYPE_PACIENTE: USER_TYPE_MEDICO,
       // ....rest of your data
     });

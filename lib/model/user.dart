@@ -19,6 +19,7 @@ class User {
       required this.gender,
       required this.medicalCenter,
       required this.illness,
+      required this.currentTreatment,
       required this.attachedPatients,
       required this.adherenceLevel});
 
@@ -48,6 +49,7 @@ class User {
 
   String? type;
   String? illness;
+  String? currentTreatment;
 
   factory User.fromSnapshot(snapshot) {
     var realData = snapshot.data();
@@ -67,6 +69,7 @@ class User {
         allergies: realData[ALLERGIES_KEY],
         type: realData[USER_TYPE],
         illness: realData[USER_ILLNESS],
+        currentTreatment: realData[PATIENT_CURRENT_TREATMENT_KEY],
         attachedPatients: realData[ATTACHED_PATIENTS],
         adherenceLevel: realData[ADHERENCE_LEVEL_KEY]
     );

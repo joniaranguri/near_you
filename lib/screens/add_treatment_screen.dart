@@ -1,21 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:near_you/model/treatment.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:intl/intl.dart';
 
+import '../Constants.dart';
 import '../model/user.dart' as user;
 import '../widgets/firebase_utils.dart';
 
 class AddTreatmentScreen extends StatefulWidget {
   String userId;
+  Treatment? currentTreatment;
 
-  AddTreatmentScreen(this.userId);
+  AddTreatmentScreen(this.userId, [this.currentTreatment]);
 
   static const routeName = '/add_treatment';
 
   @override
-  _AddTreatmentScreenState createState() => _AddTreatmentScreenState(userId);
+  _AddTreatmentScreenState createState() =>
+      _AddTreatmentScreenState(userId, currentTreatment);
 }
 
 class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
@@ -39,10 +44,13 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   bool durationTypeError = false;
   bool stateError = false;
   bool descriptionError = false;
-
-  _AddTreatmentScreenState(this.userId);
-
+  Treatment? currentTreatment;
+  late final bool isUpdate;
   var _currentIndex = 1;
+
+  _AddTreatmentScreenState(this.userId, this.currentTreatment){
+    isUpdate = currentTreatment !=null;
+  }
 
   get borderWhite => OutlineInputBorder(
       borderSide: const BorderSide(color: Colors.white),
@@ -61,7 +69,17 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           })
         });
     super.initState();
-    //initStateAsync();
+    if(isUpdate && currentTreatment!=null){
+    setState((){
+     durationTypeValue = currentTreatment!.durationType;
+     durationValue= currentTreatment!.durationNumber;
+     stateValue= currentTreatment!.state;
+       descriptionValue= currentTreatment!.description;
+       startDateValue= currentTreatment!.startDate;
+      endDateValue= currentTreatment!.endDate;
+        }
+    );
+    }
   }
 
   @override
@@ -76,7 +94,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
               centerTitle: true,
               title: Padding(
                   padding: EdgeInsets.only(top: 40),
-                  child: Text("Tratamiento",
+                  child: Text(isUpdate?'Actualizar Tratamiento':'Tratamiento',
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 25,
@@ -1078,13 +1096,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     durationTypeError = !durationValid;
     stateError = !stateValid;
     if ((form?.validate() ?? false) && isValidDropdowns) {
-      // saveNewTreatment
-      print(startDateValue);
-      print(endDateValue);
-      print(durationValue);
-      print(durationTypeValue);
-      print(stateValue);
-      print(descriptionValue);
+        saveIdDatabase();
     }
   }
 
@@ -1126,5 +1138,39 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
 
   bool isNotEmtpy(String? str) {
     return str != null && str != '';
+  }
+
+  void saveIdDatabase() {
+    final db = FirebaseFirestore.instance;
+    String? medicoId = FirebaseAuth.instance.currentUser?.uid;
+    final newTreatment = <String, String>{
+      USER_ID_KEY: userId,
+      MEDICO_ID_KEY: medicoId!,
+      TREATMENT_START_DATE_KEY: startDateValue!,
+      TREATMENT_END_DATE_KEY: endDateValue!,
+      TREATMENT_DURATION_NUMBER_KEY: durationValue!,
+      TREATMENT_DURATION_TYPE_KEY: durationTypeValue!,
+      TREATMENT_DESCRIPTION_KEY: descriptionValue!,
+      //TREATMENT_PRESCRIPTIONS_KEY: "",
+      TREATMENT_STATE_KEY: stateValue!
+    };
+    if(isUpdate){
+      db.collection(TREATMENTS_KEY).doc(patientUser?.currentTreatment).set(newTreatment).then((value) =>
+          print("success updating")
+      );
+    }else{
+      db.collection(TREATMENTS_KEY).add(newTreatment).then((treatment) =>
+      db.collection(USERS_COLLECTION_KEY).doc(patientUser?.userId).update(
+          {
+              PATIENT_CURRENT_TREATMENT_KEY: treatment.id,
+            // ....rest of your data
+          }
+      ).then((value) =>
+          print("success ADDED")
+      )
+      );
+    }
+    Navigator.pop(context);
+
   }
 }
