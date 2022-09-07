@@ -6,7 +6,9 @@ import 'package:near_you/screens/login_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:near_you/widgets/static_components.dart';
 
+import '../Constants.dart';
 import '../model/user.dart' as user;
 import '../widgets/grouped_bar_chart.dart';
 import '../widgets/patient_detail.dart';
@@ -160,7 +162,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
         color: Colors.white,
         onPressed: () {},
         child: Text(
-          'Vincular',
+          currentUser!.isPatiente() ? 'Vincular' : 'Notificaciones',
           style: TextStyle(
               fontSize: getFontSizeVinculation(shrinkOffset, maxExtent),
               fontWeight: FontWeight.bold,
@@ -216,10 +218,12 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
           children: [
             Wrap(alignment: WrapAlignment.center, children: [
               AlertDialog(
-                  title: Column(children: [const SizedBox(
-                    height: 20,
-                  ),
-                    Text("Cerrar sesión")]),
+                  title: Column(children: [
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Text("Cerrar sesión")
+                  ]),
                   titleTextStyle: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -274,11 +278,11 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                             ),
                             FlatButton(
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                side: const BorderSide(
-                                    color: Color(0xff9D9CB5),
-                                    width: 1,
-                                    style: BorderStyle.solid)                              ),
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: const BorderSide(
+                                      color: Color(0xff9D9CB5),
+                                      width: 1,
+                                      style: BorderStyle.solid)),
                               padding: const EdgeInsets.all(15),
                               color: Colors.white,
                               textColor: const Color(0xff9D9CB5),
@@ -295,7 +299,6 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                             const SizedBox(
                               height: 12,
                             )
-
                           ])
                     ],
                   ))
@@ -310,7 +313,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
 class _HomeScreenState extends State<HomeScreen> {
   // bool isUserPatient = false;
   user.User? currentUser;
-
+  static StaticComponents staticComponents = StaticComponents();
   late final Future<DocumentSnapshot> futureUser;
   late ValueNotifier<bool> notifier = ValueNotifier(false);
 
@@ -408,10 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           onTap: () {
-            setState(() {
-              //howMenu = false;
-              notifier.value = true;
-            });
+            executeMainAction();
           },
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -563,7 +563,139 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 500, child: ListViewHomeLayout())
             //SizedBox
           ],
-        )
+        ));
+  }
+
+  void executeMainAction() {
+    if (currentUser!.isPatiente()) {
+      setState(() {
+        //howMenu = false;
+        notifier.value = true;
+      });
+    } else {
+      showDialogVinculation();
+    }
+  }
+
+  void showDialogVinculation() {
+    String? emailPatient;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Wrap(alignment: WrapAlignment.center, children: [
+              AlertDialog(
+                  title: Column(children: [
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Text("Ingrese el correo electrónico")
+                  ]),
+                  titleTextStyle: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff67757F)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      TextField(
+                        controller: TextEditingController(text: emailPatient),
+                        onChanged: (value) {
+                          emailPatient = value;
+                        },
+                        style: TextStyle(fontSize: 14),
+                        decoration: staticComponents
+                            .getInputDecoration('Correo del paciente'),
+                      ),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 17,
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.all(15),
+                              color: const Color(0xff3BACB6),
+                              textColor: Colors.white,
+                              onPressed: () {
+                                startVinculation(emailPatient);
+                              },
+                              child: const Text(
+                                'Vincular',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 12,
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: const BorderSide(
+                                      color: Color(0xff9D9CB5),
+                                      width: 1,
+                                      style: BorderStyle.solid)),
+                              padding: const EdgeInsets.all(15),
+                              color: Colors.white,
+                              textColor: const Color(0xff9D9CB5),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                'Cancelar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 12,
+                            )
+                          ])
+                    ],
+                  ))
+            ])
+          ],
+        );
+      },
     );
+  }
+
+  void startVinculation(String? emailPatient) {
+    attachMedicoToPatient(emailPatient);
+
+    Navigator.pop(context);
+  }
+
+  Future<void> attachMedicoToPatient(String? emailPatient) async {
+    final db = FirebaseFirestore.instance;
+    String? medicoId = FirebaseAuth.instance.currentUser?.uid;
+    if (medicoId == null) return;
+    var future = await db
+        .collection(USERS_COLLECTION_KEY)
+        .where(EMAIL_KEY, isEqualTo: emailPatient)
+        .limit(1)
+        .get();
+
+    String patientId = future.docs.first.id;
+    var postDocRef = db.collection(USERS_COLLECTION_KEY).doc(patientId);
+    await postDocRef.update({
+      MEDICO_ID_KEY: medicoId,
+      // ....rest of your data
+    });
   }
 }

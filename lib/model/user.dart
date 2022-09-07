@@ -17,8 +17,11 @@ class User {
       required this.reference,
       required this.gender,
         required this.medicalCenter,
-        required this.illness});
+        required this.illness,
+        required this.attachedPatients
+      });
 
+  String? attachedPatients;
   String? fullName;
 
   String? email;
@@ -61,7 +64,8 @@ class User {
         smoking: realData[SMOKING_KEY],
         allergies: realData[ALLERGIES_KEY],
         type: realData[USER_TYPE],
-        illness: realData[USER_ILLNESS]);
+        illness: realData[USER_ILLNESS],
+        attachedPatients: realData[ATTACHED_PATIENTS]);
   }
 
   bool isPatiente() {

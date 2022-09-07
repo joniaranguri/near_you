@@ -17,4 +17,12 @@ const String USER_TYPE = "type";
 const String USER_ILLNESS = "illness";
 const String USER_TYPE_MEDICO = "MEDICO";
 const String USER_TYPE_PACIENTE = "PACIENTE";
-// Chequear el mostrar el role selection si es otro user
+const String TREATMENTS_KEY = "treatments";
+const String PRESCRIPTIONS_KEY = "prescriptions";
+const String ATTACHED_PATIENTS = "attachedPatients";
+const String MEDICO_ID_KEY = "medicoId";
+const String PATIENT_ID_KEY = "patientId";
+const String VINCULATIONS_KEY = "vinculations";
+
+
+//TODO  Chequear el mostrar el role selection si es otro user
