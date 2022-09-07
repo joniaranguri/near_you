@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:near_you/Constants.dart';
 import 'package:near_you/model/treatment.dart';
 import 'package:near_you/screens/add_treatment_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
@@ -40,6 +43,13 @@ class PatientDetailState extends State<PatientDetail> {
   int _currentPage = 0;
   final PageController _pageController = PageController(initialPage: 0);
   bool isDoctorView;
+  late final Future<Treatment> currentTreatmentFuture;
+  String? durationTypeValue;
+  String? durationValue;
+  String? stateValue;
+  String? descriptionValue;
+  String? startDateValue;
+  String? endDateValue;
 
   PatientDetailState(this.detailedUser, this.isDoctorView);
 
@@ -70,6 +80,24 @@ class PatientDetailState extends State<PatientDetail> {
           ),
         ),
       ));
+
+  @override
+  void initState() {
+    currentTreatmentFuture =
+        getCurrentTReatmentById(detailedUser!.currentTreatment!);
+    currentTreatmentFuture.then((value) => {
+          setState(() {
+            currentTreatment = value;
+            durationTypeValue = currentTreatment!.durationType;
+            durationValue = currentTreatment!.durationNumber;
+            stateValue = currentTreatment!.state;
+            descriptionValue = currentTreatment!.description;
+            startDateValue = currentTreatment!.startDate;
+            endDateValue = currentTreatment!.endDate;
+          })
+        });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -361,70 +389,79 @@ class PatientDetailState extends State<PatientDetail> {
   }
 
   getCurrentTreatment() {
-    return Card(
-      elevation: 10,
-      shadowColor: Colors.black,
-      margin: const EdgeInsets.symmetric(
-        horizontal: 30,
-      ),
-      child: SizedBox(
-        width: 400,
-        height: 580,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          IconButton(
-                            icon: Icon(Icons.arrow_back,
-                                color: Color(0xff2F8F9D)),
-                            onPressed: () {
-                              goBack();
-                            },
-                          ),
-                          const Text(
-                            'Tratamiento Actual',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff2F8F9D),
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.arrow_forward,
-                                color: Color(0xff2F8F9D)),
-                            onPressed: () {
-                              goAhead();
-                            },
-                          )
-                        ]),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    getCurrentTreatmentOrEmptyState()
-                  ]),
-              const SizedBox(
-                height: 20,
+    return FutureBuilder(
+        future: currentTreatmentFuture,
+        builder: (context, AsyncSnapshot<Treatment> snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return Card(
+              elevation: 10,
+              shadowColor: Colors.black,
+              margin: const EdgeInsets.symmetric(
+                horizontal: 30,
               ),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    grayIndicator,
-                    blueIndicator,
-                    grayIndicator
-                  ]),
+              child: SizedBox(
+                width: 400,
+                height: 580,
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: Icon(Icons.arrow_back,
+                                        color: Color(0xff2F8F9D)),
+                                    onPressed: () {
+                                      goBack();
+                                    },
+                                  ),
+                                  const Text(
+                                    'Tratamiento Actual',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xff2F8F9D),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_forward,
+                                        color: Color(0xff2F8F9D)),
+                                    onPressed: () {
+                                      goAhead();
+                                    },
+                                  )
+                                ]),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            getCurrentTreatmentOrEmptyState()
+                          ]),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            grayIndicator,
+                            blueIndicator,
+                            grayIndicator
+                          ]),
 
-              //SizedBox
-            ],
-          ), //Column
-        ), //Padding
-      ), //SizedBox
-    );
+                      //SizedBox
+                    ],
+                  ), //Column
+                ), //Padding
+              ), //SizedBox
+            );
+          }
+        });
   }
 
   getTreatmentHistory() {
@@ -612,7 +649,6 @@ class PatientDetailState extends State<PatientDetail> {
                                   borderRadius: BorderRadius.circular(5),
                                   shape: BoxShape.rectangle),
                               child: Text(
-                                currentTreatment?.treatmentId.toString() ??
                                     "#T00003",
                                 style: TextStyle(
                                     color: Colors.white,
@@ -638,9 +674,10 @@ class PatientDetailState extends State<PatientDetail> {
                         height: 35,
                         child: TextField(
                           readOnly: true,
-                          controller: TextEditingController(
-                              text: currentTreatment?.startDate),
-                          style: TextStyle(fontSize: 14),
+                          controller:
+                              TextEditingController(text: startDateValue),
+                          style:
+                              TextStyle(fontSize: 14, color: Color(0xff999999)),
                           decoration: InputDecoration(
                               filled: true,
                               prefixIcon: IconButton(
@@ -678,9 +715,9 @@ class PatientDetailState extends State<PatientDetail> {
                         height: 35,
                         child: TextField(
                           readOnly: true,
-                          controller: TextEditingController(
-                              text: currentTreatment?.endDate),
-                          style: TextStyle(fontSize: 14),
+                          controller: TextEditingController(text: endDateValue),
+                          style:
+                              TextStyle(fontSize: 14, color: Color(0xff999999)),
                           decoration: InputDecoration(
                               filled: true,
                               prefixIcon: IconButton(
@@ -720,12 +757,12 @@ class PatientDetailState extends State<PatientDetail> {
                           readOnly: true,
                           controller: TextEditingController(
                               text: currentTreatment != null
-                                  ? '${currentTreatment!.durationNumber} ${currentTreatment!.durationType}'
+                                  ? '${durationValue} ${durationTypeValue}'
                                   : ''),
                           style: const TextStyle(
                               fontSize: 14, color: Color(0xFF999999)),
-                          decoration: staticComponents
-                              .getLittleInputDecoration('15 dias'),
+                          decoration:
+                              staticComponents.getLittleInputDecoration(''),
                         )),
                     const SizedBox(
                       height: 10,
@@ -744,8 +781,7 @@ class PatientDetailState extends State<PatientDetail> {
                     SizedBox(
                         height: 35,
                         child: TextField(
-                          controller: TextEditingController(
-                              text: currentTreatment?.state),
+                          controller: TextEditingController(text: stateValue),
                           readOnly: true,
                           style: const TextStyle(
                               fontSize: 14, color: Color(0xFF999999)),
@@ -770,8 +806,7 @@ class PatientDetailState extends State<PatientDetail> {
                       minLines: 1,
                       maxLines: 10,
                       readOnly: true,
-                      controller: TextEditingController(
-                          text: currentTreatment?.description),
+                      controller: TextEditingController(text: descriptionValue),
                       style: const TextStyle(
                           fontSize: 14, color: Color(0xFF999999)),
                       decoration: staticComponents.getLittleInputDecoration(
@@ -1233,7 +1268,9 @@ class PatientDetailState extends State<PatientDetail> {
                   height: 200,
                 ),
                 Text(
-                  showButton?message:'No cuentas con un \ntratamiento actual',
+                  showButton
+                      ? message
+                      : 'No cuentas con un \ntratamiento actual',
                   textAlign: TextAlign.center,
                   maxLines: 5,
                   style: TextStyle(
@@ -1285,4 +1322,11 @@ class PatientDetailState extends State<PatientDetail> {
   }
 
   void deleteCurrentTreatment() {}
+
+  Future<Treatment> getCurrentTReatmentById(String currentTreatment) async {
+    final db = FirebaseFirestore.instance;
+    var future =
+        await db.collection(TREATMENTS_KEY).doc(currentTreatment).get();
+    return Treatment.fromSnapshot(future);
+  }
 }
