@@ -545,7 +545,7 @@ class PatientDetailState extends State<PatientDetail> {
                           color: const Color(0xff2F8F9D),
                           textColor: Colors.white,
                           onPressed: () {
-                            goToAddTreatment();
+                            goToAddTreatment(false);
                           },
                           child: const Text(
                             'Agregar',
@@ -565,7 +565,7 @@ class PatientDetailState extends State<PatientDetail> {
                             borderRadius: BorderRadius.circular(30)),
                         textColor: const Color(0xff9D9CB5),
                         onPressed: () {
-                          goToAddTreatment();
+                          goToAddTreatment(true);
                         },
                         child: const Text(
                           'Actualizar',
@@ -1292,7 +1292,7 @@ class PatientDetailState extends State<PatientDetail> {
                           color: const Color(0xff2F8F9D),
                           textColor: Colors.white,
                           onPressed: () {
-                            goToAddTreatment();
+                            goToAddTreatment(false);
                           },
                           child: const Text(
                             'Agregar',
@@ -1310,13 +1310,13 @@ class PatientDetailState extends State<PatientDetail> {
     );
   }
 
-  void goToAddTreatment() {
+  void goToAddTreatment(bool update) {
     Navigator.push(
       context,
       MaterialPageRoute(
         //TODO: Review this
         builder: (context) =>
-            AddTreatmentScreen(detailedUser!.userId!, currentTreatment),
+            AddTreatmentScreen(detailedUser!.userId!,update ?currentTreatment:null),
       ),
     );
   }
