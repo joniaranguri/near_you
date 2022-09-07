@@ -6,6 +6,7 @@ class User {
   User(
       {required this.fullName,
       required this.email,
+      required this.userId,
       required this.birthDay,
       required this.phone,
       required this.address,
@@ -16,16 +17,16 @@ class User {
       required this.alternativePhone,
       required this.reference,
       required this.gender,
-        required this.medicalCenter,
-        required this.illness,
-        required this.attachedPatients
-      });
+      required this.medicalCenter,
+      required this.illness,
+      required this.attachedPatients,
+      required this.adherenceLevel});
 
   String? attachedPatients;
   String? fullName;
-
+  String? userId;
   String? email;
-
+  String? adherenceLevel;
   String? birthDay;
   String? phone;
 
@@ -53,6 +54,7 @@ class User {
     return User(
         fullName: realData[FULL_NAME_KEY],
         email: realData[EMAIL_KEY],
+        userId: realData[USER_ID_KEY],
         birthDay: realData[BIRTH_DAY_KEY],
         phone: realData[PHONE_KEY],
         age: realData[AGE_KEY],
@@ -65,7 +67,9 @@ class User {
         allergies: realData[ALLERGIES_KEY],
         type: realData[USER_TYPE],
         illness: realData[USER_ILLNESS],
-        attachedPatients: realData[ATTACHED_PATIENTS]);
+        attachedPatients: realData[ATTACHED_PATIENTS],
+        adherenceLevel: realData[ADHERENCE_LEVEL_KEY]
+    );
   }
 
   bool isPatiente() {

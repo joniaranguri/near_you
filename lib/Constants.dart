@@ -22,7 +22,9 @@ const String PRESCRIPTIONS_KEY = "prescriptions";
 const String ATTACHED_PATIENTS = "attachedPatients";
 const String MEDICO_ID_KEY = "medicoId";
 const String PATIENT_ID_KEY = "patientId";
+const String USER_ID_KEY = "userId";
 const String VINCULATIONS_KEY = "vinculations";
+const String ADHERENCE_LEVEL_KEY = "adherenceLevel";
 
 
 //TODO  Chequear el mostrar el role selection si es otro user
