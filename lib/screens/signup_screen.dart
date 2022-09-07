@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebaseAuth;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:near_you/screens/login_screen.dart';
-import 'package:near_you/screens/role_selection_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebaseAuth;
 
 import '../Constants.dart';
 
@@ -46,18 +45,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
 
   String _selectedDate = '';
   final firebaseAuth.FirebaseAuth _auth = firebaseAuth.FirebaseAuth.instance;
-
-  /*var editControllerDate = TextEditingController();
-  var emailControler = TextEditingController();
-  var passwordController = TextEditingController();
-  var nameController = TextEditingController();
-  var phoneController = TextEditingController();
-  var ageController = TextEditingController();
-  var adressController = TextEditingController();
-  var medicalCenterController = TextEditingController();
-  var referenceController = TextEditingController();
-  var altPhoneController = TextEditingController();
-  var allergiesController = TextEditingController();*/
 
   get inputBorder => OutlineInputBorder(
       borderSide: BorderSide(color: Color(0xffCECECE)),

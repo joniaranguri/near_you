@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/widgets/static_components.dart';
+import 'package:intl/intl.dart';
 
 import '../model/user.dart' as user;
 import '../widgets/firebase_utils.dart';
@@ -20,12 +21,24 @@ class AddTreatmentScreen extends StatefulWidget {
 class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   static List<String> durationsList = ["días", "semanas", "meses", "años"];
   static List<String> statesList = ["Activo", "Inactivo"];
-  String? stateValue;
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String userId;
   user.User? patientUser;
   late final Future<DocumentSnapshot> futureUser;
   static StaticComponents staticComponents = StaticComponents();
   String? durationTypeValue;
+  String? durationValue;
+  String? stateValue;
+  String? descriptionValue;
+  String? startDateValue;
+  String? endDateValue;
+  bool startDateError = false;
+  bool endDateError = false;
+  bool durationError = false;
+  bool durationTypeError = false;
+  bool stateError = false;
+  bool descriptionError = false;
 
   _AddTreatmentScreenState(this.userId);
 
@@ -219,403 +232,469 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                         constraints: BoxConstraints(
                           minHeight: 200,
                         ),
-                        child: Column(
-                          children: [
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Container(
-                                      padding: EdgeInsets.only(
-                                          top: 5,
-                                          left: 15,
-                                          right: 15,
-                                          bottom: 5),
-                                      child: Text(
-                                        "ID Tratamiento",
-                                        style: TextStyle(
-                                            color: Color(0xff999999),
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 14),
-                                      )),
-                                  Container(
-                                      padding: EdgeInsets.only(
-                                          top: 5,
-                                          left: 20,
-                                          right: 20,
-                                          bottom: 5),
-                                      decoration: BoxDecoration(
-                                          color: const Color(0xff2F8F9D),
-                                          border: Border.all(
-                                              width: 1,
-                                              color: const Color(0xff2F8F9D)),
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          shape: BoxShape.rectangle),
-                                      child: Text(
-                                        "#T00003",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 14),
-                                      ))
-                                ]),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Form(
+                            key: _formKey,
+                            child: Column(
                               children: [
-                                Text("Fecha de inicio",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            SizedBox(
-                                height: 35,
-                                child: TextField(
-                                  readOnly: true,
-                                  // controller: TextEditingController(text: _selectedDate),
-                                  onTap: () {
-                                    //_selectDate(context);
-                                  },
-                                  style: TextStyle(fontSize: 14),
-                                  decoration: InputDecoration(
-                                      filled: true,
-                                      prefixIcon: IconButton(
-                                        padding: EdgeInsets.only(bottom: 5),
-                                        onPressed: () {},
-                                        icon: const Icon(
-                                            Icons.calendar_today_outlined,
-                                            color: Color(
-                                                0xff999999)), // myIcon is a 48px-wide widget.
-                                      ),
-                                      hintText: '18 - Jul 2022  15:00',
-                                      hintStyle: const TextStyle(
-                                          fontSize: 14,
-                                          color: Color(0xff999999)),
-                                      contentPadding: EdgeInsets.zero,
-                                      fillColor: Colors.white,
-                                      enabledBorder:
-                                          staticComponents.middleInputBorder,
-                                      border:
-                                          staticComponents.middleInputBorder,
-                                      focusedBorder:
-                                          staticComponents.middleInputBorder),
-                                )),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Fecha de fin",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            SizedBox(
-                                height: 35,
-                                child: TextField(
-                                  readOnly: true,
-                                  // controller: TextEditingController(text: _selectedDate),
-                                  onTap: () {
-                                    //_selectDate(context);
-                                  },
-                                  style: TextStyle(fontSize: 14),
-                                  decoration: InputDecoration(
-                                      filled: true,
-                                      prefixIcon: IconButton(
-                                        padding: EdgeInsets.only(bottom: 5),
-                                        onPressed: () {},
-                                        icon: const Icon(
-                                            Icons.calendar_today_outlined,
-                                            color: Color(
-                                                0xff999999)), // myIcon is a 48px-wide widget.
-                                      ),
-                                      hintText: '18 - Jul 2022  15:00',
-                                      hintStyle: const TextStyle(
-                                          fontSize: 14,
-                                          color: Color(0xff999999)),
-                                      contentPadding: EdgeInsets.zero,
-                                      fillColor: Colors.white,
-                                      enabledBorder:
-                                          staticComponents.middleInputBorder,
-                                      border:
-                                          staticComponents.middleInputBorder,
-                                      focusedBorder:
-                                          staticComponents.middleInputBorder),
-                                )),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Duración",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                new Flexible(
-                                  child: SizedBox(
-                                      height: 35,
-                                      width: 111,
-                                      child: TextField(
-                                        controller: TextEditingController(
-                                            text: "emailValue"),
-                                        onChanged: (value) {
-                                          //emailValue = value;
-                                        },
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xFF999999)),
-                                        decoration: staticComponents
-                                            .getMiddleInputDecoration('15'),
-                                      )),
-                                ),
-                                Flexible(
-                                    child: SizedBox(
-                                        height: 35,
-                                        child: Container(
+                                Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Container(
+                                          padding: EdgeInsets.only(
+                                              top: 5,
+                                              left: 15,
+                                              right: 15,
+                                              bottom: 5),
+                                          child: Text(
+                                            "ID Tratamiento",
+                                            style: TextStyle(
+                                                color: Color(0xff999999),
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: 14),
+                                          )),
+                                      Container(
+                                          padding: EdgeInsets.only(
+                                              top: 5,
+                                              left: 20,
+                                              right: 20,
+                                              bottom: 5),
                                           decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Color(0xFF999999),
-                                                width: 1),
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(
-                                                    10) //         <--- border radius here
-                                                ),
+                                              color: const Color(0xff2F8F9D),
+                                              border: Border.all(
+                                                  width: 1,
+                                                  color:
+                                                      const Color(0xff2F8F9D)),
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                              shape: BoxShape.rectangle),
+                                          child: Text(
+                                            "#T00003",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: 14),
+                                          ))
+                                    ]),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Fecha de inicio",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xff999999)))
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                SizedBox(
+                                    height: startDateError ? 55 : 35,
+                                    child: TextFormField(
+                                      validator: (value) {
+                                        if (value == null || value == '') {
+                                          setState(() {
+                                            startDateError = true;
+                                          });
+                                          return "Complete el campo";
+                                        }
+                                        setState(() {
+                                          startDateError = false;
+                                        });
+                                      },
+                                      readOnly: true,
+                                      controller: TextEditingController(
+                                          text: startDateValue),
+                                      onTap: () {
+                                        selectStartDate(context);
+                                      },
+                                      style: TextStyle(fontSize: 14),
+                                      decoration: InputDecoration(
+                                          filled: true,
+                                          prefixIcon: IconButton(
+                                            padding: EdgeInsets.only(bottom: 5),
+                                            onPressed: () {},
+                                            icon: const Icon(
+                                                Icons.calendar_today_outlined,
+                                                color: Color(
+                                                    0xff999999)), // myIcon is a 48px-wide widget.
                                           ),
-                                          child: Container(
-                                            width: 150,
-                                            child: DropdownButtonHideUnderline(
-                                              child: ButtonTheme(
-                                                alignedDropdown: true,
-                                                child: DropdownButton<String>(
-                                                  hint: Text(
-                                                    'Seleccionar',
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color:
-                                                            Color(0xFF999999)),
-                                                  ),
-                                                  dropdownColor: Colors.white,
-                                                  value: durationTypeValue,
-                                                  icon: Padding(
-                                                    padding:
-                                                        const EdgeInsetsDirectional
-                                                            .only(end: 12.0),
-                                                    child: Icon(
-                                                        Icons
-                                                            .keyboard_arrow_down,
-                                                        color: Color(
-                                                            0xff999999)), // myIcon is a 48px-wide widget.
-                                                  ),
-                                                  onChanged: (newValue) {
-                                                    setState(() {
-                                                      durationTypeValue =
-                                                          newValue.toString();
-                                                    });
-                                                  },
-                                                  items: durationsList
-                                                      .map((String item) {
-                                                    return DropdownMenuItem(
-                                                      value: item,
-                                                      child: Text(
-                                                        item,
+                                          hintText: '18 - Jul 2022  15:00',
+                                          hintStyle: const TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xff999999)),
+                                          contentPadding: EdgeInsets.zero,
+                                          fillColor: Colors.white,
+                                          enabledBorder: staticComponents
+                                              .middleInputBorder,
+                                          border: staticComponents
+                                              .middleInputBorder,
+                                          focusedBorder: staticComponents
+                                              .middleInputBorder),
+                                    )),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Fecha de fin",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xff999999)))
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                SizedBox(
+                                    height: endDateError ? 55 : 35,
+                                    child: TextFormField(
+                                      validator: (value) {
+                                        if (value == null || value == '') {
+                                          setState(() {
+                                            endDateError = true;
+                                          });
+                                          return "Complete el campo";
+                                        }
+                                        setState(() {
+                                          endDateError = false;
+                                        });
+                                      },
+                                      readOnly: true,
+                                      controller: TextEditingController(
+                                          text: endDateValue),
+                                      onTap: () {
+                                        selectEndDate(context);
+                                      },
+                                      style: TextStyle(fontSize: 14),
+                                      decoration: InputDecoration(
+                                          filled: true,
+                                          prefixIcon: IconButton(
+                                            padding: EdgeInsets.only(bottom: 5),
+                                            onPressed: () {},
+                                            icon: const Icon(
+                                                Icons.calendar_today_outlined,
+                                                color: Color(
+                                                    0xff999999)), // myIcon is a 48px-wide widget.
+                                          ),
+                                          hintText: '18 - Jul 2022  15:00',
+                                          hintStyle: const TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xff999999)),
+                                          contentPadding: EdgeInsets.zero,
+                                          fillColor: Colors.white,
+                                          enabledBorder: staticComponents
+                                              .middleInputBorder,
+                                          border: staticComponents
+                                              .middleInputBorder,
+                                          focusedBorder: staticComponents
+                                              .middleInputBorder),
+                                    )),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Duración",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xff999999)))
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    new Flexible(
+                                      child: SizedBox(
+                                          height: durationError ? 55 : 35,
+                                          width: 111,
+                                          child: TextFormField(
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value == '') {
+                                                setState(() {
+                                                  durationError = true;
+                                                });
+                                                return "Complete el campo";
+                                              }
+                                              setState(() {
+                                                durationError = false;
+                                              });
+                                            },
+                                            controller: TextEditingController(
+                                                text: durationValue),
+                                            onChanged: (value) {
+                                              durationValue = value;
+                                            },
+                                            style:
+                                                const TextStyle(fontSize: 14),
+                                            decoration: staticComponents
+                                                .getMiddleInputDecoration('15'),
+                                          )),
+                                    ),
+                                    Flexible(
+                                        child: SizedBox(
+                                            height: 35,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: durationTypeError
+                                                        ? Colors.red
+                                                        : Color(0xFF999999),
+                                                    width: 1),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(
+                                                        10) //         <--- border radius here
+                                                    ),
+                                              ),
+                                              child: Container(
+                                                width: 150,
+                                                child:
+                                                    DropdownButtonHideUnderline(
+                                                  child: ButtonTheme(
+                                                    alignedDropdown: true,
+                                                    child:
+                                                        DropdownButton<String>(
+                                                      hint: Text(
+                                                        'Seleccionar',
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: Color(
                                                                 0xFF999999)),
                                                       ),
-                                                    );
-                                                  }).toList(),
+                                                      dropdownColor:
+                                                          Colors.white,
+                                                      value: durationTypeValue,
+                                                      icon: Padding(
+                                                        padding:
+                                                            const EdgeInsetsDirectional
+                                                                    .only(
+                                                                end: 12.0),
+                                                        child: Icon(
+                                                            Icons
+                                                                .keyboard_arrow_down,
+                                                            color: Color(
+                                                                0xff999999)), // myIcon is a 48px-wide widget.
+                                                      ),
+                                                      onChanged: (newValue) {
+                                                        setState(() {
+                                                          durationTypeValue =
+                                                              newValue
+                                                                  .toString();
+                                                        });
+                                                      },
+                                                      items: durationsList
+                                                          .map((String item) {
+                                                        return DropdownMenuItem(
+                                                          value: item,
+                                                          child: Text(
+                                                            item,
+                                                            style: TextStyle(
+                                                                fontSize: 14),
+                                                          ),
+                                                        );
+                                                      }).toList(),
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                        )))
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Estado",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Color(0xFF999999), width: 1),
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                        10) //         <--- border radius here
-                                    ),
-                              ),
-                              child: Container(
-                                height: 35,
-                                width: double.infinity,
-                                child: DropdownButtonHideUnderline(
-                                  child: ButtonTheme(
-                                    alignedDropdown: true,
-                                    child: DropdownButton<String>(
-                                      hint: Text(
-                                        'Seleccionar',
+                                            )))
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Estado",
                                         style: TextStyle(
                                             fontSize: 14,
-                                            color: Color(0xFF999999)),
-                                      ),
-                                      dropdownColor: Colors.white,
-                                      value: stateValue,
-                                      icon: Padding(
-                                        padding:
-                                            const EdgeInsetsDirectional.only(
-                                                end: 12.0),
-                                        child: Icon(Icons.keyboard_arrow_down,
-                                            color: Color(
-                                                0xff999999)), // myIcon is a 48px-wide widget.
-                                      ),
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          stateValue = newValue.toString();
-                                        });
-                                      },
-                                      items: statesList.map((String item) {
-                                        return DropdownMenuItem(
-                                          value: item,
-                                          child: Text(
-                                            item,
+                                            color: Color(0xff999999)))
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: stateError
+                                            ? Colors.red
+                                            : Color(0xFF999999),
+                                        width: 1),
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            10) //         <--- border radius here
+                                        ),
+                                  ),
+                                  child: Container(
+                                    height: 35,
+                                    width: double.infinity,
+                                    child: DropdownButtonHideUnderline(
+                                      child: ButtonTheme(
+                                        alignedDropdown: true,
+                                        child: DropdownButton<String>(
+                                          hint: Text(
+                                            'Seleccionar',
                                             style: TextStyle(
                                                 fontSize: 14,
                                                 color: Color(0xFF999999)),
                                           ),
-                                        );
-                                      }).toList(),
+                                          dropdownColor: Colors.white,
+                                          value: stateValue,
+                                          icon: Padding(
+                                            padding: const EdgeInsetsDirectional
+                                                .only(end: 12.0),
+                                            child: Icon(
+                                                Icons.keyboard_arrow_down,
+                                                color: Color(
+                                                    0xff999999)), // myIcon is a 48px-wide widget.
+                                          ),
+                                          onChanged: (newValue) {
+                                            setState(() {
+                                              stateValue = newValue.toString();
+                                            });
+                                          },
+                                          items: statesList.map((String item) {
+                                            return DropdownMenuItem(
+                                              value: item,
+                                              child: Text(
+                                                item,
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Descripción",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            TextField(
-                                minLines: 1,
-                                maxLines: 10,
-                                controller: TextEditingController(text: ""),
-                                onChanged: (value) {
-                                  //emailValue = value;
-                                },
-                                style: const TextStyle(
-                                    fontSize: 14, color: Color(0xFF999999)),
-                                decoration: InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(vertical: 20),
-                                  prefixIcon: Icon(Icons.circle,
-                                      color: Color(0xff999999)),
-                                  suffixIcon: IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(Icons.delete,
-                                          color: Color(0xff999999))),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  hintText:
-                                      "Glucosa 110ml/g\nActividad física: 1hora",
-                                  hintStyle: const TextStyle(
-                                      fontSize: 14, color: Color(0xFF999999)),
-                                  focusedBorder: borderWhite,
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                )
-                                // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
-
+                                const SizedBox(
+                                  height: 10,
                                 ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            GestureDetector(
-                                onTap: () {
-                                  addPrescription();
-                                },
-                                child: TextField(
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Descripción",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xff999999)))
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                TextFormField(
+                                    validator: (value) {
+                                      if (value == null || value == '') {
+                                        setState(() {
+                                          descriptionError = true;
+                                        });
+                                        return "Complete el campo";
+                                      }
+                                      setState(() {
+                                        descriptionError = false;
+                                      });
+                                    },
                                     minLines: 1,
                                     maxLines: 10,
-                                    enabled: false,
-                                    style: const TextStyle(
-                                        fontSize: 14, color: Color(0xFF999999)),
+                                    controller: TextEditingController(
+                                        text: descriptionValue),
+                                    onChanged: (value) {
+                                      descriptionValue = value;
+                                    },
+                                    style: const TextStyle(fontSize: 14),
                                     decoration: InputDecoration(
                                       contentPadding:
-                                          EdgeInsets.symmetric(vertical: 10),
+                                          EdgeInsets.symmetric(vertical: 20),
                                       prefixIcon: Icon(Icons.circle,
-                                          color: Colors.white),
+                                          color: Color(0xff999999)),
+                                      suffixIcon: IconButton(
+                                          onPressed: () {},
+                                          icon: Icon(Icons.delete,
+                                              color: Color(0xff999999))),
                                       filled: true,
-                                      fillColor: Color(0xffD9D9D9),
+                                      fillColor: Colors.white,
                                       hintText:
-                                          "Agregar una nueva\n prescripción",
+                                          "Glucosa 110ml/g\nActividad física: 1hora",
                                       hintStyle: const TextStyle(
                                           fontSize: 14,
                                           color: Color(0xFF999999)),
-                                      focusedBorder: borderGray,
-                                      border: borderGray,
-                                      enabledBorder: borderGray,
+                                      focusedBorder: borderWhite,
+                                      border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
                                     )
                                     // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
 
-                                    )),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: <Widget>[
-                                  Text(
-                                    "Prescripción",
-                                    style: TextStyle(
-                                        color: Color(0xff2F8F9D),
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 14),
-                                  )
-                                ]),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            getMedicationTreatmentCard(),
-                            getNutritionTreatmentCard(),
-                            getActivityTreatmentCard(),
-                            getOtherTreatmentCard(),
-                            getTreatmentButtons()
-                          ],
-                        ))),
+                                    ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                GestureDetector(
+                                    onTap: () {
+                                      addPrescription();
+                                    },
+                                    child: TextField(
+                                        minLines: 1,
+                                        maxLines: 10,
+                                        enabled: false,
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xFF999999)),
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          prefixIcon: Icon(Icons.circle,
+                                              color: Colors.white),
+                                          filled: true,
+                                          fillColor: Color(0xffD9D9D9),
+                                          hintText:
+                                              "Agregar una nueva\n prescripción",
+                                          hintStyle: const TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xFF999999)),
+                                          focusedBorder: borderGray,
+                                          border: borderGray,
+                                          enabledBorder: borderGray,
+                                        )
+                                        // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+
+                                        )),
+                                const SizedBox(
+                                  height: 30,
+                                ),
+                                Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                      Text(
+                                        "Prescripción",
+                                        style: TextStyle(
+                                            color: Color(0xff2F8F9D),
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 14),
+                                      )
+                                    ]),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                getMedicationTreatmentCard(),
+                                getNutritionTreatmentCard(),
+                                getActivityTreatmentCard(),
+                                getOtherTreatmentCard(),
+                                getTreatmentButtons()
+                              ],
+                            )))),
               ),
             ])
 
@@ -955,9 +1034,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
             ),
             color: const Color(0xff2F8F9D),
             textColor: Colors.white,
-            onPressed: () {
-              // _signInWithEmailAndPassword();
-            },
+            onPressed: validateAndSave,
             child: const Text(
               'Guardar',
               style: TextStyle(
@@ -974,7 +1051,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                 borderRadius: BorderRadius.circular(30)),
             textColor: const Color(0xff9D9CB5),
             onPressed: () {
-              //Navigator.of(context).pushNamed(SignupScreen.routeName);
+              Navigator.pop(context);
             },
             child: const Text(
               'Cancelar',
@@ -992,4 +1069,62 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   void startPatientVinculation() {}
 
   void addPrescription() {}
+
+  void validateAndSave() {
+    final FormState? form = _formKey.currentState;
+    bool durationValid = isNotEmtpy(durationTypeValue);
+    bool stateValid = isNotEmtpy(stateValue);
+    bool isValidDropdowns = durationValid && stateValid;
+    durationTypeError = !durationValid;
+    stateError = !stateValid;
+    if ((form?.validate() ?? false) && isValidDropdowns) {
+      // saveNewTreatment
+      print(startDateValue);
+      print(endDateValue);
+      print(durationValue);
+      print(durationTypeValue);
+      print(stateValue);
+      print(descriptionValue);
+    }
+  }
+
+  Future<void> selectEndDate(BuildContext context) async {
+    final DateTime? d = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900, 1, 1),
+      lastDate: DateTime(21001, 1, 1),
+    );
+
+    final TimeOfDay? time =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (d != null && time != null) {
+      setState(() {
+        endDateValue = DateFormat('dd - MMM yyyy ').format(d) +
+            '${time.hour}:${time.minute}';
+      });
+    }
+  }
+
+  Future<void> selectStartDate(BuildContext context) async {
+    final DateTime? d = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900, 1, 1),
+      lastDate: DateTime(21001, 1, 1),
+    );
+
+    final TimeOfDay? time =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (d != null && time != null) {
+      setState(() {
+        startDateValue = DateFormat('dd - MMM yyyy ').format(d) +
+            '${time.hour}:${time.minute}';
+      });
+    }
+  }
+
+  bool isNotEmtpy(String? str) {
+    return str != null && str != '';
+  }
 }

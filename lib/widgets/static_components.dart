@@ -45,6 +45,7 @@ class StaticComponents {
         hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
         enabledBorder: middleInputBorder,
         border: middleInputBorder,
-        focusedBorder: middleInputBorder);
+        focusedBorder: middleInputBorder
+    );
   }
 }
