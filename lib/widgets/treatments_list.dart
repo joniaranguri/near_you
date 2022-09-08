@@ -31,9 +31,11 @@ class ListViewHome extends State<ListViewHomeLayout> {
     });*/
     patientsListFuture = getListOfPatients();
     patientsListFuture.then((value) => {
+        if(this.mounted){
           setState(() {
             patients = value;
           })
+        }
         });
     super.initState();
   }

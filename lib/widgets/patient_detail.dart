@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:near_you/Constants.dart';
 import 'package:near_you/model/treatment.dart';
@@ -392,7 +392,7 @@ class PatientDetailState extends State<PatientDetail> {
     return FutureBuilder(
         future: currentTreatmentFuture,
         builder: (context, AsyncSnapshot<Treatment> snapshot) {
-          if (!snapshot.hasData) {
+          if (!snapshot.hasData && isNotEmpty(detailedUser!.currentTreatment)) {
             return Center(child: CircularProgressIndicator());
           } else {
             return Card(
@@ -604,7 +604,7 @@ class PatientDetailState extends State<PatientDetail> {
   }
 
   getCurrentTreatmentOrEmptyState() {
-    var hasCurrentTreatment = detailedUser?.currentTreatment != null;
+    var hasCurrentTreatment = isNotEmpty(detailedUser?.currentTreatment);
     bool isPatient = !isDoctorView;
     if (hasCurrentTreatment) {
       return Container(
@@ -649,7 +649,7 @@ class PatientDetailState extends State<PatientDetail> {
                                   borderRadius: BorderRadius.circular(5),
                                   shape: BoxShape.rectangle),
                               child: Text(
-                                    "#T00003",
+                                "#T00003",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.normal,
@@ -1315,18 +1315,206 @@ class PatientDetailState extends State<PatientDetail> {
       context,
       MaterialPageRoute(
         //TODO: Review this
-        builder: (context) =>
-            AddTreatmentScreen(detailedUser!.userId!,update ?currentTreatment:null),
+        builder: (context) => AddTreatmentScreen(
+            detailedUser!.userId!, update ? currentTreatment : null),
       ),
     );
   }
 
-  void deleteCurrentTreatment() {}
+  void deleteCurrentTreatment() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          //Center Row contents horizontally,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Wrap(alignment: WrapAlignment.center, children: [
+              AlertDialog(
+                  shape: const RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.all(const Radius.circular(10))),
+                  content: Column(
+                    children: [
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      SvgPicture.asset(
+                        'assets/images/warning_icon.svg',
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      const Text('¿Desea eliminar el tratamiento\n actual?',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff67757F))),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 17,
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.all(15),
+                              color: const Color(0xff3BACB6),
+                              textColor: Colors.white,
+                              onPressed: () {
+                                deleteCurrentTreatmentById();
+                              },
+                              child: const Text(
+                                'Si, Eliminar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 12,
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: const BorderSide(
+                                      color: Color(0xff9D9CB5),
+                                      width: 1,
+                                      style: BorderStyle.solid)),
+                              padding: const EdgeInsets.all(15),
+                              color: Colors.white,
+                              textColor: const Color(0xff9D9CB5),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                'Cancelar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 12,
+                            )
+                          ])
+                    ],
+                  ))
+            ])
+          ],
+        );
+      },
+    );
+  }
 
   Future<Treatment> getCurrentTReatmentById(String currentTreatment) async {
     final db = FirebaseFirestore.instance;
     var future =
         await db.collection(TREATMENTS_KEY).doc(currentTreatment).get();
     return Treatment.fromSnapshot(future);
+  }
+
+  Future<void> deleteCurrentTreatmentById() async {
+    Navigator.pop(context);
+    final db = FirebaseFirestore.instance;
+    await db
+        .collection(TREATMENTS_KEY)
+        .doc(detailedUser!.currentTreatment)
+        .delete()
+        //.onError((error, stackTrace) => )
+        .whenComplete(() => {
+              db
+                  .collection(USERS_COLLECTION_KEY)
+                  .doc(detailedUser!.userId)
+                  .update({
+                PATIENT_CURRENT_TREATMENT_KEY: EMPTY_STRING_VALUE
+              }).whenComplete(() => showSuccessDeleteDialog())
+            });
+  }
+
+  showSuccessDeleteDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          //Center Row contents horizontally,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Wrap(alignment: WrapAlignment.center, children: [
+              AlertDialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  content: Column(
+                    children: [
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      const Text('Operación\nExitosa',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xff67757F))),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      const Text('Se eliminó correctamente el\ntratamiento.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff67757F))),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 17,
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.all(15),
+                              color: const Color(0xff3BACB6),
+                              textColor: Colors.white,
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                'Aceptar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            )
+                          ]),
+                      const SizedBox(
+                        height: 15,
+                      )
+                    ],
+                  ))
+            ])
+          ],
+        );
+      },
+    );
+  }
+
+  bool isNotEmpty(String? str) {
+    return str != null && str != '';
   }
 }

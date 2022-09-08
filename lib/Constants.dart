@@ -26,7 +26,7 @@ const String USER_ID_KEY = "userId";
 const String VINCULATIONS_KEY = "vinculations";
 const String ADHERENCE_LEVEL_KEY = "adherenceLevel";
 const String PATIENT_CURRENT_TREATMENT_KEY = "currentTreatment";
-
+const String EMPTY_STRING_VALUE="";
 
 const String TREATMENT_ID_KEY = "treatmentId";
 const String TREATMENT_START_DATE_KEY = "startDate";
