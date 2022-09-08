@@ -677,8 +677,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void startVinculation(String? emailPatient) {
     attachMedicoToPatient(emailPatient);
-
-    Navigator.pop(context);
   }
 
   Future<void> attachMedicoToPatient(String? emailPatient) async {
@@ -690,12 +688,24 @@ class _HomeScreenState extends State<HomeScreen> {
         .where(EMAIL_KEY, isEqualTo: emailPatient)
         .limit(1)
         .get();
-
+    if (future.docs.isEmpty) {
+      Navigator.pop(context);
+      return;
+    }
     String patientId = future.docs.first.id;
     var postDocRef = db.collection(USERS_COLLECTION_KEY).doc(patientId);
-    await postDocRef.update({
-      MEDICO_ID_KEY: medicoId,
-      // ....rest of your data
-    });
+    await postDocRef
+        .update({
+          MEDICO_ID_KEY: medicoId,
+          // ....rest of your data
+        })
+        .whenComplete(() => refreshScreen())
+        .onError((error, stackTrace) => Navigator.pop(context));
+  }
+
+  refreshScreen() {
+    Navigator.pop(context);
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
   }
 }

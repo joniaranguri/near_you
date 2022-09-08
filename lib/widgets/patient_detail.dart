@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:near_you/Constants.dart';
 import 'package:near_you/model/treatment.dart';
 import 'package:near_you/screens/add_treatment_screen.dart';
+import 'package:near_you/screens/home_screen.dart';
+import 'package:near_you/screens/patient_detail_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:near_you/widgets/treatments_list.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -505,7 +507,8 @@ class PatientDetailState extends State<PatientDetail> {
                           ),
                         ]),
                     //TODO: to review later
-                    SizedBox(height: 470,
+                    SizedBox(
+                      height: 470,
                       //  child: ListViewHomeLayout()
                     )
                   ]),
@@ -1495,8 +1498,7 @@ class PatientDetailState extends State<PatientDetail> {
                               color: const Color(0xff3BACB6),
                               textColor: Colors.white,
                               onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.pop(context);
+                                goBackScreen();
                               },
                               child: const Text(
                                 'Aceptar',
@@ -1520,5 +1522,17 @@ class PatientDetailState extends State<PatientDetail> {
 
   bool isNotEmpty(String? str) {
     return str != null && str != '';
+  }
+
+  void goBackScreen() {
+    if (isDoctorView) {
+      Navigator.pop(context);
+    }
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => isDoctorView
+                ? PatientDetailScreen(detailedUser!.userId!)
+                : HomeScreen()));
   }
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/model/treatment.dart';
+import 'package:near_you/screens/patient_detail_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:intl/intl.dart';
 
@@ -48,8 +49,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   late final bool isUpdate;
   var _currentIndex = 1;
 
-  _AddTreatmentScreenState(this.userId, this.currentTreatment){
-    isUpdate = currentTreatment !=null;
+  _AddTreatmentScreenState(this.userId, this.currentTreatment) {
+    isUpdate = currentTreatment != null;
   }
 
   get borderWhite => OutlineInputBorder(
@@ -69,16 +70,15 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           })
         });
     super.initState();
-    if(isUpdate && currentTreatment!=null){
-    setState((){
-     durationTypeValue = currentTreatment!.durationType;
-     durationValue= currentTreatment!.durationNumber;
-     stateValue= currentTreatment!.state;
-       descriptionValue= currentTreatment!.description;
-       startDateValue= currentTreatment!.startDate;
-      endDateValue= currentTreatment!.endDate;
-        }
-    );
+    if (isUpdate && currentTreatment != null) {
+      setState(() {
+        durationTypeValue = currentTreatment!.durationType;
+        durationValue = currentTreatment!.durationNumber;
+        stateValue = currentTreatment!.state;
+        descriptionValue = currentTreatment!.description;
+        startDateValue = currentTreatment!.startDate;
+        endDateValue = currentTreatment!.endDate;
+      });
     }
   }
 
@@ -94,7 +94,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
               centerTitle: true,
               title: Padding(
                   padding: EdgeInsets.only(top: 40),
-                  child: Text(isUpdate?'Actualizar Tratamiento':'Tratamiento',
+                  child: Text(
+                      isUpdate ? 'Actualizar Tratamiento' : 'Tratamiento',
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 25,
@@ -1096,7 +1097,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     durationTypeError = !durationValid;
     stateError = !stateValid;
     if ((form?.validate() ?? false) && isValidDropdowns) {
-        saveIdDatabase();
+      saveIdDatabase();
     }
   }
 
@@ -1154,23 +1155,27 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       //TREATMENT_PRESCRIPTIONS_KEY: "",
       TREATMENT_STATE_KEY: stateValue!
     };
-    if(isUpdate){
-      db.collection(TREATMENTS_KEY).doc(patientUser?.currentTreatment).set(newTreatment).then((value) =>
-          print("success updating")
-      );
-    }else{
+    if (isUpdate) {
+      db
+          .collection(TREATMENTS_KEY)
+          .doc(patientUser?.currentTreatment)
+          .set(newTreatment)
+          .then((value) => goBackScreen());
+    } else {
       db.collection(TREATMENTS_KEY).add(newTreatment).then((treatment) =>
-      db.collection(USERS_COLLECTION_KEY).doc(patientUser?.userId).update(
-          {
-              PATIENT_CURRENT_TREATMENT_KEY: treatment.id,
+          db.collection(USERS_COLLECTION_KEY).doc(patientUser?.userId).update({
+            PATIENT_CURRENT_TREATMENT_KEY: treatment.id,
             // ....rest of your data
-          }
-      ).then((value) =>
-          print("success ADDED")
-      )
-      );
+          }).then((value) => goBackScreen()));
     }
-    Navigator.pop(context);
+  }
 
+  goBackScreen() {
+    Navigator.pop(context);
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) =>
+                PatientDetailScreen(patientUser!.userId!)));
   }
 }
