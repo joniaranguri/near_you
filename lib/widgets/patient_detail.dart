@@ -504,7 +504,10 @@ class PatientDetailState extends State<PatientDetail> {
                             ),
                           ),
                         ]),
-                    SizedBox(height: 470, child: ListViewHomeLayout())
+                    //TODO: to review later
+                    SizedBox(height: 470,
+                      //  child: ListViewHomeLayout()
+                    )
                   ]),
               const SizedBox(
                 height: 20,
@@ -1492,6 +1495,7 @@ class PatientDetailState extends State<PatientDetail> {
                               color: const Color(0xff3BACB6),
                               textColor: Colors.white,
                               onPressed: () {
+                                Navigator.pop(context);
                                 Navigator.pop(context);
                               },
                               child: const Text(

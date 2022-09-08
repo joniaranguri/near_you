@@ -735,6 +735,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       ALT_PHONE_NUMBER_KEY: altPhoneValue,
       SMOKING_KEY: smokeValue.toString(),
       ALLERGIES_KEY: allergiesValue,
+      PATIENT_CURRENT_TREATMENT_KEY: EMPTY_STRING_VALUE,
     };
     db.collection(USERS_COLLECTION_KEY).doc(newUserId).set(userData).then((_) => dialogSuccess());
   }
