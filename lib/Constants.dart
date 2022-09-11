@@ -37,4 +37,6 @@ const String TREATMENT_DESCRIPTION_KEY = "description";
 const String TREATMENT_PRESCRIPTIONS_KEY = "prescriptions";
 const String TREATMENT_STATE_KEY = "state";
 
+const String PRESCRIPTIONS_COLLECTION_KEY = "prescriptions";
+
 //TODO  Chequear el mostrar el role selection si es otro user

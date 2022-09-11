@@ -3,11 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/model/treatment.dart';
+import 'package:near_you/screens/add_prescription_screen.dart';
 import 'package:near_you/screens/patient_detail_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:intl/intl.dart';
 
 import '../Constants.dart';
+import '../common/static_common_functions.dart';
 import '../model/user.dart' as user;
 import '../widgets/firebase_utils.dart';
 
@@ -727,12 +729,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   getMedicationTreatmentCard() {
     return InkWell(
       onTap: () {
-        /* Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PatientDetailScreen(treatments[index].userId),
-        )
-      );*/
+        goToAddPrescription(0);
       },
       child: Card(
           color: Color(0xffF1F1F1),
@@ -806,12 +803,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   getNutritionTreatmentCard() {
     return InkWell(
       onTap: () {
-        /* Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PatientDetailScreen(treatments[index].userId),
-        )
-      );*/
+      goToAddPrescription(1);
       },
       child: Card(
           color: Color(0xffF1F1F1),
@@ -885,12 +877,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   getOtherTreatmentCard() {
     return InkWell(
       onTap: () {
-        /* Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PatientDetailScreen(treatments[index].userId),
-        )
-      );*/
+        goToAddPrescription(2);
       },
       child: Card(
           color: Color(0xffF1F1F1),
@@ -964,12 +951,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   getActivityTreatmentCard() {
     return InkWell(
       onTap: () {
-        /* Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PatientDetailScreen(treatments[index].userId),
-        )
-      );*/
+        goToAddPrescription(3);
       },
       child: Card(
           color: Color(0xffF1F1F1),
@@ -1137,10 +1119,6 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     }
   }
 
-  bool isNotEmtpy(String? str) {
-    return str != null && str != '';
-  }
-
   void saveIdDatabase() {
     final db = FirebaseFirestore.instance;
     String? medicoId = FirebaseAuth.instance.currentUser?.uid;
@@ -1177,5 +1155,16 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
         MaterialPageRoute(
             builder: (BuildContext context) =>
                 PatientDetailScreen(patientUser!.userId!)));
+  }
+
+  void goToAddPrescription(int currentIndex) {
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) =>
+                AddPrescriptionScreen(patientUser!.userId!, currentIndex)))
+        .then((value) =>
+        print("FUNCIONAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    );
   }
 }
