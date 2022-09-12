@@ -1,13 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/Constants.dart';
 import 'package:near_you/model/treatment.dart';
 import 'package:near_you/screens/add_treatment_screen.dart';
 import 'package:near_you/screens/home_screen.dart';
 import 'package:near_you/screens/patient_detail_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
-import 'package:near_you/widgets/treatments_list.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import '../model/user.dart' as user;
@@ -46,12 +45,25 @@ class PatientDetailState extends State<PatientDetail> {
   final PageController _pageController = PageController(initialPage: 0);
   bool isDoctorView;
   late final Future<Treatment> currentTreatmentFuture;
+  late final Future<List<String>> medicationFuture;
+  late final Future<List<String>> activityFuture;
+  late final Future<List<String>> nutritionFuture;
+  late final Future<List<String>> othersFuture;
+  int medicationCounter = 0;
+  int activityCounter = 0;
+  int nutritionCounter = 0;
+  int othersCounter = 0;
+
   String? durationTypeValue;
   String? durationValue;
   String? stateValue;
   String? descriptionValue;
   String? startDateValue;
   String? endDateValue;
+  List<String> medicationsList = <String>[];
+  List<String> nutritionList = <String>[];
+  List<String> activitiesList = <String>[];
+  List<String> othersList = <String>[];
 
   PatientDetailState(this.detailedUser, this.isDoctorView);
 
@@ -87,6 +99,12 @@ class PatientDetailState extends State<PatientDetail> {
   void initState() {
     currentTreatmentFuture =
         getCurrentTReatmentById(detailedUser!.currentTreatment!);
+    medicationFuture =
+        getMedicationPrescriptions(detailedUser!.currentTreatment!);
+    activityFuture = getActivityPrescriptions(detailedUser!.currentTreatment!);
+    nutritionFuture =
+        getNutritionPrescriptions(detailedUser!.currentTreatment!);
+    othersFuture = getOthersPrescriptions(detailedUser!.currentTreatment!);
     currentTreatmentFuture.then((value) => {
           setState(() {
             currentTreatment = value;
@@ -97,6 +115,45 @@ class PatientDetailState extends State<PatientDetail> {
             startDateValue = currentTreatment!.startDate;
             endDateValue = currentTreatment!.endDate;
           })
+        });
+    medicationFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                medicationsList = value;
+                if (value.isNotEmpty) medicationCounter = 1;
+              })
+            }
+        });
+
+    activityFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                activitiesList = value;
+                if (value.isNotEmpty) activityCounter = 1;
+              })
+            }
+        });
+
+    nutritionFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                nutritionList = value;
+                if (value.isNotEmpty) nutritionCounter = 1;
+              })
+            }
+        });
+
+    othersFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                othersList = value;
+                if (value.isNotEmpty) othersCounter = 1;
+              })
+            }
         });
     super.initState();
   }
@@ -821,33 +878,43 @@ class PatientDetailState extends State<PatientDetail> {
                     const SizedBox(
                       height: 30,
                     ),
-                    Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          Container(
-                              padding: EdgeInsets.only(
-                                  top: 5, left: 15, right: 15, bottom: 5),
-                              decoration: BoxDecoration(
-                                  color: const Color(0xff9D9CB5),
-                                  border: Border.all(
-                                      width: 1, color: const Color(0xff9D9CB5)),
-                                  borderRadius: BorderRadius.circular(5),
-                                  shape: BoxShape.rectangle),
-                              child: Text(
-                                "Prescripciones",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 14),
-                              ))
-                        ]),
+                    medicationCounter +
+                                activityCounter +
+                                nutritionCounter +
+                                othersCounter >
+                            0
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: <Widget>[
+                                Container(
+                                    padding: EdgeInsets.only(
+                                        top: 5, left: 15, right: 15, bottom: 5),
+                                    decoration: BoxDecoration(
+                                        color: const Color(0xff9D9CB5),
+                                        border: Border.all(
+                                            width: 1,
+                                            color: const Color(0xff9D9CB5)),
+                                        borderRadius: BorderRadius.circular(5),
+                                        shape: BoxShape.rectangle),
+                                    child: Text(
+                                      "Prescripciones",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 14),
+                                    ))
+                              ])
+                        : SizedBox(
+                            height: 0,
+                          ),
                     const SizedBox(
                       height: 15,
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Prescripción 3/4",
+                        Text(
+                            "Prescripción ${medicationCounter + activityCounter + nutritionCounter + othersCounter}/4",
                             style: TextStyle(
                                 fontSize: 15,
                                 color: Color(0xff2F8F9D),
@@ -870,395 +937,458 @@ class PatientDetailState extends State<PatientDetail> {
   }
 
   getMedicationTreatmentCard() {
-    return InkWell(
-      onTap: () {
-        /* Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PatientDetailScreen(treatments[index].userId),
-        )
-      );*/
-      },
-      child: Card(
-          color: Color(0xffF1F1F1),
-          margin: EdgeInsets.only(top: 10, bottom: 10),
-          child: ClipPath(
-            child: Container(
-                height: 75,
-                decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
-                child: Column(
-                  children: [
-                    Padding(
-                        padding:
-                            const EdgeInsets.only(left: 12, top: 5, right: 12),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text(
-                                "Medicación",
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xff2F8F9D),
-                                ),
-                              )
-                            ])),
-                    Padding(
-                        padding:
-                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Flexible(
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+    return FutureBuilder(
+      future: medicationFuture,
+      builder: (context, AsyncSnapshot<List<String>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (medicationsList.isEmpty) {
+            return staticComponents.emptyBox;
+          }
+          return InkWell(
+            onTap: () {
+              /* Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PatientDetailScreen(treatments[index].userId),
+          )
+        );*/
+            },
+            child: Card(
+                color: Color(0xffF1F1F1),
+                margin: EdgeInsets.only(top: 10, bottom: 10),
+                child: ClipPath(
+                  child: Container(
+                      height: 75,
+                      decoration: BoxDecoration(
+                          border: Border(
+                              left: BorderSide(
+                                  color: Color(0xff2F8F9D), width: 5))),
+                      child: Column(
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12, top: 5, right: 12),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      "Medicación",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2F8F9D),
                                       ),
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      )
-                                    ]),
-                              ),
-                              Padding(
-                                  padding: const EdgeInsets.only(right: 5),
-                                  child: Container(
-                                      width: 24,
-                                      height: 24,
-                                      child: Icon(Icons.chevron_right,
-                                          color: Color(0xff2F8F9D))))
-                            ]))
-                    //SizedBox
-                  ],
+                                    )
+                                  ])),
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 25, top: 7, bottom: 7),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Flexible(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            SizedBox(
+                                                height: 40,
+                                                child: ListView.builder(
+                                                    padding: EdgeInsets.zero,
+                                                    shrinkWrap: true,
+                                                    physics:
+                                                        const NeverScrollableScrollPhysics(),
+                                                    itemCount:
+                                                        medicationsList.length >
+                                                                3
+                                                            ? 3
+                                                            : medicationsList
+                                                                .length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return Text(
+                                                        medicationsList[index],
+                                                        style: const TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color:
+                                                              Color(0xff67757F),
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      );
+                                                    }))
+                                          ]),
+                                    ),
+                                    Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 5),
+                                        child: Container(
+                                            width: 24,
+                                            height: 24,
+                                            child: Icon(Icons.chevron_right,
+                                                color: Color(0xff2F8F9D))))
+                                  ]))
+                          //SizedBox
+                        ],
+                      )),
+                  clipper: ShapeBorderClipper(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3))),
                 )),
-            clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3))),
-          )),
+          );
+        }
+        return CircularProgressIndicator();
+      },
     );
-    return SizedBox(
+
+    /*return SizedBox(
       height: 0,
-    );
+    );*/
   }
 
   getNutritionTreatmentCard() {
-    return InkWell(
-      onTap: () {
-        /* Navigator.push(
+    return FutureBuilder(
+      future: nutritionFuture,
+      builder: (context, AsyncSnapshot snapshot) {
+        //patientUser = user.User.fromSnapshot(snapshot.data);
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (nutritionList.isEmpty) {
+            return staticComponents.emptyBox;
+          }
+          return InkWell(
+            onTap: () {
+              /* Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PatientDetailScreen(treatments[index].userId),
         )
       );*/
-      },
-      child: Card(
-          color: Color(0xffF1F1F1),
-          margin: EdgeInsets.only(top: 10, bottom: 10),
-          child: ClipPath(
-            child: Container(
-                height: 75,
-                decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
-                child: Column(
-                  children: [
-                    Padding(
-                        padding:
-                            const EdgeInsets.only(left: 12, top: 5, right: 12),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text(
-                                "Alimentación",
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xff2F8F9D),
-                                ),
-                              )
-                            ])),
-                    Padding(
-                        padding:
-                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Flexible(
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+            },
+            child: Card(
+                color: Color(0xffF1F1F1),
+                margin: EdgeInsets.only(top: 10, bottom: 10),
+                child: ClipPath(
+                  child: Container(
+                      height: 75,
+                      decoration: BoxDecoration(
+                          border: Border(
+                              left: BorderSide(
+                                  color: Color(0xff2F8F9D), width: 5))),
+                      child: Column(
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12, top: 5, right: 12),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      "Alimentación",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2F8F9D),
                                       ),
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      )
-                                    ]),
-                              ),
-                              Padding(
-                                  padding: const EdgeInsets.only(right: 5),
-                                  child: Container(
-                                      width: 24,
-                                      height: 24,
-                                      child: Icon(Icons.chevron_right,
-                                          color: Color(0xff2F8F9D))))
-                            ]))
-                    //SizedBox
-                  ],
+                                    )
+                                  ])),
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 25, top: 7, bottom: 7),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Flexible(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            SizedBox(
+                                                height: 40,
+                                                child: ListView.builder(
+                                                    shrinkWrap: true,
+                                                    physics:
+                                                        const NeverScrollableScrollPhysics(),
+                                                    itemCount:
+                                                        nutritionList.length > 3
+                                                            ? 3
+                                                            : nutritionList
+                                                                .length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return Text(
+                                                        nutritionList[index],
+                                                        style: const TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color:
+                                                              Color(0xff67757F),
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      );
+                                                    }))
+                                          ]),
+                                    ),
+                                    Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 5),
+                                        child: Container(
+                                            width: 24,
+                                            height: 24,
+                                            child: Icon(Icons.chevron_right,
+                                                color: Color(0xff2F8F9D))))
+                                  ]))
+                          //SizedBox
+                        ],
+                      )),
+                  clipper: ShapeBorderClipper(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3))),
                 )),
-            clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3))),
-          )),
+          );
+        }
+        return CircularProgressIndicator();
+      },
     );
+    /*
     return SizedBox(
       height: 0,
-    );
+    );*/
   }
 
   getOtherTreatmentCard() {
-    return InkWell(
-      onTap: () {
-        /* Navigator.push(
+    return FutureBuilder(
+      future: othersFuture,
+      builder: (context, AsyncSnapshot snapshot) {
+        //patientUser = user.User.fromSnapshot(snapshot.data);
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (othersList.isEmpty) {
+            return staticComponents.emptyBox;
+          }
+          return InkWell(
+            onTap: () {
+              /* Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PatientDetailScreen(treatments[index].userId),
         )
       );*/
-      },
-      child: Card(
-          color: Color(0xffF1F1F1),
-          margin: EdgeInsets.only(top: 10, bottom: 10),
-          child: ClipPath(
-            child: Container(
-                height: 75,
-                decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
-                child: Column(
-                  children: [
-                    Padding(
-                        padding:
-                            const EdgeInsets.only(left: 12, top: 5, right: 12),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text(
-                                "Otros",
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xff2F8F9D),
-                                ),
-                              )
-                            ])),
-                    Padding(
-                        padding:
-                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Flexible(
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+            },
+            child: Card(
+                color: Color(0xffF1F1F1),
+                margin: EdgeInsets.only(top: 10, bottom: 10),
+                child: ClipPath(
+                  child: Container(
+                      height: 75,
+                      decoration: BoxDecoration(
+                          border: Border(
+                              left: BorderSide(
+                                  color: Color(0xff2F8F9D), width: 5))),
+                      child: Column(
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12, top: 5, right: 12),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      "Otros",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2F8F9D),
                                       ),
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      )
-                                    ]),
-                              ),
-                              Padding(
-                                  padding: const EdgeInsets.only(right: 5),
-                                  child: Container(
-                                      width: 24,
-                                      height: 24,
-                                      child: Icon(Icons.chevron_right,
-                                          color: Color(0xff2F8F9D))))
-                            ]))
-                    //SizedBox
-                  ],
+                                    )
+                                  ])),
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 25, top: 7, bottom: 7),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Flexible(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            SizedBox(
+                                                height: 40,
+                                                child: ListView.builder(
+                                                    shrinkWrap: true,
+                                                    physics:
+                                                        const NeverScrollableScrollPhysics(),
+                                                    itemCount:
+                                                        othersList.length > 3
+                                                            ? 3
+                                                            : othersList.length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return Text(
+                                                        othersList[index],
+                                                        style: const TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color:
+                                                              Color(0xff67757F),
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      );
+                                                    }))
+                                          ]),
+                                    ),
+                                    Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 5),
+                                        child: Container(
+                                            width: 24,
+                                            height: 24,
+                                            child: Icon(Icons.chevron_right,
+                                                color: Color(0xff2F8F9D))))
+                                  ]))
+                          //SizedBox
+                        ],
+                      )),
+                  clipper: ShapeBorderClipper(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3))),
                 )),
-            clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3))),
-          )),
+          );
+        }
+        return CircularProgressIndicator();
+      },
     );
-    return SizedBox(
+/*    return SizedBox(
       height: 0,
-    );
+    );*/
   }
 
   getActivityTreatmentCard() {
-    return InkWell(
-      onTap: () {
-        /* Navigator.push(
+    return FutureBuilder(
+      future: activityFuture,
+      builder: (context, AsyncSnapshot snapshot) {
+        //patientUser = user.User.fromSnapshot(snapshot.data);
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (activitiesList.isEmpty) {
+            return staticComponents.emptyBox;
+          }
+          return InkWell(
+            onTap: () {
+              /* Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PatientDetailScreen(treatments[index].userId),
         )
       );*/
-      },
-      child: Card(
-          color: Color(0xffF1F1F1),
-          margin: EdgeInsets.only(top: 10, bottom: 10),
-          child: ClipPath(
-            child: Container(
-                height: 75,
-                decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
-                child: Column(
-                  children: [
-                    Padding(
-                        padding:
-                            const EdgeInsets.only(left: 12, top: 5, right: 12),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text(
-                                "Actividad Física",
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xff2F8F9D),
-                                ),
-                              )
-                            ])),
-                    Padding(
-                        padding:
-                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Flexible(
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+            },
+            child: Card(
+                color: Color(0xffF1F1F1),
+                margin: EdgeInsets.only(top: 10, bottom: 10),
+                child: ClipPath(
+                  child: Container(
+                      height: 75,
+                      decoration: BoxDecoration(
+                          border: Border(
+                              left: BorderSide(
+                                  color: Color(0xff2F8F9D), width: 5))),
+                      child: Column(
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12, top: 5, right: 12),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      "Actividad Física",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2F8F9D),
                                       ),
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        "• To be completed, to be completed, to be completed",
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      )
-                                    ]),
-                              ),
-                              Padding(
-                                  padding: const EdgeInsets.only(right: 5),
-                                  child: Container(
-                                      width: 24,
-                                      height: 24,
-                                      child: Icon(Icons.chevron_right,
-                                          color: Color(0xff2F8F9D))))
-                            ]))
-                    //SizedBox
-                  ],
+                                    )
+                                  ])),
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 25, top: 7, bottom: 7),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Flexible(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            SizedBox(
+                                                height: 40,
+                                                child: ListView.builder(
+                                                    shrinkWrap: true,
+                                                    physics:
+                                                        const NeverScrollableScrollPhysics(),
+                                                    itemCount: activitiesList
+                                                                .length >
+                                                            3
+                                                        ? 3
+                                                        : activitiesList.length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return Text(
+                                                        activitiesList[index],
+                                                        style: const TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color:
+                                                              Color(0xff67757F),
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      );
+                                                    }))
+                                          ]),
+                                    ),
+                                    Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 5),
+                                        child: Container(
+                                            width: 24,
+                                            height: 24,
+                                            child: Icon(Icons.chevron_right,
+                                                color: Color(0xff2F8F9D))))
+                                  ]))
+                          //SizedBox
+                        ],
+                      )),
+                  clipper: ShapeBorderClipper(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3))),
                 )),
-            clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3))),
-          )),
+          );
+        }
+        return CircularProgressIndicator();
+      },
     );
+    /*
     return SizedBox(
       height: 0,
-    );
+    );*/
   }
 
   getEmptyStateCard(String message, bool showButton) {
@@ -1534,5 +1664,64 @@ class PatientDetailState extends State<PatientDetail> {
             builder: (BuildContext context) => isDoctorView
                 ? PatientDetailScreen(detailedUser!.userId!)
                 : HomeScreen()));
+  }
+
+  Future<List<String>> getMedicationPrescriptions(
+      String currentTreatmentId) async {
+    List<String> result = <String>[];
+    final db = FirebaseFirestore.instance;
+    var snapshot = await db
+        .collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY)
+        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
+        .get();
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      String currentValue = snapshot.docs[i][MEDICATION_NAME_KEY];
+      result.add(currentValue);
+    }
+    return result;
+  }
+
+  Future<List<String>> getActivityPrescriptions(
+      String currentTreatmentId) async {
+    List<String> result = <String>[];
+    final db = FirebaseFirestore.instance;
+    var snapshot = await db
+        .collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY)
+        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
+        .get();
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      String currentValue = snapshot.docs[i][ACTIVITY_NAME_KEY];
+      result.add(currentValue);
+    }
+    return result;
+  }
+
+  Future<List<String>> getNutritionPrescriptions(
+      String currentTreatmentId) async {
+    List<String> result = <String>[];
+    final db = FirebaseFirestore.instance;
+    var snapshot = await db
+        .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
+        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
+        .get();
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      String currentValue = snapshot.docs[i][NUTRITION_NAME_KEY];
+      result.add(currentValue);
+    }
+    return result;
+  }
+
+  Future<List<String>> getOthersPrescriptions(String currentTreatmentId) async {
+    List<String> result = <String>[];
+    final db = FirebaseFirestore.instance;
+    var snapshot = await db
+        .collection(OTHERS_PRESCRIPTION_COLLECTION_KEY)
+        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
+        .get();
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      String currentValue = snapshot.docs[i][OTHERS_NAME_KEY];
+      result.add(currentValue);
+    }
+    return result;
   }
 }
