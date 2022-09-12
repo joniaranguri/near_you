@@ -159,7 +159,6 @@ class MyApp extends StatelessWidget {
         LoginScreen.routeName: (ctx) => const LoginScreen(),
         SignupScreen.routeName: (ctx) => SignupScreen(),
         RoleSelectionScreen.routeName: (ctx) => RoleSelectionScreen(),
-        AddPrescriptionScreen.routeName: (ctx) => AddPrescriptionScreen(),
       },
     );
   }

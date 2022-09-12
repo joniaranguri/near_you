@@ -1,61 +1,83 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:near_you/Constants.dart';
+import 'package:near_you/model/medicationPrescription.dart';
 import 'package:near_you/model/treatment.dart';
-import 'package:near_you/screens/add_treatment_screen.dart';
-import 'package:near_you/screens/home_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
-import 'package:near_you/widgets/treatments_list.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-import '../common/static_common_functions.dart';
-import '../model/user.dart' as user;
+import '../model/activityPrescription.dart';
+import '../model/nutritionPrescription.dart';
+import '../model/othersPrescription.dart';
 import '../widgets/grouped_bar_chart.dart';
 
 class PrescriptionDetail extends StatefulWidget {
   final bool isDoctorView;
   Treatment? currentTreatment;
 
-  PrescriptionDetail(this.currentTreatment, {required this.isDoctorView});
+  int currentPageIndex;
 
-  factory PrescriptionDetail.forDoctorView(Treatment? paramTreatment) {
-    return PrescriptionDetail(
-      paramTreatment,
-      isDoctorView: true,
-    );
+  PrescriptionDetail(this.currentTreatment,
+      {required this.isDoctorView, required this.currentPageIndex});
+
+  factory PrescriptionDetail.forDoctorView(
+      Treatment? paramTreatment, int currentPageIndex) {
+    return PrescriptionDetail(paramTreatment,
+        isDoctorView: true, currentPageIndex: currentPageIndex);
   }
 
   factory PrescriptionDetail.forPrescriptionView(Treatment? paramTreatment) {
     return PrescriptionDetail(
       paramTreatment,
       isDoctorView: false,
+      currentPageIndex: 0,
     );
   }
 
   @override
-  PrescriptionDetailState createState() =>
-      PrescriptionDetailState(this.currentTreatment, this.isDoctorView);
+  PrescriptionDetailState createState() => PrescriptionDetailState(
+      this.currentTreatment, this.isDoctorView, this.currentPageIndex);
 }
 
 class PrescriptionDetailState extends State<PrescriptionDetail> {
   static StaticComponents staticComponents = StaticComponents();
-  user.User? detailedUser;
   Treatment? currentTreatment;
   int _currentPage = 0;
-  final PageController _pageController = PageController(initialPage: 0);
+  late final PageController _pageController;
   bool isDoctorView = true;
-  late final Future<Treatment> currentTreatmentFuture;
-  String? durationTypeValue;
-  String? durationValue;
-  String? pastilleValue;
-  String? pastilleQuantityValue;
-  String? periodicityValue;
-  String? descriptionValue;
-  String? startDateValue;
-  String? endDateValue;
+  late final Future<List<MedicationPrescription>> medicationPrescriptionFuture;
+  late final Future<List<NutritionPrescription>> nutritionPrescriptionFuture;
+  late final Future<List<ActivityPrescription>> activityPrescriptionFuture;
+  late final Future<List<OthersPrescription>> othersPrescriptionFuture;
 
-  String? durationTypeActivityValue;
+  String? medicationStartDateValue;
+  String? medicationNameValue;
+  String? medicationDurationNumberValue;
+  String? medicationDurationTypeValue;
+  String? medicationTypeValue;
+  String? medicationDoseValue;
+  String? medicationQuantityValue;
+  String? medicationPeriodicityValue;
+  String? medicationRecommendationValue;
+
+  String? nutritionNameValue;
+  String? nutritionCarboValue;
+  String? nutritionCaloriesValue;
+
+  String? activityNameValue;
+  String? activityActivityValue;
+  String? activityPeriodicityValue;
+  String? activityCaloriesValue;
+  String? activityTimeNumberValue;
+  String? activityTimeTypeValue;
+
+  String? othersNameValue;
+  String? othersDurationValue;
+  String? othersPeriodicityValue;
+  String? othersDetailValue;
+  String? othersRecommendationValue;
 
   int medicationsCount = 0;
 
@@ -71,31 +93,17 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   bool stateError = false;
   bool descriptionError = false;
 
-  static List<String> durationsList = ["días", "semanas", "meses", "años"];
-  static List<String> otherNamesList = [
-    "Insulina",
-    "Nivel de HbA1c",
-    "LDL",
-    "HDL",
-    "Triglicérido",
-    "Colesterol",
-    "Riesgo cardiovascular"
-  ];
-  static List<String> durationsActivityList = ["horas", "segundos", "horas"];
-  static List<String> pastilleTypeList = [
-    "Pastilla antidiabética",
-    "Otro tipo"
-  ];
-  static List<String> pastilleQuantitiesList = [
-    "1 pastilla",
-    "2 pastillas",
-    "3 pastillas",
-    "4 pastillas",
-    "5 pastillas"
-  ];
-  static List<String> periodicityList = ["Diaria", "Semanal", "Mensual"];
+  String? heightValue;
 
-  PrescriptionDetailState(this.currentTreatment, this.isDoctorView);
+  String? imcValue;
+
+  String? weightValue;
+
+  PrescriptionDetailState(
+      this.currentTreatment, this.isDoctorView, int currentPageIndex) {
+    _pageController = PageController(initialPage: currentPageIndex);
+    _currentPage = currentPageIndex;
+  }
 
   get blueIndicator => Expanded(
           child: SizedBox(
@@ -137,17 +145,16 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   @override
   void initState() {
-    currentTreatmentFuture =
-        getCurrentTReatmentById(detailedUser!.currentTreatment!);
-    currentTreatmentFuture.then((value) => {
+    medicationPrescriptionFuture = getMedicationPrescriptions();
+    medicationPrescriptionFuture.then((value) => {
           setState(() {
-            currentTreatment = value;
-            durationTypeValue = currentTreatment!.durationType;
-            durationValue = currentTreatment!.durationNumber;
-            pastilleValue = currentTreatment!.state;
-            descriptionValue = currentTreatment!.description;
-            startDateValue = currentTreatment!.startDate;
-            endDateValue = currentTreatment!.endDate;
+            //currentTreatment = value;
+            /*durationTypeValue = currentTreatment!.durationType;
+        durationValue = currentTreatment!.durationNumber;
+        pastilleValue = currentTreatment!.state;
+        descriptionValue = currentTreatment!.description;
+        startDateValue = currentTreatment!.startDate;
+        endDateValue = currentTreatment!.endDate;*/
           })
         });
     super.initState();
@@ -545,7 +552,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           ),
                           color: const Color(0xff2F8F9D),
                           textColor: Colors.white,
-                          onPressed: validateAndSave,
+                          onPressed: saveMedicationInDatabase,
                           child: const Text(
                             'Guardar',
                             style: TextStyle(
@@ -569,7 +576,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 borderRadius: BorderRadius.circular(30)),
                             textColor: const Color(0xff9D9CB5),
                             onPressed: () {
-                              deleteCurrentTreatment();
+                              Navigator.pop(context);
                             },
                             child: const Text(
                               'Cancelar',
@@ -606,7 +613,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           ),
                           color: const Color(0xff2F8F9D),
                           textColor: Colors.white,
-                          onPressed: validateAndSave,
+                          onPressed: saveNutritionInDatabase,
                           child: const Text(
                             'Guardar',
                             style: TextStyle(
@@ -630,7 +637,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 borderRadius: BorderRadius.circular(30)),
                             textColor: const Color(0xff9D9CB5),
                             onPressed: () {
-                              deleteCurrentTreatment();
+                              Navigator.pop(context);
                             },
                             child: const Text(
                               'Cancelar',
@@ -667,7 +674,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           ),
                           color: const Color(0xff2F8F9D),
                           textColor: Colors.white,
-                          onPressed: validateAndSave,
+                          onPressed: saveActivityInDatabase,
                           child: const Text(
                             'Guardar',
                             style: TextStyle(
@@ -691,7 +698,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 borderRadius: BorderRadius.circular(30)),
                             textColor: const Color(0xff9D9CB5),
                             onPressed: () {
-                              deleteCurrentTreatment();
+                              Navigator.pop(context);
                             },
                             child: const Text(
                               'Cancelar',
@@ -768,133 +775,69 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     );
   }
 
-  void goToAddTreatment(bool update) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        //TODO: Review this
-        builder: (context) => AddTreatmentScreen(
-            detailedUser!.userId!, update ? currentTreatment : null),
-      ),
-    );
-  }
-
-  void deleteCurrentTreatment() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          //Center Row contents horizontally,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Wrap(alignment: WrapAlignment.center, children: [
-              AlertDialog(
-                  shape: const RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.all(const Radius.circular(10))),
-                  content: Column(
-                    children: [
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      SvgPicture.asset(
-                        'assets/images/warning_icon.svg',
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Text('¿Desea eliminar el tratamiento\n actual?',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff67757F))),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            const SizedBox(
-                              height: 17,
-                            ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.all(15),
-                              color: const Color(0xff3BACB6),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                deleteCurrentTreatmentById();
-                              },
-                              child: const Text(
-                                'Si, Eliminar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  side: const BorderSide(
-                                      color: Color(0xff9D9CB5),
-                                      width: 1,
-                                      style: BorderStyle.solid)),
-                              padding: const EdgeInsets.all(15),
-                              color: Colors.white,
-                              textColor: const Color(0xff9D9CB5),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text(
-                                'Cancelar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            )
-                          ])
-                    ],
-                  ))
-            ])
-          ],
-        );
-      },
-    );
-  }
-
-  Future<Treatment> getCurrentTReatmentById(String currentTreatment) async {
+  Future<List<MedicationPrescription>> getMedicationPrescriptions() async {
+    List<MedicationPrescription> resultList = <MedicationPrescription>[];
     final db = FirebaseFirestore.instance;
-    var future =
-        await db.collection(TREATMENTS_KEY).doc(currentTreatment).get();
-    return Treatment.fromSnapshot(future);
+    var future = await db
+        .collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY)
+        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatment?.databaseId)
+        .get();
+    for (var element in future.docs) {
+      resultList.add(MedicationPrescription.fromSnapshot(element));
+    }
+    return resultList;
   }
 
+  Future<List<ActivityPrescription>> getActivityPrescriptions() async {
+    List<ActivityPrescription> resultList = <ActivityPrescription>[];
+    final db = FirebaseFirestore.instance;
+    var future = await db
+        .collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY)
+        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatment?.databaseId)
+        .get();
+    for (var element in future.docs) {
+      resultList.add(ActivityPrescription.fromSnapshot(element));
+    }
+    return resultList;
+  }
+
+  Future<List<NutritionPrescription>> getNutritionPrescriptions() async {
+    List<NutritionPrescription> resultList = <NutritionPrescription>[];
+    final db = FirebaseFirestore.instance;
+    var future = await db
+        .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
+        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatment?.databaseId)
+        .get();
+    for (var element in future.docs) {
+      resultList.add(NutritionPrescription.fromSnapshot(element));
+    }
+    return resultList;
+  }
+
+  Future<List<OthersPrescription>> getOthersPrescriptions() async {
+    List<OthersPrescription> resultList = <OthersPrescription>[];
+    final db = FirebaseFirestore.instance;
+    var future = await db
+        .collection(OTHERS_PRESCRIPTION_COLLECTION_KEY)
+        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatment?.databaseId)
+        .get();
+    for (var element in future.docs) {
+      resultList.add(OthersPrescription.fromSnapshot(element));
+    }
+    return resultList;
+  }
+
+  // TODO: delete
   Future<void> deleteCurrentTreatmentById() async {
     Navigator.pop(context);
     final db = FirebaseFirestore.instance;
     await db
         .collection(TREATMENTS_KEY)
-        .doc(detailedUser!.currentTreatment)
+        .doc(currentTreatment?.databaseId)
         .delete()
         //.onError((error, stackTrace) => )
         .whenComplete(() => {
-              db
-                  .collection(USERS_COLLECTION_KEY)
-                  .doc(detailedUser!.userId)
-                  .update({
+              db.collection(USERS_COLLECTION_KEY).doc("sarasa").update({
                 PATIENT_CURRENT_TREATMENT_KEY: EMPTY_STRING_VALUE
               }).whenComplete(() => showSuccessDeleteDialog())
             });
@@ -988,8 +931,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 : HomeScreen()));*/
   }
 
-  void validateAndSave() {
-    final FormState? form = medicationFormState.currentState;
+  /* void validateAndSave() {
+   final FormState? form = medicationFormState.currentState;
     bool durationValid = isNotEmtpy(durationTypeValue);
     bool stateValid = isNotEmtpy(pastilleValue);
     bool isValidDropdowns = durationValid && stateValid;
@@ -998,7 +941,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     if ((form?.validate() ?? false) && isValidDropdowns) {
       //saveIdDatabase();
     }
-  }
+  }*/
 
   getFormOrButtonAddMedication() {
     return Container(
@@ -1024,9 +967,35 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         ),
                         child: Column(
                           children: [
-                            const SizedBox(
-                              height: 10,
+                            sizedBox10,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                SizedBox(
+                                  height: durationError ? 55 : 35,
+                                  width: 230,
+                                  child: TextFormField(
+                                      controller: TextEditingController(
+                                          text: medicationNameValue),
+                                      onChanged: (value) {
+                                        medicationNameValue = value;
+                                      },
+                                      style: const TextStyle(fontSize: 14),
+                                      decoration: staticComponents
+                                          .getMiddleInputDecoration(
+                                              'Estatina -  30 ml/gm')),
+                                ),
+                                Flexible(
+                                    child: SizedBox(
+                                        height: 35,
+                                        child: Icon(
+                                          Icons.check,
+                                          color: Color(0xff999999),
+                                        )))
+                              ],
                             ),
+                            sizedBox10,
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -1052,7 +1021,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                   },
                                   readOnly: true,
                                   controller: TextEditingController(
-                                      text: startDateValue),
+                                      text: medicationStartDateValue),
                                   onTap: () {
                                     //  selectStartDate(context);
                                   },
@@ -1112,9 +1081,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                           });
                                         },
                                         controller: TextEditingController(
-                                            text: durationValue),
+                                            text:
+                                                medicationDurationNumberValue),
                                         onChanged: (value) {
-                                          durationValue = value;
+                                          medicationDurationNumberValue = value;
                                         },
                                         style: const TextStyle(fontSize: 14),
                                         decoration: staticComponents
@@ -1151,7 +1121,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                                             Color(0xFF999999)),
                                                   ),
                                                   dropdownColor: Colors.white,
-                                                  value: durationTypeValue,
+                                                  value:
+                                                      medicationDurationTypeValue,
                                                   icon: Padding(
                                                     padding:
                                                         const EdgeInsetsDirectional
@@ -1164,7 +1135,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                                   ),
                                                   onChanged: (newValue) {
                                                     setState(() {
-                                                      durationTypeValue =
+                                                      medicationDurationTypeValue =
                                                           newValue.toString();
                                                     });
                                                   },
@@ -1222,7 +1193,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                             color: Color(0xFF999999)),
                                       ),
                                       dropdownColor: Colors.white,
-                                      value: pastilleValue,
+                                      value: medicationTypeValue,
                                       icon: Padding(
                                         padding:
                                             const EdgeInsetsDirectional.only(
@@ -1233,7 +1204,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                       ),
                                       onChanged: (newValue) {
                                         setState(() {
-                                          pastilleValue = newValue.toString();
+                                          medicationTypeValue =
+                                              newValue.toString();
                                         });
                                       },
                                       items:
@@ -1280,9 +1252,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                     });
                                   },
                                   controller: TextEditingController(
-                                      text: durationValue),
+                                      text: medicationDoseValue),
                                   onChanged: (value) {
-                                    durationValue = value;
+                                    medicationDoseValue = value;
                                   },
                                   style: const TextStyle(fontSize: 14),
                                   decoration:
@@ -1329,7 +1301,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                             color: Color(0xFF999999)),
                                       ),
                                       dropdownColor: Colors.white,
-                                      value: pastilleQuantityValue,
+                                      value: medicationQuantityValue,
                                       icon: Padding(
                                         padding:
                                             const EdgeInsetsDirectional.only(
@@ -1340,7 +1312,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                       ),
                                       onChanged: (newValue) {
                                         setState(() {
-                                          pastilleQuantityValue =
+                                          medicationQuantityValue =
                                               newValue.toString();
                                         });
                                       },
@@ -1395,7 +1367,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                             color: Color(0xFF999999)),
                                       ),
                                       dropdownColor: Colors.white,
-                                      value: periodicityValue,
+                                      value: medicationPeriodicityValue,
                                       icon: Padding(
                                         padding:
                                             const EdgeInsetsDirectional.only(
@@ -1406,7 +1378,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                       ),
                                       onChanged: (newValue) {
                                         setState(() {
-                                          periodicityValue =
+                                          medicationPeriodicityValue =
                                               newValue.toString();
                                         });
                                       },
@@ -1446,17 +1418,17 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                   durationError = false;
                                 });
                               },
-                              controller:
-                                  TextEditingController(text: durationValue),
+                              controller: TextEditingController(
+                                  text: medicationRecommendationValue),
                               onChanged: (value) {
-                                durationValue = value;
+                                medicationRecommendationValue = value;
                               },
                               style: const TextStyle(fontSize: 14),
-                              minLines: 3,
+                              minLines: 2,
                               maxLines: 10,
                               textAlignVertical: TextAlignVertical.center,
                               decoration: staticComponents
-                                  .getMiddleInputDecoration('Agregar texto'),
+                                  .getBigInputDecoration('Agregar texto'),
                             ),
                             const SizedBox(
                               height: 10,
@@ -1545,9 +1517,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 });
                               },
                               controller:
-                                  TextEditingController(text: durationValue),
+                                  TextEditingController(text: weightValue),
                               onChanged: (value) {
-                                durationValue = value;
+                                weightValue = value;
                               },
                               style: const TextStyle(fontSize: 14),
                               decoration: staticComponents
@@ -1594,9 +1566,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 });
                               },
                               controller:
-                                  TextEditingController(text: durationValue),
+                                  TextEditingController(text: heightValue),
                               onChanged: (value) {
-                                durationValue = value;
+                                heightValue = value;
                               },
                               style: const TextStyle(fontSize: 14),
                               decoration: staticComponents
@@ -1638,9 +1610,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             durationError = false;
                           });
                         },
-                        controller: TextEditingController(text: durationValue),
+                        controller: TextEditingController(text: imcValue),
                         onChanged: (value) {
-                          durationValue = value;
+                          imcValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration:
@@ -1791,7 +1763,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text("Alimentos no permitidos",
+                      Text("Rutinas físicas no permitidas",
                           style: TextStyle(
                               fontSize: 14, color: Color(0xff999999))),
                     ],
@@ -1869,7 +1841,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           ))
                     ],
                   ),
-                  getButtonAddRoutineOrList(),
+                  getButtonOrOthersList(),
                   const SizedBox(height: 2),
                   getSelectOtherName(),
                   getOthersButtons()
@@ -1922,9 +1894,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       height: durationError ? 55 : 35,
                       width: 180,
                       child: TextFormField(
-                        controller: TextEditingController(text: durationValue),
+                        controller:
+                            TextEditingController(text: nutritionNameValue),
                         onChanged: (value) {
-                          durationValue = value;
+                          nutritionNameValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
@@ -1974,9 +1947,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         durationError = false;
                       });
                     },
-                    controller: TextEditingController(text: durationValue),
+                    controller:
+                        TextEditingController(text: nutritionCarboValue),
                     onChanged: (value) {
-                      durationValue = value;
+                      nutritionCarboValue = value;
                     },
                     style: const TextStyle(fontSize: 14),
                     decoration: staticComponents
@@ -2005,9 +1979,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         durationError = false;
                       });
                     },
-                    controller: TextEditingController(text: durationValue),
+                    controller:
+                        TextEditingController(text: nutritionCaloriesValue),
                     onChanged: (value) {
-                      durationValue = value;
+                      nutritionCaloriesValue = value;
                     },
                     style: const TextStyle(fontSize: 14),
                     decoration:
@@ -2060,9 +2035,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       height: durationError ? 55 : 35,
                       width: 180,
                       child: TextFormField(
-                        controller: TextEditingController(text: durationValue),
+                        controller:
+                            TextEditingController(text: nutritionNameValue),
                         onChanged: (value) {
-                          durationValue = value;
+                          nutritionNameValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
@@ -2112,9 +2088,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         durationError = false;
                       });
                     },
-                    controller: TextEditingController(text: durationValue),
+                    controller:
+                        TextEditingController(text: nutritionCarboValue),
                     onChanged: (value) {
-                      durationValue = value;
+                      nutritionCarboValue = value;
                     },
                     style: const TextStyle(fontSize: 14),
                     decoration: staticComponents
@@ -2143,9 +2120,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         durationError = false;
                       });
                     },
-                    controller: TextEditingController(text: durationValue),
+                    controller:
+                        TextEditingController(text: nutritionCaloriesValue),
                     onChanged: (value) {
-                      durationValue = value;
+                      nutritionCaloriesValue = value;
                     },
                     style: const TextStyle(fontSize: 14),
                     decoration:
@@ -2198,9 +2176,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       height: durationError ? 55 : 35,
                       width: 180,
                       child: TextFormField(
-                        controller: TextEditingController(text: durationValue),
+                        controller:
+                            TextEditingController(text: activityNameValue),
                         onChanged: (value) {
-                          durationValue = value;
+                          activityNameValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
@@ -2224,6 +2203,13 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 ],
               ),
               sizedBox10,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Actividad",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                ],
+              ),
               Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
@@ -2330,10 +2316,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               durationError = false;
                             });
                           },
-                          controller:
-                              TextEditingController(text: durationValue),
+                          controller: TextEditingController(
+                              text: activityTimeNumberValue),
                           onChanged: (value) {
-                            durationValue = value;
+                            activityTimeNumberValue = value;
                           },
                           style: const TextStyle(fontSize: 14),
                           decoration:
@@ -2367,7 +2353,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                       fontSize: 14, color: Color(0xFF999999)),
                                 ),
                                 dropdownColor: Colors.white,
-                                value: durationTypeActivityValue,
+                                value: activityTimeTypeValue,
                                 icon: Padding(
                                   padding: const EdgeInsetsDirectional.only(
                                       end: 12.0),
@@ -2377,8 +2363,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 ),
                                 onChanged: (newValue) {
                                   setState(() {
-                                    durationTypeActivityValue =
-                                        newValue.toString();
+                                    activityTimeTypeValue = newValue.toString();
                                   });
                                 },
                                 items: durationsActivityList.map((String item) {
@@ -2429,7 +2414,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               TextStyle(fontSize: 14, color: Color(0xFF999999)),
                         ),
                         dropdownColor: Colors.white,
-                        value: periodicityValue,
+                        value: activityPeriodicityValue,
                         icon: Padding(
                           padding: const EdgeInsetsDirectional.only(end: 12.0),
                           child: Icon(Icons.keyboard_arrow_down,
@@ -2438,7 +2423,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         ),
                         onChanged: (newValue) {
                           setState(() {
-                            periodicityValue = newValue.toString();
+                            activityPeriodicityValue = newValue.toString();
                           });
                         },
                         items: periodicityList.map((String item) {
@@ -2478,9 +2463,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         durationError = false;
                       });
                     },
-                    controller: TextEditingController(text: durationValue),
+                    controller:
+                        TextEditingController(text: activityCaloriesValue),
                     onChanged: (value) {
-                      durationValue = value;
+                      activityCaloriesValue = value;
                     },
                     style: const TextStyle(fontSize: 14),
                     decoration:
@@ -2533,9 +2519,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       height: durationError ? 55 : 35,
                       width: 180,
                       child: TextFormField(
-                        controller: TextEditingController(text: durationValue),
+                        controller:
+                            TextEditingController(text: activityNameValue),
                         onChanged: (value) {
-                          durationValue = value;
+                          activityNameValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
@@ -2665,10 +2652,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               durationError = false;
                             });
                           },
-                          controller:
-                              TextEditingController(text: durationValue),
+                          controller: TextEditingController(
+                              text: activityTimeNumberValue),
                           onChanged: (value) {
-                            durationValue = value;
+                            activityTimeNumberValue = value;
                           },
                           style: const TextStyle(fontSize: 14),
                           decoration:
@@ -2702,7 +2689,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                       fontSize: 14, color: Color(0xFF999999)),
                                 ),
                                 dropdownColor: Colors.white,
-                                value: durationTypeActivityValue,
+                                value: activityTimeTypeValue,
                                 icon: Padding(
                                   padding: const EdgeInsetsDirectional.only(
                                       end: 12.0),
@@ -2712,8 +2699,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 ),
                                 onChanged: (newValue) {
                                   setState(() {
-                                    durationTypeActivityValue =
-                                        newValue.toString();
+                                    activityTimeTypeValue = newValue.toString();
                                   });
                                 },
                                 items: durationsActivityList.map((String item) {
@@ -2764,7 +2750,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               TextStyle(fontSize: 14, color: Color(0xFF999999)),
                         ),
                         dropdownColor: Colors.white,
-                        value: periodicityValue,
+                        value: activityPeriodicityValue,
                         icon: Padding(
                           padding: const EdgeInsetsDirectional.only(end: 12.0),
                           child: Icon(Icons.keyboard_arrow_down,
@@ -2773,7 +2759,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         ),
                         onChanged: (newValue) {
                           setState(() {
-                            periodicityValue = newValue.toString();
+                            activityPeriodicityValue = newValue.toString();
                           });
                         },
                         items: periodicityList.map((String item) {
@@ -2813,9 +2799,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         durationError = false;
                       });
                     },
-                    controller: TextEditingController(text: durationValue),
+                    controller:
+                        TextEditingController(text: activityCaloriesValue),
                     onChanged: (value) {
-                      durationValue = value;
+                      activityCaloriesValue = value;
                     },
                     style: const TextStyle(fontSize: 14),
                     decoration:
@@ -2938,7 +2925,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           ),
                           color: const Color(0xff2F8F9D),
                           textColor: Colors.white,
-                          onPressed: validateAndSave,
+                          onPressed: saveOtherInDatabase,
                           child: const Text(
                             'Guardar',
                             style: TextStyle(
@@ -2962,7 +2949,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 borderRadius: BorderRadius.circular(30)),
                             textColor: const Color(0xff9D9CB5),
                             onPressed: () {
-                              deleteCurrentTreatment();
+                              Navigator.pop(context);
                             },
                             child: const Text(
                               'Cancelar',
@@ -2977,5 +2964,349 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     ])),
           )
         : SizedBox(height: 0);
+  }
+
+  saveOtherInDatabase() {
+    final db = FirebaseFirestore.instance;
+    final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
+    final data = <String, String>{
+      TREATMENT_ID_KEY: currentTreatmentDatabaseId,
+      OTHERS_NAME_KEY: othersNameValue ?? "",
+      OTHERS_DURATION_KEY: othersDurationValue ?? "",
+      OTHERS_PERIODICITY_KEY: othersPeriodicityValue ?? "",
+      OTHERS_DETAIL_KEY: othersDetailValue ?? "",
+      OTHERS_RECOMMENDATION_KEY: othersRecommendationValue ?? ""
+    };
+    db.collection(OTHERS_PRESCRIPTION_COLLECTION_KEY).add(data).then((value) =>
+        saveInPendingListAndGoBack(PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY,
+            value.id, currentTreatmentDatabaseId));
+  }
+
+  saveActivityInDatabase() {
+    final db = FirebaseFirestore.instance;
+    final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
+    final data = <String, String>{
+      TREATMENT_ID_KEY: currentTreatmentDatabaseId,
+      ACTIVITY_NAME_KEY: activityNameValue ?? "",
+      ACTIVITY_ACTIVITY_KEY: activityActivityValue ?? "",
+      ACTIVITY_TIME_NUMBER_KEY: activityTimeNumberValue ?? "",
+      ACTIVITY_TIME_TYPE_KEY: activityTimeTypeValue ?? "",
+      ACTIVITY_PERIODICITY_KEY: activityPeriodicityValue ?? "",
+      ACTIVITY_CALORIES_KEY: activityCaloriesValue ?? ""
+    };
+    db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).add(data).then(
+        (value) => saveInPendingListAndGoBack(
+            PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY,
+            value.id,
+            currentTreatmentDatabaseId));
+  }
+
+  saveMedicationInDatabase() {
+    final db = FirebaseFirestore.instance;
+    final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
+    final data = <String, String>{
+      TREATMENT_ID_KEY: currentTreatmentDatabaseId,
+      MEDICATION_NAME_KEY: medicationNameValue ?? "",
+      MEDICATION_START_DATE_KEY: medicationStartDateValue ?? "",
+      MEDICATION_DURATION_NUMBER_KEY: medicationDurationNumberValue ?? "",
+      MEDICATION_DURATION_TYPE_KEY: medicationDurationTypeValue ?? "",
+      MEDICATION_PASTILLE_TYPE_KEY: medicationTypeValue ?? "",
+      MEDICATION_DOSE_KEY: medicationDoseValue ?? "",
+      MEDICATION_QUANTITY_KEY: medicationQuantityValue ?? "",
+      MEDICATION_PERIODICITY_KEY: medicationPeriodicityValue ?? "",
+      MEDICATION_RECOMMENDATION_KEY: medicationRecommendationValue ?? ""
+    };
+    db.collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY).add(data).then(
+        (value) => saveInPendingListAndGoBack(
+            PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY,
+            value.id,
+            currentTreatmentDatabaseId));
+  }
+
+  saveNutritionInDatabase() {
+    final db = FirebaseFirestore.instance;
+    final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
+    final data = <String, String>{
+      TREATMENT_ID_KEY: currentTreatmentDatabaseId,
+      NUTRITION_NAME_KEY: nutritionNameValue ?? "",
+      NUTRITION_CARBOHYDRATES_KEY: nutritionCarboValue ?? "",
+      NUTRITION_MAX_CALORIES_KEY: nutritionCaloriesValue ?? "",
+    };
+    db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).add(data).then(
+        (value) => saveInPendingListAndGoBack(
+            PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY,
+            value.id,
+            currentTreatmentDatabaseId));
+  }
+
+  getButtonOrOthersList() {
+    bool conditionToShowButton = false;
+    return conditionToShowButton
+        ? GestureDetector(
+            onTap: () {
+              //show add
+            },
+            child: TextField(
+                minLines: 1,
+                maxLines: 10,
+                enabled: false,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  prefixIcon: Icon(Icons.circle, color: Colors.white),
+                  filled: true,
+                  fillColor: Color(0xffD9D9D9),
+                  hintText: "Agregar rutina física",
+                  hintStyle:
+                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  focusedBorder: borderGray,
+                  border: borderGray,
+                  enabledBorder: borderGray,
+                )
+                // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+
+                ))
+        : Container(
+            //height: double.maxFinite,
+            //  width: double.infinity,
+            padding: EdgeInsets.all(10),
+            decoration: const BoxDecoration(
+              color: Color(0xffD9D9D9),
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            ),
+            child: Column(children: [
+              sizedBox10,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                      height: durationError ? 55 : 35,
+                      child: Text(activityNameValue ?? "Nombre",
+                          style: TextStyle(
+                              fontSize: 14, color: Color(0xFF999999))))
+                ],
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <
+                  Widget>[
+                SizedBox(
+                    width: 80,
+                    child: Text("Duración",
+                        style:
+                            TextStyle(fontSize: 14, color: Color(0xFF999999)))),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 1),
+                  child: SizedBox(
+                      height: durationError ? 45 : 25,
+                      width: 60,
+                      child: TextFormField(
+                        validator: (value) {
+                          if (value == null || value == '') {
+                            setState(() {
+                              durationError = true;
+                            });
+                            return "Complete el campo";
+                          }
+                          setState(() {
+                            durationError = false;
+                          });
+                        },
+                        controller: TextEditingController(
+                            text: activityTimeNumberValue),
+                        onChanged: (value) {
+                          activityTimeNumberValue = value;
+                        },
+                        style: const TextStyle(fontSize: 14),
+                        decoration:
+                            staticComponents.getMiddleInputDecoration('-'),
+                      )),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 1),
+                  child: SizedBox(
+                      height: durationError ? 45 : 25,
+                      width: 60,
+                      child: TextFormField(
+                        validator: (value) {
+                          if (value == null || value == '') {
+                            setState(() {
+                              durationError = true;
+                            });
+                            return "Complete el campo";
+                          }
+                          setState(() {
+                            durationError = false;
+                          });
+                        },
+                        controller: TextEditingController(
+                            text: activityTimeNumberValue),
+                        onChanged: (value) {
+                          activityTimeNumberValue = value;
+                        },
+                        style: const TextStyle(fontSize: 14),
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 0, horizontal: 10),
+                            filled: true,
+                            hintText: "dias",
+                            hintStyle: const TextStyle(
+                                fontSize: 14, color: Color(0xFF999999)),
+                            enabledBorder: staticComponents.middleInputBorder,
+                            border: staticComponents.middleInputBorder,
+                            focusedBorder: staticComponents.middleInputBorder),
+                      )),
+                )
+              ]),
+              sizedBox10,
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <
+                  Widget>[
+                SizedBox(
+                    width: 80,
+                    child: Text("Periodicidad",
+                        style:
+                            TextStyle(fontSize: 14, color: Color(0xFF999999)))),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 1),
+                  child: SizedBox(
+                      height: durationError ? 45 : 25,
+                      width: 60,
+                      child: TextFormField(
+                        validator: (value) {
+                          if (value == null || value == '') {
+                            setState(() {
+                              durationError = true;
+                            });
+                            return "Complete el campo";
+                          }
+                          setState(() {
+                            durationError = false;
+                          });
+                        },
+                        controller: TextEditingController(
+                            text: activityTimeNumberValue),
+                        onChanged: (value) {
+                          activityTimeNumberValue = value;
+                        },
+                        style: const TextStyle(fontSize: 14),
+                        decoration:
+                            staticComponents.getMiddleInputDecoration('-'),
+                      )),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 1),
+                  child: SizedBox(
+                      height: durationError ? 45 : 25,
+                      width: 60,
+                      child: TextFormField(
+                        validator: (value) {
+                          if (value == null || value == '') {
+                            setState(() {
+                              durationError = true;
+                            });
+                            return "Complete el campo";
+                          }
+                          setState(() {
+                            durationError = false;
+                          });
+                        },
+                        controller: TextEditingController(
+                            text: activityTimeNumberValue),
+                        onChanged: (value) {
+                          activityTimeNumberValue = value;
+                        },
+                        style: const TextStyle(fontSize: 14),
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 0, horizontal: 10),
+                            filled: true,
+                            hintText: "dias",
+                            hintStyle: const TextStyle(
+                                fontSize: 14, color: Color(0xFF999999)),
+                            enabledBorder: staticComponents.middleInputBorder,
+                            border: staticComponents.middleInputBorder,
+                            focusedBorder: staticComponents.middleInputBorder),
+                      )),
+                )
+              ]),
+              sizedBox10,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Detalle",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                ],
+              ),
+              sizedBox10,
+              TextFormField(
+                validator: (value) {
+                  if (value == null || value == '') {
+                    setState(() {
+                      durationError = true;
+                    });
+                    return "Complete el campo";
+                  }
+                  setState(() {
+                    durationError = false;
+                  });
+                },
+                controller:
+                    TextEditingController(text: medicationRecommendationValue),
+                onChanged: (value) {
+                  medicationRecommendationValue = value;
+                },
+                style: const TextStyle(fontSize: 14),
+                minLines: 2,
+                maxLines: 10,
+                textAlignVertical: TextAlignVertical.center,
+                decoration:
+                    staticComponents.getBigInputDecoration('Agregar texto'),
+              ),
+              sizedBox10,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Recomendación",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                ],
+              ),
+              sizedBox10,
+              TextFormField(
+                validator: (value) {
+                  if (value == null || value == '') {
+                    setState(() {
+                      durationError = true;
+                    });
+                    return "Complete el campo";
+                  }
+                  setState(() {
+                    durationError = false;
+                  });
+                },
+                controller:
+                    TextEditingController(text: medicationRecommendationValue),
+                onChanged: (value) {
+                  medicationRecommendationValue = value;
+                },
+                style: const TextStyle(fontSize: 14),
+                minLines: 2,
+                maxLines: 10,
+                textAlignVertical: TextAlignVertical.center,
+                decoration:
+                    staticComponents.getBigInputDecoration('Agregar texto'),
+              ),
+            ]));
+  }
+
+  saveInPendingListAndGoBack(
+      String idKey, String prescriptionId, String currentTreatmentDatabaseId) {
+    final db = FirebaseFirestore.instance;
+    final data = <String, String>{
+      PENDING_PRESCRIPTIONS_ID_KEY: prescriptionId,
+      PENDING_PRESCRIPTIONS_TREATMENT_KEY: currentTreatmentDatabaseId,
+    };
+    db
+        .collection(idKey)
+        .add(data)
+        .then((value) => Navigator.pop(context, _currentPage));
   }
 }

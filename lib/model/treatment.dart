@@ -5,6 +5,7 @@ import '../Constants.dart';
 class Treatment {
   Treatment(
       {
+        required this.databaseId,
         required this.treatmentId,
       required this.medicoId,
       required this.patientId,
@@ -18,6 +19,7 @@ class Treatment {
 
   int? treatmentId;
   String? medicoId;
+  String? databaseId;
   String? patientId;
   String? startDate;
   String? endDate;
@@ -26,11 +28,16 @@ class Treatment {
   String? state;
 
   String? description;
+  /*  String? weight;
+  String? height;
+  String? imc;*/
 
   List<String>? prescriptions;
 
   factory Treatment.empty() {
-    return Treatment(treatmentId: 0, medicoId: "",
+    return Treatment(
+        databaseId :"",
+        treatmentId: 0, medicoId: "",
         patientId: "",
         startDate: "d",
         endDate: "",
@@ -43,6 +50,7 @@ class Treatment {
   factory Treatment.fromSnapshot(snapshot) {
     var realData = snapshot.data();
     return Treatment(
+        databaseId: realData[TREATMENT_DATABASE_ID],
         treatmentId: realData[TREATMENT_ID_KEY],
         medicoId: realData[MEDICO_ID_KEY],
         patientId: realData[PATIENT_ID_KEY],

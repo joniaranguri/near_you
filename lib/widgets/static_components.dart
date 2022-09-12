@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class StaticComponents {
+  get emptyBox => const SizedBox(
+    height: 0,
+  );
   get inputBorder => OutlineInputBorder(
       borderSide: const BorderSide(color: Color(0xffCECECE)),
       borderRadius: BorderRadius.circular(10));
@@ -47,5 +50,18 @@ class StaticComponents {
         border: middleInputBorder,
         focusedBorder: middleInputBorder
     );
+  }
+
+    getBigInputDecoration(String hint) {
+      return InputDecoration(
+          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+          filled: true,
+          fillColor: Colors.white,
+          hintText: hint,
+          hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+          enabledBorder: middleInputBorder,
+          border: middleInputBorder,
+          focusedBorder: middleInputBorder
+      );
   }
 }

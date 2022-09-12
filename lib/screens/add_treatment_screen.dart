@@ -51,6 +51,12 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   late final bool isUpdate;
   var _currentIndex = 1;
 
+  bool showAddPrescriptionCards = false;
+
+  bool hasPendingTreatment = false;
+
+  String? pendingTreatmentId;
+
   _AddTreatmentScreenState(this.userId, this.currentTreatment) {
     isUpdate = currentTreatment != null;
   }
@@ -663,7 +669,11 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                 ),
                                 GestureDetector(
                                     onTap: () {
-                                      addPrescription();
+                                      Feedback.forTap(context);
+                                      setState(() {
+                                        showAddPrescriptionCards =
+                                            !showAddPrescriptionCards;
+                                      });
                                     },
                                     child: TextField(
                                         minLines: 1,
@@ -694,25 +704,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                 const SizedBox(
                                   height: 30,
                                 ),
-                                Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: <Widget>[
-                                      Text(
-                                        "Prescripción",
-                                        style: TextStyle(
-                                            color: Color(0xff2F8F9D),
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 14),
-                                      )
-                                    ]),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                getMedicationTreatmentCard(),
-                                getNutritionTreatmentCard(),
-                                getActivityTreatmentCard(),
-                                getOtherTreatmentCard(),
+                                getAddPrescriptionCards(),
                                 getTreatmentButtons()
                               ],
                             )))),
@@ -803,7 +795,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   getNutritionTreatmentCard() {
     return InkWell(
       onTap: () {
-      goToAddPrescription(1);
+        goToAddPrescription(1);
       },
       child: Card(
           color: Color(0xffF1F1F1),
@@ -877,7 +869,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   getOtherTreatmentCard() {
     return InkWell(
       onTap: () {
-        goToAddPrescription(2);
+        goToAddPrescription(3);
       },
       child: Card(
           color: Color(0xffF1F1F1),
@@ -951,7 +943,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   getActivityTreatmentCard() {
     return InkWell(
       onTap: () {
-        goToAddPrescription(3);
+        goToAddPrescription(2);
       },
       child: Card(
           color: Color(0xffF1F1F1),
@@ -1158,13 +1150,61 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   }
 
   void goToAddPrescription(int currentIndex) {
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) =>
-                AddPrescriptionScreen(patientUser!.userId!, currentIndex)))
-        .then((value) =>
-        print("FUNCIONAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    );
+    var currentTreatmentId = patientUser?.currentTreatment;
+    String? medicoId = FirebaseAuth.instance.currentUser?.uid;
+    if (!isUpdate) {
+      final db = FirebaseFirestore.instance;
+      db.collection(TREATMENTS_KEY).add({
+        USER_ID_KEY: userId,
+        MEDICO_ID_KEY: medicoId!,
+      }).then((treatment) => savePendingTreatment(treatment, currentIndex));
+    } else {
+      navigateWithResult(currentTreatmentId, currentIndex);
+    }
+  }
+
+  void navigateWithResult(String? currentTreatmentId, int currentIndex) {
+    Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    AddPrescriptionScreen(currentTreatmentId, currentIndex)))
+        .then((value) => print(value));
+  }
+
+  getAddPrescriptionCards() {
+    if (showAddPrescriptionCards) {
+      return Column(
+        children: [
+          Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(
+                  "Prescripción",
+                  style: TextStyle(
+                      color: Color(0xff2F8F9D),
+                      fontWeight: FontWeight.normal,
+                      fontSize: 14),
+                )
+              ]),
+          const SizedBox(
+            height: 10,
+          ),
+          getMedicationTreatmentCard(),
+          getNutritionTreatmentCard(),
+          getActivityTreatmentCard(),
+          getOtherTreatmentCard(),
+        ],
+      );
+    } else {
+      return staticComponents.emptyBox;
+    }
+  }
+
+  savePendingTreatment(
+      DocumentReference<Map<String, dynamic>> treatment, int currentIndex) {
+    hasPendingTreatment = true;
+    pendingTreatmentId = treatment.id;
+    navigateWithResult(pendingTreatmentId, currentIndex);
   }
 }

@@ -18,26 +18,30 @@ class AddPrescriptionScreen extends StatefulWidget {
   AddPrescriptionScreen(this.treatmentId, this.currentIndex);
 
   @override
-  _AddPrescriptionScreenState createState() => _AddPrescriptionScreenState(treatmentId, currentIndex);
+  _AddPrescriptionScreenState createState() =>
+      _AddPrescriptionScreenState(treatmentId, currentIndex);
 }
 
 class _AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
   Treatment? currentTreatment;
-  late final Future<DocumentSnapshot> futureUser;
+  late final Future<DocumentSnapshot> futureTreatment;
 
   bool isModify = false;
   int _currentIndex = 1;
 
   String treatmentId;
 
-  _AddPrescriptionScreenState(this.treatmentId, this._currentIndex);
+  int currentPageIndex = 0;
+
+  _AddPrescriptionScreenState(this.treatmentId, this.currentPageIndex);
 
   @override
   void initState() {
-    futureUser = getUserById(treatmentId);
-    futureUser.then((value) => {
+    futureTreatment = getTreatmentById(treatmentId);
+    futureTreatment.then((value) => {
           setState(() {
             currentTreatment = Treatment.fromSnapshot(value);
+            currentTreatment?.databaseId = treatmentId;
           })
         });
     super.initState();
@@ -59,7 +63,7 @@ class _AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
                       isModify ? "Actualizar \nPrescripción" : "Prescripción",
                       style: TextStyle(
                           color: Colors.white,
-                          fontSize: isModify?22:25,
+                          fontSize: isModify ? 22 : 25,
                           fontWeight: FontWeight.bold))),
               elevation: 0,
               leading: IconButton(
@@ -97,14 +101,14 @@ class _AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
                               height: 10,
                             ),
                             FutureBuilder(
-                              future: futureUser,
+                              future: futureTreatment,
                               builder: (context, AsyncSnapshot snapshot) {
                                 //patientUser = user.User.fromSnapshot(snapshot.data);
                                 if (snapshot.connectionState ==
                                     ConnectionState.done) {
                                   return getScreenType();
                                 }
-                                return CircularProgressIndicator();
+                                return const CircularProgressIndicator();
                               },
                             ),
                           ],
@@ -173,7 +177,7 @@ class _AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
     if (currentTreatment == null) {
       return CircularProgressIndicator();
     }
-    return PrescriptionDetail.forDoctorView(patientUser);
+    return PrescriptionDetail.forDoctorView(currentTreatment, currentPageIndex);
   }
 
   void startPatientVinculation() {}
