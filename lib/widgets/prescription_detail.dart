@@ -7,6 +7,7 @@ import 'package:near_you/model/medicationPrescription.dart';
 import 'package:near_you/model/treatment.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:intl/intl.dart';
 
 import '../model/activityPrescription.dart';
 import '../model/nutritionPrescription.dart';
@@ -1023,7 +1024,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                   controller: TextEditingController(
                                       text: medicationStartDateValue),
                                   onTap: () {
-                                    //  selectStartDate(context);
+                                    selectStartDate(context);
                                   },
                                   style: TextStyle(fontSize: 14),
                                   decoration: InputDecoration(
@@ -3308,5 +3309,23 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         .collection(idKey)
         .add(data)
         .then((value) => Navigator.pop(context, _currentPage));
+  }
+
+  Future<void> selectStartDate(BuildContext context) async {
+    final DateTime? d = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900, 1, 1),
+      lastDate: DateTime(21001, 1, 1),
+    );
+
+    final TimeOfDay? time =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (d != null && time != null) {
+      setState(() {
+        medicationStartDateValue = DateFormat('dd - MMM yyyy ').format(d) +
+            '${time.hour}:${time.minute}';
+      });
+    }
   }
 }
