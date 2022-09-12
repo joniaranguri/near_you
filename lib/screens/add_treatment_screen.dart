@@ -1256,12 +1256,18 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
 
   void discardChangesAndGoBack() {
     if (hasPendingTreatment) {
-      deletePendingPrescriptions(
-          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY);
-      deletePendingPrescriptions(PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY);
-      deletePendingPrescriptions(
-          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY);
-      deletePendingPrescriptions(PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingAndRealPrescriptions(
+          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY,
+          MEDICATION_PRESCRIPTION_COLLECTION_KEY);
+      deletePendingAndRealPrescriptions(
+          PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY,
+          ACTIVITY_PRESCRIPTION_COLLECTION_KEY);
+      deletePendingAndRealPrescriptions(
+          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY,
+          NUTRITION_PRESCRIPTION_COLLECTION_KEY);
+      deletePendingAndRealPrescriptions(
+          PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY,
+          OTHERS_PRESCRIPTION_COLLECTION_KEY);
       final db = FirebaseFirestore.instance;
       db
           .collection(TREATMENTS_KEY)
@@ -1286,6 +1292,20 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
             });
   }
 
+  void deletePendingAndRealPrescriptions(
+      String collectionPendingId, String collectionId) {
+    final db = FirebaseFirestore.instance;
+    db
+        .collection(collectionPendingId)
+        .where(PENDING_PRESCRIPTIONS_TREATMENT_KEY,
+            isEqualTo: pendingTreatmentId)
+        .get()
+        .then((value) => {
+              for (int i = 0; i < value.docs.length; i++)
+                {deleteRealPrescriptions(value.docs[i], collectionId)}
+            });
+  }
+
   savePendingTreatmentAndGoBack(String treatId) {
     final db = FirebaseFirestore.instance;
     try {
@@ -1299,5 +1319,12 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     db.collection(USERS_COLLECTION_KEY).doc(patientUser?.userId).update({
       PATIENT_CURRENT_TREATMENT_KEY: treatId,
     }).then((value) => goBackScreen());
+  }
+
+  deleteRealPrescriptions(
+      QueryDocumentSnapshot<Map<String, dynamic>> doc, String collectionId) {
+    final db = FirebaseFirestore.instance;
+    db.collection(collectionId).doc(doc.data()[PENDING_PRESCRIPTIONS_ID_KEY]).delete();
+    doc.reference.delete();
   }
 }
