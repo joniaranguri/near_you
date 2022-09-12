@@ -56,6 +56,11 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   bool hasPendingTreatment = false;
 
   String? pendingTreatmentId;
+  String? medicationCardLabel;
+
+  String? nutritionCardLabel;
+  String? activityCardLabel;
+  String? othersCardLabel;
 
   _AddTreatmentScreenState(this.userId, this.currentTreatment) {
     isUpdate = currentTreatment != null;
@@ -112,7 +117,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
               leading: IconButton(
                 icon: Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
-                  Navigator.pop(context);
+                  discardChangesAndGoBack();
                 },
               ),
             )),
@@ -727,6 +732,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           color: Color(0xffF1F1F1),
           margin: EdgeInsets.only(top: 10, bottom: 10),
           child: ClipPath(
+            clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3))),
             child: Container(
                 height: 75,
                 decoration: BoxDecoration(
@@ -762,7 +770,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                         CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        "Haga click para agregar una preescripción de glucosa",
+                                        medicationCardLabel == null
+                                            ? "Haga click para agregar una preescripción de glucosa"
+                                            : medicationCardLabel!,
                                         style: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.normal,
@@ -782,9 +792,6 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                     //SizedBox
                   ],
                 )),
-            clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3))),
           )),
     );
     return SizedBox(
@@ -836,7 +843,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                         CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        "Haga click para agregar una preescripción de alimentación",
+                                        nutritionCardLabel == null
+                                            ? "Haga click para agregar una preescripción de alimentación"
+                                            : nutritionCardLabel!,
                                         style: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.normal,
@@ -910,7 +919,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                         CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        "Haga click para agregar una preescripción de otro tipo",
+                                        othersCardLabel == null
+                                            ? "Haga click para agregar una preescripción de otro tipo"
+                                            : othersCardLabel!,
                                         style: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.normal,
@@ -984,7 +995,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                         CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        "Haga click para agregar una preescripción de Actividad Física",
+                                        activityCardLabel == null
+                                            ? "Haga click para agregar una preescripción de Actividad Física"
+                                            : activityCardLabel!,
                                         style: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.normal,
@@ -1044,7 +1057,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                 borderRadius: BorderRadius.circular(30)),
             textColor: const Color(0xff9D9CB5),
             onPressed: () {
-              Navigator.pop(context);
+              discardChangesAndGoBack();
             },
             child: const Text(
               'Cancelar',
@@ -1122,21 +1135,26 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       TREATMENT_DURATION_NUMBER_KEY: durationValue!,
       TREATMENT_DURATION_TYPE_KEY: durationTypeValue!,
       TREATMENT_DESCRIPTION_KEY: descriptionValue!,
-      //TREATMENT_PRESCRIPTIONS_KEY: "",
       TREATMENT_STATE_KEY: stateValue!
     };
-    if (isUpdate) {
+    if (isUpdate || hasPendingTreatment) {
+      final String? treatmentToUpdate =
+          isUpdate ? patientUser?.currentTreatment : pendingTreatmentId;
       db
           .collection(TREATMENTS_KEY)
-          .doc(patientUser?.currentTreatment)
+          .doc(treatmentToUpdate)
           .set(newTreatment)
-          .then((value) => goBackScreen());
+          .then((value) => {
+                if (isUpdate)
+                  {goBackScreen()}
+                else
+                  {savePendingTreatmentAndGoBack(pendingTreatmentId!)}
+              });
     } else {
-      db.collection(TREATMENTS_KEY).add(newTreatment).then((treatment) =>
-          db.collection(USERS_COLLECTION_KEY).doc(patientUser?.userId).update({
-            PATIENT_CURRENT_TREATMENT_KEY: treatment.id,
-            // ....rest of your data
-          }).then((value) => goBackScreen()));
+      db
+          .collection(TREATMENTS_KEY)
+          .add(newTreatment)
+          .then((treatment) => savePendingTreatmentAndGoBack(treatment.id));
     }
   }
 
@@ -1150,15 +1168,16 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   }
 
   void goToAddPrescription(int currentIndex) {
-    var currentTreatmentId = patientUser?.currentTreatment;
     String? medicoId = FirebaseAuth.instance.currentUser?.uid;
-    if (!isUpdate) {
+    if (!isUpdate && pendingTreatmentId == null) {
       final db = FirebaseFirestore.instance;
       db.collection(TREATMENTS_KEY).add({
         USER_ID_KEY: userId,
         MEDICO_ID_KEY: medicoId!,
       }).then((treatment) => savePendingTreatment(treatment, currentIndex));
     } else {
+      var currentTreatmentId =
+          patientUser?.currentTreatment ?? pendingTreatmentId;
       navigateWithResult(currentTreatmentId, currentIndex);
     }
   }
@@ -1169,7 +1188,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
             MaterialPageRoute(
                 builder: (BuildContext context) =>
                     AddPrescriptionScreen(currentTreatmentId, currentIndex)))
-        .then((value) => print(value));
+        .then((value) => updateUIWithPrescriptions(value));
   }
 
   getAddPrescriptionCards() {
@@ -1206,5 +1225,79 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     hasPendingTreatment = true;
     pendingTreatmentId = treatment.id;
     navigateWithResult(pendingTreatmentId, currentIndex);
+  }
+
+  updateUIWithPrescriptions(value) {
+    if (value == null) {
+      if (!isUpdate) {
+        hasPendingTreatment = false;
+        pendingTreatmentId = null;
+      }
+      return;
+    }
+
+    switch (int.parse(value.toString())) {
+      case 0:
+        medicationCardLabel = 'Toca aquí para editar \nmedicación';
+        break;
+      case 1:
+        nutritionCardLabel = 'Toca aquí para editar \nalimentación';
+        break;
+      case 2:
+        activityCardLabel = 'Toca aquí para editar \nla actividad física';
+
+        break;
+      case 3:
+        othersCardLabel = 'Toca aquí para editar otras \nvariables';
+        break;
+    }
+    setState(() {});
+  }
+
+  void discardChangesAndGoBack() {
+    if (hasPendingTreatment) {
+      deletePendingPrescriptions(
+          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(
+          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY);
+      final db = FirebaseFirestore.instance;
+      db
+          .collection(TREATMENTS_KEY)
+          .doc(pendingTreatmentId)
+          .delete()
+          .whenComplete(() => Navigator.pop(context));
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
+  void deletePendingPrescriptions(String collectionId) {
+    final db = FirebaseFirestore.instance;
+    db
+        .collection(collectionId)
+        .where(PENDING_PRESCRIPTIONS_TREATMENT_KEY,
+            isEqualTo: pendingTreatmentId)
+        .get()
+        .then((value) => {
+              for (int i = 0; i < value.docs.length; i++)
+                {value.docs[i].reference.delete()}
+            });
+  }
+
+  savePendingTreatmentAndGoBack(String treatId) {
+    final db = FirebaseFirestore.instance;
+    try {
+      deletePendingPrescriptions(
+          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(
+          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY);
+    } catch (ex) {}
+    db.collection(USERS_COLLECTION_KEY).doc(patientUser?.userId).update({
+      PATIENT_CURRENT_TREATMENT_KEY: treatId,
+    }).then((value) => goBackScreen());
   }
 }
