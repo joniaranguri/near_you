@@ -82,6 +82,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   String? othersNameValue;
   String? othersDurationValue;
+  String? othersDurationTypeValue;
+  String? othersPeriodicityTypeValue;
   String? othersPeriodicityValue;
   String? othersDetailValue;
   String? othersRecommendationValue;
@@ -790,6 +792,16 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       ),
                       child: Column(
                         children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text("Medicamentos ",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xff999999)))
+                            ],
+                          ),
+                          sizedBox10,
                           SizedBox(
                               child: ListView.builder(
                                   padding: EdgeInsets.zero,
@@ -859,7 +871,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       ))),
             );
           }
-          return staticComponents.emptyBox;
+          return SizedBox(
+            height: 460,
+          );
         });
   }
 
@@ -2061,77 +2075,106 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   Widget getOthersView() {
-    return Container(
-      width: double.infinity,
-      height: 470,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: SingleChildScrollView(
-          child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: 200,
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text("Insulina ",
-                          style:
-                              TextStyle(fontSize: 14, color: Color(0xff999999)))
-                    ],
-                  ),
-                  sizedBox10,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      SizedBox(
-                          height: 35,
-                          child: IconButton(
-                            padding: EdgeInsets.only(bottom: 40),
-                            onPressed: () {},
-                            icon: const Icon(Icons.keyboard_arrow_down,
-                                size: 30,
-                                color: Color(
-                                    0xff999999)), // myIcon is a 48px-wide widget.
-                          )),
-                      SizedBox(
-                          height: 35,
-                          width: 150,
-                          child: Text("Nombre",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontSize: 14, color: Color(0xff999999)))),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                          height: 35,
-                          width: 14,
-                          child: IconButton(
-                            padding: EdgeInsets.only(bottom: 14),
-                            onPressed: () {},
-                            icon: const Icon(Icons.edit,
-                                color: Color(
-                                    0xff999999)), // myIcon is a 48px-wide widget.
-                          )),
-                      SizedBox(
-                          height: 35,
-                          child: IconButton(
-                            padding: EdgeInsets.only(bottom: 30),
-                            onPressed: () {},
-                            icon: const Icon(Icons.delete,
-                                color: Color(
-                                    0xff999999)), // myIcon is a 48px-wide widget.
-                          ))
-                    ],
-                  ),
-                  getButtonOrOthersList(),
-                  const SizedBox(height: 2),
-                  getSelectOtherName(),
-                  getOthersButtons()
-                ],
-              ))),
-    );
+    return FutureBuilder(
+        future: othersPrescriptionFuture,
+        builder: (context, AsyncSnapshot<List<OthersPrescription>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Container(
+              width: double.infinity,
+              height: 470,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SingleChildScrollView(
+                  child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: 200,
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text("Insulina ",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xff999999)))
+                            ],
+                          ),
+                          sizedBox10,
+                          SizedBox(
+                              child: ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: othersList.length,
+                                  itemBuilder: (context, index) {
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        SizedBox(
+                                            height: 35,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 40),
+                                              onPressed: () {},
+                                              icon: const Icon(
+                                                  Icons.keyboard_arrow_down,
+                                                  size: 30,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            )),
+                                        SizedBox(
+                                            height: 35,
+                                            width: 150,
+                                            child: Text(
+                                                othersList[index].name ??
+                                                    "Medicacion",
+                                                textAlign: TextAlign.left,
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Color(0xff999999)))),
+                                        SizedBox(
+                                            height: 35,
+                                            width: 14,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 14),
+                                              onPressed: () {
+                                                editOthers(index);
+                                              },
+                                              icon: const Icon(Icons.edit,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            )),
+                                        SizedBox(
+                                            height: 35,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 30),
+                                              onPressed: () {
+                                                deleteOthers(index);
+                                              },
+                                              icon: const Icon(Icons.delete,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            ))
+                                      ],
+                                    );
+                                  })),
+                          getButtonOrOthersList(),
+                          const SizedBox(height: 2),
+                          getSelectOtherName(),
+                          getOthersButtons()
+                        ],
+                      ))),
+            );
+          }
+          return SizedBox(
+            height: 460,
+          );
+        });
   }
 
   getButtonAddFoodOrList() {
@@ -3107,11 +3150,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   getSelectOtherName() {
-    bool conditionToShowButton = false;
-    return conditionToShowButton
+    return editingOthers
         ? GestureDetector(
             onTap: () {
-              //show add
+              setState(() {
+                editingOthers = false;
+              });
             },
             child: TextField(
                 minLines: 1,
@@ -3168,7 +3212,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       itemBuilder: (context, index) {
                         return InkWell(
                           onTap: () {
-                            // on click
+                            setState(() {
+                              othersNameValue = otherNamesList[index];
+                              editingOthers = true;
+                            });
                           },
                           child: SizedBox(
                             height: 42,
@@ -3378,11 +3425,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   getButtonOrOthersList() {
-    bool conditionToShowButton = false;
-    return conditionToShowButton
+    return !editingOthers
         ? GestureDetector(
             onTap: () {
-              //show add
+              setState(() {
+                editingOthers = true;
+              });
             },
             child: TextField(
                 minLines: 1,
@@ -3394,7 +3442,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   prefixIcon: Icon(Icons.circle, color: Colors.white),
                   filled: true,
                   fillColor: Color(0xffD9D9D9),
-                  hintText: "Agregar rutina física",
+                  hintText: "Agregar otra prescripción",
                   hintStyle:
                       const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                   focusedBorder: borderGray,
@@ -3420,7 +3468,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 children: <Widget>[
                   SizedBox(
                       height: durationError ? 55 : 35,
-                      child: Text(activityNameValue ?? "Nombre",
+                      child: Text(othersNameValue ?? "Nombre",
                           style: TextStyle(
                               fontSize: 14, color: Color(0xFF999999))))
                 ],
@@ -3449,10 +3497,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             durationError = false;
                           });
                         },
-                        controller: TextEditingController(
-                            text: activityTimeNumberValue),
+                        controller:
+                            TextEditingController(text: othersDurationValue),
                         onChanged: (value) {
-                          activityTimeNumberValue = value;
+                          othersDurationValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration:
@@ -3477,9 +3525,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           });
                         },
                         controller: TextEditingController(
-                            text: activityTimeNumberValue),
+                            text: othersDurationTypeValue),
                         onChanged: (value) {
-                          activityTimeNumberValue = value;
+                          othersDurationTypeValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
@@ -3520,10 +3568,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             durationError = false;
                           });
                         },
-                        controller: TextEditingController(
-                            text: activityTimeNumberValue),
+                        controller:
+                            TextEditingController(text: othersPeriodicityValue),
                         onChanged: (value) {
-                          activityTimeNumberValue = value;
+                          othersPeriodicityValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration:
@@ -3548,9 +3596,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           });
                         },
                         controller: TextEditingController(
-                            text: activityTimeNumberValue),
+                            text: othersPeriodicityTypeValue),
                         onChanged: (value) {
-                          activityTimeNumberValue = value;
+                          othersPeriodicityTypeValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
@@ -3587,10 +3635,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     durationError = false;
                   });
                 },
-                controller:
-                    TextEditingController(text: medicationRecommendationValue),
+                controller: TextEditingController(text: othersDetailValue),
                 onChanged: (value) {
-                  medicationRecommendationValue = value;
+                  othersDetailValue = value;
                 },
                 style: const TextStyle(fontSize: 14),
                 minLines: 2,
@@ -3621,9 +3668,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   });
                 },
                 controller:
-                    TextEditingController(text: medicationRecommendationValue),
+                    TextEditingController(text: othersRecommendationValue),
                 onChanged: (value) {
-                  medicationRecommendationValue = value;
+                  othersRecommendationValue = value;
                 },
                 style: const TextStyle(fontSize: 14),
                 minLines: 2,
@@ -3703,7 +3750,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     });
   }
 
-
   void deleteNutritionPermitted(int index, bool permitted) {
     var deleteId;
     if (permitted) {
@@ -3720,7 +3766,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     final db = FirebaseFirestore.instance;
     db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(deleteId).delete();
   }
-
 
   void deleteOthers(int index) {
     final db = FirebaseFirestore.instance;
@@ -3800,5 +3845,17 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     }
     final db = FirebaseFirestore.instance;
     db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).doc(deleteId).delete();
+  }
+
+  void editOthers(int index) {
+    setState(() {
+      editingOthers = true;
+      updateOthers = index;
+      othersNameValue = othersList[index].name ?? "";
+      othersDurationValue = othersList[index].duration ?? "";
+      othersPeriodicityValue = othersList[index].periodicity ?? "";
+      othersDetailValue = othersList[index].detail ?? "";
+      othersRecommendationValue = othersList[index].recommendation ?? "";
+    });
   }
 }
