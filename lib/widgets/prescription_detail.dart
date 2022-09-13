@@ -195,7 +195,15 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
           if (mounted)
             {
               setState(() {
-                activitiesList = value;
+                activitiesList = [];
+                activitiesNoPermittedList = [];
+                for (int i = 0; i < value.length; i++) {
+                  if (value[i].permitted == YES_KEY) {
+                    activitiesList.add(value[i]);
+                  } else {
+                    activitiesNoPermittedList.add(value[i]);
+                  }
+                }
               })
             }
         });
@@ -1869,92 +1877,187 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       ))),
             );
           }
-          return SizedBox(height: 460,);
+          return SizedBox(
+            height: 460,
+          );
         });
   }
 
-  Widget getPhisicalActivityView() {
-    return Container(
-      width: double.infinity,
-      height: 470,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: SingleChildScrollView(
-          child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: 200,
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text("Rutina física ",
-                          style:
-                              TextStyle(fontSize: 14, color: Color(0xff999999)))
-                    ],
-                  ),
-                  sizedBox10,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      SizedBox(
-                          height: 35,
-                          child: IconButton(
-                            padding: EdgeInsets.only(bottom: 40),
-                            onPressed: () {},
-                            icon: const Icon(Icons.keyboard_arrow_down,
-                                size: 30,
-                                color: Color(
-                                    0xff999999)), // myIcon is a 48px-wide widget.
-                          )),
-                      SizedBox(
-                          height: 35,
-                          width: 150,
-                          child: Text("Correr",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontSize: 14, color: Color(0xff999999)))),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                          height: 35,
-                          width: 14,
-                          child: IconButton(
-                            padding: EdgeInsets.only(bottom: 14),
-                            onPressed: () {},
-                            icon: const Icon(Icons.edit,
-                                color: Color(
-                                    0xff999999)), // myIcon is a 48px-wide widget.
-                          )),
-                      SizedBox(
-                          height: 35,
-                          child: IconButton(
-                            padding: EdgeInsets.only(bottom: 30),
-                            onPressed: () {},
-                            icon: const Icon(Icons.delete,
-                                color: Color(
-                                    0xff999999)), // myIcon is a 48px-wide widget.
-                          ))
-                    ],
-                  ),
-                  getButtonAddRoutineOrList(),
-                  sizedBox10,
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text("Rutinas físicas no permitidas",
-                          style: TextStyle(
-                              fontSize: 14, color: Color(0xff999999))),
-                    ],
-                  ),
-                  sizedBox10,
-                  getButtonAddProhibitedRoutineOrList(),
-                  getActivityButtons()
-                ],
-              ))),
-    );
+  getPhisicalActivityView() {
+    return FutureBuilder(
+        future: activityPrescriptionFuture,
+        builder: (context, AsyncSnapshot<List<ActivityPrescription>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Container(
+              width: double.infinity,
+              height: 470,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SingleChildScrollView(
+                  child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: 200,
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text("Rutina física ",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xff999999)))
+                            ],
+                          ),
+                          sizedBox10,
+                          SizedBox(
+                              child: ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: activitiesList.length,
+                                  itemBuilder: (context, index) {
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        SizedBox(
+                                            height: 35,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 40),
+                                              onPressed: () {},
+                                              icon: const Icon(
+                                                  Icons.keyboard_arrow_down,
+                                                  size: 30,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            )),
+                                        SizedBox(
+                                            height: 35,
+                                            width: 150,
+                                            child: Text(
+                                                activitiesList[index].name ??
+                                                    "Actividad",
+                                                textAlign: TextAlign.left,
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Color(0xff999999)))),
+                                        SizedBox(
+                                            height: 35,
+                                            width: 14,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 14),
+                                              onPressed: () {
+                                                editActivity(index, true);
+                                              },
+                                              icon: const Icon(Icons.edit,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            )),
+                                        SizedBox(
+                                            height: 35,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 30),
+                                              onPressed: () {
+                                                deleteActivity(index, true);
+                                              },
+                                              icon: const Icon(Icons.delete,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            ))
+                                      ],
+                                    );
+                                  })),
+                          getButtonAddRoutineOrList(),
+                          sizedBox10,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text("Rutinas físicas no permitidas",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xff999999))),
+                            ],
+                          ),
+                          sizedBox10,
+                          SizedBox(
+                              child: ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: activitiesNoPermittedList.length,
+                                  itemBuilder: (context, index) {
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        SizedBox(
+                                            height: 35,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 40),
+                                              onPressed: () {},
+                                              icon: const Icon(
+                                                  Icons.keyboard_arrow_down,
+                                                  size: 30,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            )),
+                                        SizedBox(
+                                            height: 35,
+                                            width: 150,
+                                            child: Text(
+                                                activitiesNoPermittedList[index]
+                                                        .name ??
+                                                    "Actividad",
+                                                textAlign: TextAlign.left,
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Color(0xff999999)))),
+                                        SizedBox(
+                                            height: 35,
+                                            width: 14,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 14),
+                                              onPressed: () {
+                                                editActivity(index, false);
+                                              },
+                                              icon: const Icon(Icons.edit,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            )),
+                                        SizedBox(
+                                            height: 35,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 30),
+                                              onPressed: () {
+                                                deleteActivity(index, false);
+                                              },
+                                              icon: const Icon(Icons.delete,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            ))
+                                      ],
+                                    );
+                                  })),
+                          getButtonAddProhibitedRoutineOrList(),
+                          getActivityButtons()
+                        ],
+                      ))),
+            );
+          }
+          return SizedBox(
+            height: 460,
+          );
+        });
   }
 
   Widget getOthersView() {
@@ -2316,11 +2419,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   getButtonAddRoutineOrList() {
-    bool conditionToShowButton = false;
-    return conditionToShowButton
+    return !editingPermittedActivity
         ? GestureDetector(
             onTap: () {
-              //show add
+              setState(() {
+                editingPermittedActivity = true;
+              });
             },
             child: TextField(
                 minLines: 1,
@@ -2659,11 +2763,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   getButtonAddProhibitedRoutineOrList() {
-    bool conditionToShowButton = true;
-    return conditionToShowButton
+    return editingPermittedActivity
         ? GestureDetector(
             onTap: () {
-              //show add
+              setState(() {
+                editingPermittedActivity = false;
+              });
             },
             child: TextField(
                 minLines: 1,
@@ -2729,6 +2834,13 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 ],
               ),
               sizedBox10,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Actividad",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                ],
+              ),
               Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
@@ -3175,13 +3287,31 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       ACTIVITY_TIME_NUMBER_KEY: activityTimeNumberValue ?? "",
       ACTIVITY_TIME_TYPE_KEY: activityTimeTypeValue ?? "",
       ACTIVITY_PERIODICITY_KEY: activityPeriodicityValue ?? "",
-      ACTIVITY_CALORIES_KEY: activityCaloriesValue ?? ""
+      ACTIVITY_CALORIES_KEY: activityCaloriesValue ?? "",
+      PERMITTED_KEY: editingPermittedActivity ? YES_KEY : NO_KEY
     };
-    db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).add(data).then(
-        (value) => saveInPendingListAndGoBack(
-            PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY,
-            value.id,
-            currentTreatmentDatabaseId));
+
+    if (updatePermittedActivity >= 0 || updateNoPermittedActivity >= 0) {
+      var databaseId;
+      if (updatePermittedActivity >= 0) {
+        databaseId = activitiesList[updatePermittedActivity].databaseId;
+      } else {
+        databaseId =
+            activitiesNoPermittedList[updateNoPermittedActivity].databaseId;
+      }
+
+      db
+          .collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY)
+          .doc(databaseId)
+          .update(data)
+          .then((value) => Navigator.pop(context, _currentPage));
+    } else {
+      db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).add(data).then(
+          (value) => saveInPendingListAndGoBack(
+              PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY,
+              value.id,
+              currentTreatmentDatabaseId));
+    }
   }
 
   saveMedicationInDatabase() {
@@ -3573,27 +3703,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     });
   }
 
-  void deleteActivityNoPermitted(int index) {
-    final db = FirebaseFirestore.instance;
-    db
-        .collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY)
-        .doc(activitiesNoPermittedList[index].databaseId)
-        .delete();
-    setState(() {
-      activitiesNoPermittedList.removeAt(index);
-    });
-  }
-
-  void deleteActivityPermitted(int index) {
-    final db = FirebaseFirestore.instance;
-    db
-        .collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY)
-        .doc(activitiesList[index].databaseId)
-        .delete();
-    setState(() {
-      activitiesList.removeAt(index);
-    });
-  }
 
   void deleteNutritionPermitted(int index, bool permitted) {
     var deleteId;
@@ -3612,17 +3721,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(deleteId).delete();
   }
 
-  void deleteNutritionNoPermitted(int index) {
-    final db = FirebaseFirestore.instance;
-    db
-        .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
-        .doc(nutritionNoPermittedList[index].databaseId)
-        .delete();
-
-    setState(() {
-      nutritionNoPermittedList.removeAt(index);
-    });
-  }
 
   void deleteOthers(int index) {
     final db = FirebaseFirestore.instance;
@@ -3652,5 +3750,55 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             nutritionNoPermittedList[index].maxCalories ?? "";
       }
     });
+  }
+
+  void editActivity(int index, bool permitted) {
+    setState(() {
+      editingPermittedActivity = permitted;
+      if (editingPermittedActivity) {
+        updatePermittedActivity = index;
+        activityNameValue = activitiesList[index].name ?? "";
+        activityActivityValue = activitiesList[index].activity ?? "";
+        activityTimeNumberValue = activitiesList[index].timeNumber ?? "";
+        activityCaloriesValue = activitiesList[index].calories ?? "";
+        if (isNotEmpty(activitiesList[index].periodicity)) {
+          activityPeriodicityValue = activitiesList[index].periodicity;
+        }
+        if (isNotEmpty(activitiesList[index].timeType)) {
+          activityTimeTypeValue = activitiesList[index].timeType;
+        }
+      } else {
+        updateNoPermittedActivity = index;
+        activityNameValue = activitiesNoPermittedList[index].name ?? "";
+        activityActivityValue = activitiesNoPermittedList[index].activity ?? "";
+        activityTimeNumberValue =
+            activitiesNoPermittedList[index].timeNumber ?? "";
+        activityCaloriesValue = activitiesNoPermittedList[index].calories ?? "";
+        if (isNotEmpty(activitiesNoPermittedList[index].periodicity)) {
+          activityPeriodicityValue =
+              activitiesNoPermittedList[index].periodicity;
+        }
+        if (isNotEmpty(activitiesNoPermittedList[index].timeType)) {
+          activityTimeTypeValue = activitiesNoPermittedList[index].timeType;
+        }
+      }
+    });
+  }
+
+  void deleteActivity(int index, bool permitted) {
+    var deleteId;
+    if (permitted) {
+      deleteId = activitiesList[index].databaseId;
+      setState(() {
+        activitiesList.removeAt(index);
+      });
+    } else {
+      deleteId = activitiesNoPermittedList[index].databaseId;
+      setState(() {
+        activitiesNoPermittedList.removeAt(index);
+      });
+    }
+    final db = FirebaseFirestore.instance;
+    db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).doc(deleteId).delete();
   }
 }
