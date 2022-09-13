@@ -50,6 +50,14 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   late final Future<List<NutritionPrescription>> nutritionPrescriptionFuture;
   late final Future<List<ActivityPrescription>> activityPrescriptionFuture;
   late final Future<List<OthersPrescription>> othersPrescriptionFuture;
+  List<MedicationPrescription> medicationsList = <MedicationPrescription>[];
+  List<NutritionPrescription> nutritionList = <NutritionPrescription>[];
+  List<ActivityPrescription> activitiesList = <ActivityPrescription>[];
+  List<NutritionPrescription> nutritionNoPermittedList =
+      <NutritionPrescription>[];
+  List<ActivityPrescription> activitiesNoPermittedList =
+      <ActivityPrescription>[];
+  List<OthersPrescription> othersList = <OthersPrescription>[];
 
   String? medicationStartDateValue;
   String? medicationNameValue;
@@ -97,6 +105,19 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   String? imcValue;
 
   String? weightValue;
+  bool editingMedication = false;
+  bool editingPermittedFood = false;
+  bool editingNoPermittedFood = false;
+  bool editingPermittedActivity = false;
+  bool editingNoPermittedActivity = false;
+  bool editingOthers = false;
+
+  int updateMedication = -1;
+  int updatePermittedFood = -1;
+  int updateNoPermittedFood = -1;
+  int updatePermittedActivity = -1;
+  int updateNoPermittedActivity = -1;
+  int updateOthers = -1;
 
   PrescriptionDetailState(
       this.currentTreatment, this.isDoctorView, int currentPageIndex) {
@@ -145,17 +166,42 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   @override
   void initState() {
     medicationPrescriptionFuture = getMedicationPrescriptions();
+    activityPrescriptionFuture = getActivityPrescriptions();
+    nutritionPrescriptionFuture = getNutritionPrescriptions();
+    othersPrescriptionFuture = getOthersPrescriptions();
     medicationPrescriptionFuture.then((value) => {
-          setState(() {
-            //currentTreatment = value;
-            /*durationTypeValue = currentTreatment!.durationType;
-        durationValue = currentTreatment!.durationNumber;
-        pastilleValue = currentTreatment!.state;
-        descriptionValue = currentTreatment!.description;
-        startDateValue = currentTreatment!.startDate;
-        endDateValue = currentTreatment!.endDate;*/
-          })
+          if (mounted)
+            {
+              setState(() {
+                medicationsList = value;
+              })
+            }
         });
+    nutritionPrescriptionFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                nutritionList = value;
+              })
+            }
+        });
+    activityPrescriptionFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                activitiesList = value;
+              })
+            }
+        });
+    othersPrescriptionFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                othersList = value;
+              })
+            }
+        });
+
     super.initState();
   }
 
@@ -715,63 +761,92 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   getMedicationView() {
-    return Container(
-      width: double.infinity,
-      height: 470,
-      child: SingleChildScrollView(
-          child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: 200,
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      SizedBox(
-                          height: 35,
-                          child: IconButton(
-                            padding: EdgeInsets.only(bottom: 40),
-                            onPressed: () {},
-                            icon: const Icon(Icons.keyboard_arrow_down,
-                                size: 30,
-                                color: Color(
-                                    0xff999999)), // myIcon is a 48px-wide widget.
-                          )),
-                      SizedBox(
-                          height: 35,
-                          width: 150,
-                          child: Text("Glucosa - 110ml/g",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontSize: 14, color: Color(0xff999999)))),
-                      SizedBox(
-                          height: 35,
-                          width: 14,
-                          child: IconButton(
-                            padding: EdgeInsets.only(bottom: 14),
-                            onPressed: () {},
-                            icon: const Icon(Icons.edit,
-                                color: Color(
-                                    0xff999999)), // myIcon is a 48px-wide widget.
-                          )),
-                      SizedBox(
-                          height: 35,
-                          child: IconButton(
-                            padding: EdgeInsets.only(bottom: 30),
-                            onPressed: () {},
-                            icon: const Icon(Icons.delete,
-                                color: Color(
-                                    0xff999999)), // myIcon is a 48px-wide widget.
-                          ))
-                    ],
-                  ),
-                  sizedBox10,
-                  getFormOrButtonAddMedication()
-                ],
-              ))),
-    );
+    return FutureBuilder(
+        future: medicationPrescriptionFuture,
+        builder:
+            (context, AsyncSnapshot<List<MedicationPrescription>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Container(
+              width: double.infinity,
+              height: 470,
+              child: SingleChildScrollView(
+                  child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: 200,
+                      ),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                              child: ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: medicationsList.length,
+                                  itemBuilder: (context, index) {
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        SizedBox(
+                                            height: 35,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 40),
+                                              onPressed: () {},
+                                              icon: const Icon(
+                                                  Icons.keyboard_arrow_down,
+                                                  size: 30,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            )),
+                                        SizedBox(
+                                            height: 35,
+                                            width: 150,
+                                            child: Text(
+                                                medicationsList[index].name ??
+                                                    "Medicacion",
+                                                textAlign: TextAlign.left,
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Color(0xff999999)))),
+                                        SizedBox(
+                                            height: 35,
+                                            width: 14,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 14),
+                                              onPressed: () {
+                                                editMedication(index);
+                                              },
+                                              icon: const Icon(Icons.edit,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            )),
+                                        SizedBox(
+                                            height: 35,
+                                            child: IconButton(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 30),
+                                              onPressed: () {
+                                                deleteMedication(index);
+                                              },
+                                              icon: const Icon(Icons.delete,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            ))
+                                      ],
+                                    );
+                                  })),
+                          sizedBox10,
+                          getFormOrButtonAddMedication()
+                        ],
+                      ))),
+            );
+          }
+          return staticComponents.emptyBox;
+        });
   }
 
   Future<List<MedicationPrescription>> getMedicationPrescriptions() async {
@@ -824,22 +899,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       resultList.add(OthersPrescription.fromSnapshot(element));
     }
     return resultList;
-  }
-
-  // TODO: delete
-  Future<void> deleteCurrentTreatmentById() async {
-    Navigator.pop(context);
-    final db = FirebaseFirestore.instance;
-    await db
-        .collection(TREATMENTS_KEY)
-        .doc(currentTreatment?.databaseId)
-        .delete()
-        //.onError((error, stackTrace) => )
-        .whenComplete(() => {
-              db.collection(USERS_COLLECTION_KEY).doc("sarasa").update({
-                PATIENT_CURRENT_TREATMENT_KEY: EMPTY_STRING_VALUE
-              }).whenComplete(() => showSuccessDeleteDialog())
-            });
   }
 
   showSuccessDeleteDialog() {
@@ -943,535 +1002,553 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }*/
 
   getFormOrButtonAddMedication() {
-    return Container(
-      width: double.infinity,
-      height: 520,
-      child: SingleChildScrollView(
-          child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: 200,
-              ),
-              child: Form(
-                  key: medicationFormState,
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          color: Color(0xffD9D9D9),
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                        ),
-                        child: Column(
-                          children: [
-                            sizedBox10,
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                SizedBox(
-                                  height: durationError ? 55 : 35,
-                                  width: 230,
-                                  child: TextFormField(
-                                      controller: TextEditingController(
-                                          text: medicationNameValue),
-                                      onChanged: (value) {
-                                        medicationNameValue = value;
-                                      },
-                                      style: const TextStyle(fontSize: 14),
-                                      decoration: staticComponents
-                                          .getMiddleInputDecoration(
-                                              'Estatina -  30 ml/gm')),
-                                ),
-                                Flexible(
-                                    child: SizedBox(
-                                        height: 35,
-                                        child: Icon(
-                                          Icons.check,
-                                          color: Color(0xff999999),
-                                        )))
-                              ],
-                            ),
-                            sizedBox10,
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Fecha de inicio",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            sizedBox10,
-                            SizedBox(
-                                height: startDateError ? 55 : 35,
-                                child: TextFormField(
-                                  validator: (value) {
-                                    if (value == null || value == '') {
-                                      setState(() {
-                                        startDateError = true;
-                                      });
-                                      return "Complete el campo";
-                                    }
-                                    setState(() {
-                                      startDateError = false;
-                                    });
-                                  },
-                                  readOnly: true,
-                                  controller: TextEditingController(
-                                      text: medicationStartDateValue),
-                                  onTap: () {
-                                    selectStartDate(context);
-                                  },
-                                  style: TextStyle(fontSize: 14),
-                                  decoration: InputDecoration(
-                                      filled: true,
-                                      prefixIcon: IconButton(
-                                        padding: EdgeInsets.only(bottom: 5),
-                                        onPressed: () {},
-                                        icon: const Icon(
-                                            Icons.calendar_today_outlined,
-                                            color: Color(
-                                                0xff999999)), // myIcon is a 48px-wide widget.
-                                      ),
-                                      hintText: '18 - Jul 2022  15:00',
-                                      hintStyle: const TextStyle(
-                                          fontSize: 14,
-                                          color: Color(0xff999999)),
-                                      contentPadding: EdgeInsets.zero,
-                                      enabledBorder:
-                                          staticComponents.middleInputBorder,
-                                      border:
-                                          staticComponents.middleInputBorder,
-                                      focusedBorder:
-                                          staticComponents.middleInputBorder),
-                                )),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Duración",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            sizedBox10,
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                new Flexible(
-                                  child: SizedBox(
-                                      height: durationError ? 55 : 35,
-                                      width: 111,
-                                      child: TextFormField(
-                                        validator: (value) {
-                                          if (value == null || value == '') {
-                                            setState(() {
-                                              durationError = true;
-                                            });
-                                            return "Complete el campo";
-                                          }
-                                          setState(() {
-                                            durationError = false;
-                                          });
-                                        },
+    if (editingMedication) {
+      return Container(
+        width: double.infinity,
+        height: 400,
+        child: SingleChildScrollView(
+            child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: 200,
+                ),
+                child: Form(
+                    key: medicationFormState,
+                    child: Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                          ),
+                          padding: const EdgeInsets.all(10),
+                          decoration: const BoxDecoration(
+                            color: Color(0xffD9D9D9),
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
+                          child: Column(
+                            children: [
+                              sizedBox10,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  SizedBox(
+                                    height: durationError ? 55 : 35,
+                                    width: 230,
+                                    child: TextFormField(
                                         controller: TextEditingController(
-                                            text:
-                                                medicationDurationNumberValue),
+                                            text: medicationNameValue),
                                         onChanged: (value) {
-                                          medicationDurationNumberValue = value;
+                                          medicationNameValue = value;
                                         },
                                         style: const TextStyle(fontSize: 14),
                                         decoration: staticComponents
-                                            .getMiddleInputDecoration('15'),
-                                      )),
-                                ),
-                                Flexible(
+                                            .getMiddleInputDecoration(
+                                                'Estatina -  30 ml/gm')),
+                                  ),
+                                  Flexible(
+                                      child: SizedBox(
+                                          height: 35,
+                                          child: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                editingMedication = false;
+                                              });
+                                            },
+                                            icon: Icon(
+                                              Icons.check,
+                                              color: Color(0xff999999),
+                                            ),
+                                          )))
+                                ],
+                              ),
+                              sizedBox10,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Fecha de inicio",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xff999999)))
+                                ],
+                              ),
+                              sizedBox10,
+                              SizedBox(
+                                  height: startDateError ? 55 : 35,
+                                  child: TextFormField(
+                                    validator: (value) {
+                                      if (value == null || value == '') {
+                                        setState(() {
+                                          startDateError = true;
+                                        });
+                                        return "Complete el campo";
+                                      }
+                                      setState(() {
+                                        startDateError = false;
+                                      });
+                                    },
+                                    readOnly: true,
+                                    controller: TextEditingController(
+                                        text: medicationStartDateValue),
+                                    onTap: () {
+                                      selectStartDate(context);
+                                    },
+                                    style: TextStyle(fontSize: 14),
+                                    decoration: InputDecoration(
+                                        filled: true,
+                                        prefixIcon: IconButton(
+                                          padding: EdgeInsets.only(bottom: 5),
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                              Icons.calendar_today_outlined,
+                                              color: Color(
+                                                  0xff999999)), // myIcon is a 48px-wide widget.
+                                        ),
+                                        hintText: '18 - Jul 2022  15:00',
+                                        hintStyle: const TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xff999999)),
+                                        contentPadding: EdgeInsets.zero,
+                                        enabledBorder:
+                                            staticComponents.middleInputBorder,
+                                        border:
+                                            staticComponents.middleInputBorder,
+                                        focusedBorder:
+                                            staticComponents.middleInputBorder),
+                                  )),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Duración",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xff999999)))
+                                ],
+                              ),
+                              sizedBox10,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  new Flexible(
                                     child: SizedBox(
-                                        height: 35,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            border: Border.all(
-                                                color: durationTypeError
-                                                    ? Colors.red
-                                                    : Color(0xFF999999),
-                                                width: 1),
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(
-                                                    10) //         <--- border radius here
-                                                ),
-                                          ),
+                                        height: durationError ? 55 : 35,
+                                        width: 111,
+                                        child: TextFormField(
+                                          validator: (value) {
+                                            if (value == null || value == '') {
+                                              setState(() {
+                                                durationError = true;
+                                              });
+                                              return "Complete el campo";
+                                            }
+                                            setState(() {
+                                              durationError = false;
+                                            });
+                                          },
+                                          controller: TextEditingController(
+                                              text:
+                                                  medicationDurationNumberValue),
+                                          onChanged: (value) {
+                                            medicationDurationNumberValue =
+                                                value;
+                                          },
+                                          style: const TextStyle(fontSize: 14),
+                                          decoration: staticComponents
+                                              .getMiddleInputDecoration('15'),
+                                        )),
+                                  ),
+                                  Flexible(
+                                      child: SizedBox(
+                                          height: 35,
                                           child: Container(
-                                            width: 150,
-                                            child: DropdownButtonHideUnderline(
-                                              child: ButtonTheme(
-                                                alignedDropdown: true,
-                                                child: DropdownButton<String>(
-                                                  hint: Text(
-                                                    'Seleccionar',
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color:
-                                                            Color(0xFF999999)),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                  color: durationTypeError
+                                                      ? Colors.red
+                                                      : Color(0xFF999999),
+                                                  width: 1),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(
+                                                      10) //         <--- border radius here
                                                   ),
-                                                  dropdownColor: Colors.white,
-                                                  value:
-                                                      medicationDurationTypeValue,
-                                                  icon: Padding(
-                                                    padding:
-                                                        const EdgeInsetsDirectional
-                                                            .only(end: 12.0),
-                                                    child: Icon(
-                                                        Icons
-                                                            .keyboard_arrow_down,
-                                                        color: Color(
-                                                            0xff999999)), // myIcon is a 48px-wide widget.
+                                            ),
+                                            child: Container(
+                                              width: 150,
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                child: ButtonTheme(
+                                                  alignedDropdown: true,
+                                                  child: DropdownButton<String>(
+                                                    hint: Text(
+                                                      'Seleccionar',
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: Color(
+                                                              0xFF999999)),
+                                                    ),
+                                                    dropdownColor: Colors.white,
+                                                    value:
+                                                        medicationDurationTypeValue,
+                                                    icon: Padding(
+                                                      padding:
+                                                          const EdgeInsetsDirectional
+                                                              .only(end: 12.0),
+                                                      child: Icon(
+                                                          Icons
+                                                              .keyboard_arrow_down,
+                                                          color: Color(
+                                                              0xff999999)), // myIcon is a 48px-wide widget.
+                                                    ),
+                                                    onChanged: (newValue) {
+                                                      setState(() {
+                                                        medicationDurationTypeValue =
+                                                            newValue.toString();
+                                                      });
+                                                    },
+                                                    items: durationsList
+                                                        .map((String item) {
+                                                      return DropdownMenuItem(
+                                                        value: item,
+                                                        child: Text(
+                                                          item,
+                                                          style: TextStyle(
+                                                              fontSize: 14),
+                                                        ),
+                                                      );
+                                                    }).toList(),
                                                   ),
-                                                  onChanged: (newValue) {
-                                                    setState(() {
-                                                      medicationDurationTypeValue =
-                                                          newValue.toString();
-                                                    });
-                                                  },
-                                                  items: durationsList
-                                                      .map((String item) {
-                                                    return DropdownMenuItem(
-                                                      value: item,
-                                                      child: Text(
-                                                        item,
-                                                        style: TextStyle(
-                                                            fontSize: 14),
-                                                      ),
-                                                    );
-                                                  }).toList(),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        )))
-                              ],
-                            ),
-                            sizedBox10,
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Tipo",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            sizedBox10,
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                    color: stateError
-                                        ? Colors.red
-                                        : Color(0xFF999999),
-                                    width: 1),
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                        10) //         <--- border radius here
-                                    ),
+                                          )))
+                                ],
                               ),
-                              child: Container(
-                                height: 35,
-                                width: double.infinity,
-                                child: DropdownButtonHideUnderline(
-                                  child: ButtonTheme(
-                                    alignedDropdown: true,
-                                    child: DropdownButton<String>(
-                                      hint: Text(
-                                        'Seleccionar',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xFF999999)),
+                              sizedBox10,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Tipo",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xff999999)))
+                                ],
+                              ),
+                              sizedBox10,
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: stateError
+                                          ? Colors.red
+                                          : Color(0xFF999999),
+                                      width: 1),
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          10) //         <--- border radius here
                                       ),
-                                      dropdownColor: Colors.white,
-                                      value: medicationTypeValue,
-                                      icon: Padding(
-                                        padding:
-                                            const EdgeInsetsDirectional.only(
-                                                end: 12.0),
-                                        child: Icon(Icons.keyboard_arrow_down,
-                                            color: Color(
-                                                0xff999999)), // myIcon is a 48px-wide widget.
+                                ),
+                                child: Container(
+                                  height: 35,
+                                  width: double.infinity,
+                                  child: DropdownButtonHideUnderline(
+                                    child: ButtonTheme(
+                                      alignedDropdown: true,
+                                      child: DropdownButton<String>(
+                                        hint: Text(
+                                          'Seleccionar',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xFF999999)),
+                                        ),
+                                        dropdownColor: Colors.white,
+                                        value: medicationTypeValue,
+                                        icon: Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.only(
+                                                  end: 12.0),
+                                          child: Icon(Icons.keyboard_arrow_down,
+                                              color: Color(
+                                                  0xff999999)), // myIcon is a 48px-wide widget.
+                                        ),
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            medicationTypeValue =
+                                                newValue.toString();
+                                          });
+                                        },
+                                        items:
+                                            pastilleTypeList.map((String item) {
+                                          return DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          );
+                                        }).toList(),
                                       ),
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          medicationTypeValue =
-                                              newValue.toString();
-                                        });
-                                      },
-                                      items:
-                                          pastilleTypeList.map((String item) {
-                                        return DropdownMenuItem(
-                                          value: item,
-                                          child: Text(
-                                            item,
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        );
-                                      }).toList(),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Dosis",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            SizedBox(
-                                height: durationError ? 55 : 35,
-                                child: TextFormField(
-                                  validator: (value) {
-                                    if (value == null || value == '') {
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Dosis",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xff999999)))
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              SizedBox(
+                                  height: durationError ? 55 : 35,
+                                  child: TextFormField(
+                                    validator: (value) {
+                                      if (value == null || value == '') {
+                                        setState(() {
+                                          durationError = true;
+                                        });
+                                        return "Complete el campo";
+                                      }
                                       setState(() {
-                                        durationError = true;
+                                        durationError = false;
                                       });
-                                      return "Complete el campo";
-                                    }
+                                    },
+                                    controller: TextEditingController(
+                                        text: medicationDoseValue),
+                                    onChanged: (value) {
+                                      medicationDoseValue = value;
+                                    },
+                                    style: const TextStyle(fontSize: 14),
+                                    decoration: staticComponents
+                                        .getMiddleInputDecoration(
+                                            'Después del almuerzo'),
+                                  )),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Cantidad",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xff999999)))
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: stateError
+                                          ? Colors.red
+                                          : Color(0xFF999999),
+                                      width: 1),
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          10) //         <--- border radius here
+                                      ),
+                                ),
+                                child: Container(
+                                  height: 35,
+                                  width: double.infinity,
+                                  child: DropdownButtonHideUnderline(
+                                    child: ButtonTheme(
+                                      alignedDropdown: true,
+                                      child: DropdownButton<String>(
+                                        hint: Text(
+                                          'Seleccionar',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xFF999999)),
+                                        ),
+                                        dropdownColor: Colors.white,
+                                        value: medicationQuantityValue,
+                                        icon: Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.only(
+                                                  end: 12.0),
+                                          child: Icon(Icons.keyboard_arrow_down,
+                                              color: Color(
+                                                  0xff999999)), // myIcon is a 48px-wide widget.
+                                        ),
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            medicationQuantityValue =
+                                                newValue.toString();
+                                          });
+                                        },
+                                        items: pastilleQuantitiesList
+                                            .map((String item) {
+                                          return DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              sizedBox10,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Periodicidad",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xff999999)))
+                                ],
+                              ),
+                              sizedBox10,
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: stateError
+                                          ? Colors.red
+                                          : Color(0xFF999999),
+                                      width: 1),
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          10) //         <--- border radius here
+                                      ),
+                                ),
+                                child: Container(
+                                  height: 35,
+                                  width: double.infinity,
+                                  child: DropdownButtonHideUnderline(
+                                    child: ButtonTheme(
+                                      alignedDropdown: true,
+                                      child: DropdownButton<String>(
+                                        hint: Text(
+                                          'Seleccionar',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xFF999999)),
+                                        ),
+                                        dropdownColor: Colors.white,
+                                        value: medicationPeriodicityValue,
+                                        icon: Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.only(
+                                                  end: 12.0),
+                                          child: Icon(Icons.keyboard_arrow_down,
+                                              color: Color(
+                                                  0xff999999)), // myIcon is a 48px-wide widget.
+                                        ),
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            medicationPeriodicityValue =
+                                                newValue.toString();
+                                          });
+                                        },
+                                        items:
+                                            periodicityList.map((String item) {
+                                          return DropdownMenuItem(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              sizedBox10,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Recomendación",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xff999999)))
+                                ],
+                              ),
+                              sizedBox10,
+                              TextFormField(
+                                validator: (value) {
+                                  if (value == null || value == '') {
                                     setState(() {
-                                      durationError = false;
+                                      durationError = true;
                                     });
-                                  },
-                                  controller: TextEditingController(
-                                      text: medicationDoseValue),
-                                  onChanged: (value) {
-                                    medicationDoseValue = value;
-                                  },
-                                  style: const TextStyle(fontSize: 14),
-                                  decoration:
-                                      staticComponents.getMiddleInputDecoration(
-                                          'Después del almuerzo'),
-                                )),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Cantidad",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                    color: stateError
-                                        ? Colors.red
-                                        : Color(0xFF999999),
-                                    width: 1),
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                        10) //         <--- border radius here
-                                    ),
-                              ),
-                              child: Container(
-                                height: 35,
-                                width: double.infinity,
-                                child: DropdownButtonHideUnderline(
-                                  child: ButtonTheme(
-                                    alignedDropdown: true,
-                                    child: DropdownButton<String>(
-                                      hint: Text(
-                                        'Seleccionar',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xFF999999)),
-                                      ),
-                                      dropdownColor: Colors.white,
-                                      value: medicationQuantityValue,
-                                      icon: Padding(
-                                        padding:
-                                            const EdgeInsetsDirectional.only(
-                                                end: 12.0),
-                                        child: Icon(Icons.keyboard_arrow_down,
-                                            color: Color(
-                                                0xff999999)), // myIcon is a 48px-wide widget.
-                                      ),
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          medicationQuantityValue =
-                                              newValue.toString();
-                                        });
-                                      },
-                                      items: pastilleQuantitiesList
-                                          .map((String item) {
-                                        return DropdownMenuItem(
-                                          value: item,
-                                          child: Text(
-                                            item,
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            sizedBox10,
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Periodicidad",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            sizedBox10,
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                    color: stateError
-                                        ? Colors.red
-                                        : Color(0xFF999999),
-                                    width: 1),
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                        10) //         <--- border radius here
-                                    ),
-                              ),
-                              child: Container(
-                                height: 35,
-                                width: double.infinity,
-                                child: DropdownButtonHideUnderline(
-                                  child: ButtonTheme(
-                                    alignedDropdown: true,
-                                    child: DropdownButton<String>(
-                                      hint: Text(
-                                        'Seleccionar',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xFF999999)),
-                                      ),
-                                      dropdownColor: Colors.white,
-                                      value: medicationPeriodicityValue,
-                                      icon: Padding(
-                                        padding:
-                                            const EdgeInsetsDirectional.only(
-                                                end: 12.0),
-                                        child: Icon(Icons.keyboard_arrow_down,
-                                            color: Color(
-                                                0xff999999)), // myIcon is a 48px-wide widget.
-                                      ),
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          medicationPeriodicityValue =
-                                              newValue.toString();
-                                        });
-                                      },
-                                      items: periodicityList.map((String item) {
-                                        return DropdownMenuItem(
-                                          value: item,
-                                          child: Text(
-                                            item,
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            sizedBox10,
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Recomendación",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xff999999)))
-                              ],
-                            ),
-                            sizedBox10,
-                            TextFormField(
-                              validator: (value) {
-                                if (value == null || value == '') {
+                                    return "Complete el campo";
+                                  }
                                   setState(() {
-                                    durationError = true;
+                                    durationError = false;
                                   });
-                                  return "Complete el campo";
-                                }
-                                setState(() {
-                                  durationError = false;
-                                });
-                              },
-                              controller: TextEditingController(
-                                  text: medicationRecommendationValue),
-                              onChanged: (value) {
-                                medicationRecommendationValue = value;
-                              },
-                              style: const TextStyle(fontSize: 14),
-                              minLines: 2,
-                              maxLines: 10,
-                              textAlignVertical: TextAlignVertical.center,
-                              decoration: staticComponents
-                                  .getBigInputDecoration('Agregar texto'),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            // getPrescriptionButtons()
-                          ],
+                                },
+                                controller: TextEditingController(
+                                    text: medicationRecommendationValue),
+                                onChanged: (value) {
+                                  medicationRecommendationValue = value;
+                                },
+                                style: const TextStyle(fontSize: 14),
+                                minLines: 2,
+                                maxLines: 10,
+                                textAlignVertical: TextAlignVertical.center,
+                                decoration: staticComponents
+                                    .getBigInputDecoration('Agregar texto'),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              // getPrescriptionButtons()
+                            ],
+                          ),
                         ),
-                      ),
-                      getMedicationButtons()
-                    ],
-                  )))),
-    );
-
-    /* GestureDetector(
+                        getMedicationButtons()
+                      ],
+                    )))),
+      );
+    }
+    return GestureDetector(
         onTap: () {
-
+          setState(() {
+            editingMedication = true;
+          });
         },
         child: TextField(
             minLines: 1,
             maxLines: 10,
             enabled: false,
-            style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF999999)),
+            style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
             decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(
-                  vertical: 10),
-              prefixIcon: Icon(Icons.circle,
-                  color: Colors.white),
+              contentPadding: EdgeInsets.symmetric(vertical: 10),
+              prefixIcon: Icon(Icons.circle, color: Colors.white),
               filled: true,
               fillColor: Color(0xffD9D9D9),
-              hintText:
-              "Agregar una nueva\n prescripción",
-              hintStyle: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF999999)),
+              hintText: "Agregar medicamento",
+              hintStyle:
+                  const TextStyle(fontSize: 14, color: Color(0xFF999999)),
               focusedBorder: borderGray,
               border: borderGray,
               enabledBorder: borderGray,
             )
-          // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+            // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
 
-        )),
-    getPrescriptionButtons()*/
+            ));
   }
 
   Widget getAlimentationView() {
@@ -3015,11 +3092,19 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       MEDICATION_PERIODICITY_KEY: medicationPeriodicityValue ?? "",
       MEDICATION_RECOMMENDATION_KEY: medicationRecommendationValue ?? ""
     };
-    db.collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY).add(data).then(
-        (value) => saveInPendingListAndGoBack(
-            PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY,
-            value.id,
-            currentTreatmentDatabaseId));
+    if (updateMedication >= 0) {
+      db
+          .collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY)
+          .doc(medicationsList[updateMedication].databaseId)
+          .update(data)
+          .then((value) => Navigator.pop(context, _currentPage));
+    } else {
+      db.collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY).add(data).then(
+          (value) => saveInPendingListAndGoBack(
+              PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY,
+              value.id,
+              currentTreatmentDatabaseId));
+    }
   }
 
   saveNutritionInDatabase() {
@@ -3325,5 +3410,98 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             '${time.hour}:${time.minute}';
       });
     }
+  }
+
+  void editMedication(int index) {
+    setState(() {
+      editingMedication = true;
+      updateMedication = index;
+      medicationNameValue = medicationsList[index].name ?? "";
+      medicationDurationNumberValue =
+          medicationsList[index].durationNumber ?? "";
+      medicationStartDateValue = medicationsList[index].startDate ?? "";
+      medicationDoseValue = medicationsList[index].dose ?? "";
+      medicationRecommendationValue =
+          medicationsList[index].recomendation ?? "";
+      if (isNotEmpty(medicationsList[index].durationType)) {
+        medicationDurationTypeValue = medicationsList[index].durationType;
+      }
+      if (isNotEmpty(medicationsList[index].pastilleType)) {
+        medicationTypeValue = medicationsList[index].pastilleType;
+      }
+      if (isNotEmpty(medicationsList[index].quantity)) {
+        medicationQuantityValue = medicationsList[index].quantity;
+      }
+      if (isNotEmpty(medicationsList[index].periodicity)) {
+        medicationPeriodicityValue = medicationsList[index].periodicity;
+      }
+    });
+  }
+
+  void deleteMedication(int index) {
+    final db = FirebaseFirestore.instance;
+    db
+        .collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY)
+        .doc(medicationsList[index].databaseId)
+        .delete();
+    setState(() {
+      medicationsList.removeAt(index);
+    });
+  }
+
+  void deleteActivityNoPermitted(int index) {
+    final db = FirebaseFirestore.instance;
+    db
+        .collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY)
+        .doc(activitiesNoPermittedList[index].databaseId)
+        .delete();
+    setState(() {
+      activitiesNoPermittedList.removeAt(index);
+    });
+  }
+
+  void deleteActivityPermitted(int index) {
+    final db = FirebaseFirestore.instance;
+    db
+        .collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY)
+        .doc(activitiesList[index].databaseId)
+        .delete();
+    setState(() {
+      activitiesList.removeAt(index);
+    });
+  }
+
+  void deleteNutritionPermitted(int index) {
+    final db = FirebaseFirestore.instance;
+    db
+        .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
+        .doc(nutritionList[index].databaseId)
+        .delete();
+    setState(() {
+      nutritionList.removeAt(index);
+    });
+  }
+
+  void deleteNutritionNoPermitted(int index) {
+    final db = FirebaseFirestore.instance;
+    db
+        .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
+        .doc(nutritionNoPermittedList[index].databaseId)
+        .delete();
+
+    setState(() {
+      nutritionNoPermittedList.removeAt(index);
+    });
+  }
+
+  void deleteOthers(int index) {
+    final db = FirebaseFirestore.instance;
+    db
+        .collection(OTHERS_PRESCRIPTION_COLLECTION_KEY)
+        .doc(othersList[index].databaseId)
+        .delete();
+    setState(() {
+      othersList.removeAt(index);
+    });
   }
 }

@@ -1,6 +1,8 @@
 import '../Constants.dart';
 
 class ActivityPrescription {
+  String? databaseId;
+  int state = 0;
   String? name;
   String? activity;
   String? periodicity;
@@ -10,7 +12,8 @@ class ActivityPrescription {
   String? treatmentId;
 
   ActivityPrescription(
-      {required this.treatmentId,
+      {required this.databaseId,
+      required this.treatmentId,
       required this.name,
       required this.activity,
       required this.timeNumber,
@@ -20,6 +23,7 @@ class ActivityPrescription {
 
   factory ActivityPrescription.empty() {
     return ActivityPrescription(
+        databaseId: "",
         treatmentId: "",
         name: "",
         activity: "",
@@ -32,6 +36,7 @@ class ActivityPrescription {
   factory ActivityPrescription.fromSnapshot(snapshot) {
     var realData = snapshot.data();
     return ActivityPrescription(
+        databaseId: snapshot.id,
         treatmentId: realData[TREATMENT_ID_KEY],
         name: realData[ACTIVITY_NAME_KEY],
         activity: realData[ACTIVITY_ACTIVITY_KEY],

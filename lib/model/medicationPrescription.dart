@@ -1,6 +1,8 @@
 import '../Constants.dart';
 
 class MedicationPrescription {
+  String? databaseId;
+  int state =0;
   String? treatmentId;
   String? name;
   String? pastilleType;
@@ -14,7 +16,8 @@ class MedicationPrescription {
   String? durationType;
 
   MedicationPrescription(
-      {required this.treatmentId,
+      {required this.databaseId,
+        required this.treatmentId,
       required this.name,
       required this.startDate,
       required this.durationNumber,
@@ -27,6 +30,7 @@ class MedicationPrescription {
 
   factory MedicationPrescription.empty() {
     return MedicationPrescription(
+      databaseId: "",
         treatmentId: "",
         name: "",
         startDate: "",
@@ -42,6 +46,7 @@ class MedicationPrescription {
   factory MedicationPrescription.fromSnapshot(snapshot) {
     var realData = snapshot.data();
     return MedicationPrescription(
+        databaseId: snapshot.id,
         treatmentId: realData[TREATMENT_ID_KEY],
         name: realData[MEDICATION_NAME_KEY],
         startDate: realData[MEDICATION_START_DATE_KEY],
