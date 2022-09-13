@@ -1113,6 +1113,7 @@ class PatientDetailState extends State<PatientDetail> {
                                             SizedBox(
                                                 height: 40,
                                                 child: ListView.builder(
+                                                    padding: EdgeInsets.zero,
                                                     shrinkWrap: true,
                                                     physics:
                                                         const NeverScrollableScrollPhysics(),
@@ -1227,6 +1228,7 @@ class PatientDetailState extends State<PatientDetail> {
                                             SizedBox(
                                                 height: 40,
                                                 child: ListView.builder(
+                                                    padding: EdgeInsets.zero,
                                                     shrinkWrap: true,
                                                     physics:
                                                         const NeverScrollableScrollPhysics(),
@@ -1339,6 +1341,7 @@ class PatientDetailState extends State<PatientDetail> {
                                             SizedBox(
                                                 height: 40,
                                                 child: ListView.builder(
+                                                    padding: EdgeInsets.zero,
                                                     shrinkWrap: true,
                                                     physics:
                                                         const NeverScrollableScrollPhysics(),
