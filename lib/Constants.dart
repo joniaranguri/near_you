@@ -79,10 +79,9 @@ const String PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY = "pendingOthersPrescri
 const String PENDING_PRESCRIPTIONS_TREATMENT_KEY = "pendingTreatmentId";
 const String PENDING_PRESCRIPTIONS_ID_KEY = "pendingPrescriptionId";
 
-const int PRESCRIPTION_STATE_ORIGINAL=0;
-const int PRESCRIPTION_STATE_CHANGED=1;
-const int PRESCRIPTION_STATE_DELETED=2;
-const int PRESCRIPTION_STATE_NEW=3;
+const String PERMITTED_KEY="permitted";
+const String YES_KEY="yes";
+const String NO_KEY="no";
 
 
 //TODO  Chequear el mostrar el role selection si es otro user

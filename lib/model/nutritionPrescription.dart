@@ -7,13 +7,16 @@ class NutritionPrescription {
   String? name;
   String? carbohydrates;
   String? maxCalories;
+  String? permitted;
 
-  NutritionPrescription(
-      {required this.databaseId,
-      required this.treatmentId,
-      required this.name,
-      required this.carbohydrates,
-      required this.maxCalories});
+  NutritionPrescription({
+    required this.databaseId,
+    required this.treatmentId,
+    required this.name,
+    required this.carbohydrates,
+    required this.maxCalories,
+    required this.permitted,
+  });
 
   factory NutritionPrescription.empty() {
     return NutritionPrescription(
@@ -21,7 +24,8 @@ class NutritionPrescription {
         treatmentId: "",
         name: "",
         carbohydrates: "",
-        maxCalories: "");
+        maxCalories: "",
+        permitted: "");
   }
 
   factory NutritionPrescription.fromSnapshot(snapshot) {
@@ -31,6 +35,7 @@ class NutritionPrescription {
         treatmentId: realData[TREATMENT_ID_KEY],
         name: realData[NUTRITION_NAME_KEY],
         carbohydrates: realData[NUTRITION_CARBOHYDRATES_KEY],
-        maxCalories: realData[NUTRITION_MAX_CALORIES_KEY]);
+        maxCalories: realData[NUTRITION_MAX_CALORIES_KEY],
+        permitted: realData[PERMITTED_KEY]);
   }
 }
