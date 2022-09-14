@@ -52,16 +52,38 @@ class StaticComponents {
     );
   }
 
-    getBigInputDecoration(String hint) {
-      return InputDecoration(
-          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-          filled: true,
-          fillColor: Colors.white,
-          hintText: hint,
-          hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-          enabledBorder: middleInputBorder,
-          border: middleInputBorder,
-          focusedBorder: middleInputBorder
-      );
+  getMiddleInputDecorationDisabled() {
+    return InputDecoration(
+        contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        filled: true,
+        enabled: false,
+        fillColor: Color(0xffD9D9D9),
+        enabledBorder: middleInputBorder,
+        border: middleInputBorder,
+        focusedBorder: middleInputBorder
+    );
+  }
+
+  getBigInputDecoration(String hint) {
+    return InputDecoration(
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        filled: true,
+        fillColor: Colors.white,
+        hintText: hint,
+        hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+        enabledBorder: middleInputBorder,
+        border: middleInputBorder,
+        focusedBorder: middleInputBorder
+    );
+  }
+  getBigInputDecorationDisabled() {
+    return InputDecoration(
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        filled: true,
+        enabled: false,
+        enabledBorder: middleInputBorder,
+        border: middleInputBorder,
+        focusedBorder: middleInputBorder
+    );
   }
 }

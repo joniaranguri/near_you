@@ -3713,32 +3713,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     }
   }
 
-  void editMedication(int index) {
-    setState(() {
-      editingMedication = true;
-      updateMedication = index;
-      medicationNameValue = medicationsList[index].name ?? "";
-      medicationDurationNumberValue =
-          medicationsList[index].durationNumber ?? "";
-      medicationStartDateValue = medicationsList[index].startDate ?? "";
-      medicationDoseValue = medicationsList[index].dose ?? "";
-      medicationRecommendationValue =
-          medicationsList[index].recomendation ?? "";
-      if (isNotEmpty(medicationsList[index].durationType)) {
-        medicationDurationTypeValue = medicationsList[index].durationType;
-      }
-      if (isNotEmpty(medicationsList[index].pastilleType)) {
-        medicationTypeValue = medicationsList[index].pastilleType;
-      }
-      if (isNotEmpty(medicationsList[index].quantity)) {
-        medicationQuantityValue = medicationsList[index].quantity;
-      }
-      if (isNotEmpty(medicationsList[index].periodicity)) {
-        medicationPeriodicityValue = medicationsList[index].periodicity;
-      }
-    });
-  }
-
   void deleteMedication(int index) {
     final db = FirebaseFirestore.instance;
     db
@@ -3775,6 +3749,32 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         .delete();
     setState(() {
       othersList.removeAt(index);
+    });
+  }
+
+  void editMedication(int index) {
+    setState(() {
+      editingMedication = true;
+      updateMedication = index;
+      medicationNameValue = medicationsList[index].name ?? "";
+      medicationDurationNumberValue =
+          medicationsList[index].durationNumber ?? "";
+      medicationStartDateValue = medicationsList[index].startDate ?? "";
+      medicationDoseValue = medicationsList[index].dose ?? "";
+      medicationRecommendationValue =
+          medicationsList[index].recomendation ?? "";
+      if (isNotEmpty(medicationsList[index].durationType)) {
+        medicationDurationTypeValue = medicationsList[index].durationType;
+      }
+      if (isNotEmpty(medicationsList[index].pastilleType)) {
+        medicationTypeValue = medicationsList[index].pastilleType;
+      }
+      if (isNotEmpty(medicationsList[index].quantity)) {
+        medicationQuantityValue = medicationsList[index].quantity;
+      }
+      if (isNotEmpty(medicationsList[index].periodicity)) {
+        medicationPeriodicityValue = medicationsList[index].periodicity;
+      }
     });
   }
 
@@ -3830,6 +3830,18 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     });
   }
 
+  void editOthers(int index) {
+    setState(() {
+      editingOthers = true;
+      updateOthers = index;
+      othersNameValue = othersList[index].name ?? "";
+      othersDurationValue = othersList[index].duration ?? "";
+      othersPeriodicityValue = othersList[index].periodicity ?? "";
+      othersDetailValue = othersList[index].detail ?? "";
+      othersRecommendationValue = othersList[index].recommendation ?? "";
+    });
+  }
+
   void deleteActivity(int index, bool permitted) {
     var deleteId;
     if (permitted) {
@@ -3845,17 +3857,5 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     }
     final db = FirebaseFirestore.instance;
     db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).doc(deleteId).delete();
-  }
-
-  void editOthers(int index) {
-    setState(() {
-      editingOthers = true;
-      updateOthers = index;
-      othersNameValue = othersList[index].name ?? "";
-      othersDurationValue = othersList[index].duration ?? "";
-      othersPeriodicityValue = othersList[index].periodicity ?? "";
-      othersDetailValue = othersList[index].detail ?? "";
-      othersRecommendationValue = othersList[index].recommendation ?? "";
-    });
   }
 }

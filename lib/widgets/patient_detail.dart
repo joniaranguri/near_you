@@ -6,6 +6,7 @@ import 'package:near_you/model/treatment.dart';
 import 'package:near_you/screens/add_treatment_screen.dart';
 import 'package:near_you/screens/home_screen.dart';
 import 'package:near_you/screens/patient_detail_screen.dart';
+import 'package:near_you/screens/visualize_prescription_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
@@ -946,12 +947,12 @@ class PatientDetailState extends State<PatientDetail> {
           }
           return InkWell(
             onTap: () {
-              /* Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PatientDetailScreen(treatments[index].userId),
-          )
-        );*/
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VisualizePrescriptionScreen(
+                        detailedUser!.currentTreatment!, 0),
+                  ));
             },
             child: Card(
                 color: Color(0xffF1F1F1),
@@ -1062,12 +1063,12 @@ class PatientDetailState extends State<PatientDetail> {
           }
           return InkWell(
             onTap: () {
-              /* Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PatientDetailScreen(treatments[index].userId),
-        )
-      );*/
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VisualizePrescriptionScreen(
+                        detailedUser!.currentTreatment!, 1),
+                  ));
             },
             child: Card(
                 color: Color(0xffF1F1F1),
@@ -1177,12 +1178,12 @@ class PatientDetailState extends State<PatientDetail> {
           }
           return InkWell(
             onTap: () {
-              /* Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PatientDetailScreen(treatments[index].userId),
-        )
-      );*/
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VisualizePrescriptionScreen(
+                        detailedUser!.currentTreatment!, 3),
+                  ));
             },
             child: Card(
                 color: Color(0xffF1F1F1),
@@ -1290,12 +1291,12 @@ class PatientDetailState extends State<PatientDetail> {
           }
           return InkWell(
             onTap: () {
-              /* Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PatientDetailScreen(treatments[index].userId),
-        )
-      );*/
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VisualizePrescriptionScreen(
+                        detailedUser!.currentTreatment!, 2),
+                  ));
             },
             child: Card(
                 color: Color(0xffF1F1F1),
