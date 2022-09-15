@@ -2,18 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:near_you/common/survey_static_values.dart';
-import 'package:near_you/model/treatment.dart';
-import 'package:near_you/screens/add_prescription_screen.dart';
-import 'package:near_you/screens/patient_detail_screen.dart';
-import 'package:near_you/widgets/static_components.dart';
-import 'package:intl/intl.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:near_you/common/survey_static_values.dart';
 
 import '../Constants.dart';
-import '../common/static_common_functions.dart';
-import '../model/user.dart' as user;
-import '../widgets/firebase_utils.dart';
 
 class SurveyScreen extends StatefulWidget {
   String userId;
