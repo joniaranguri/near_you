@@ -109,3 +109,5 @@ const List<String> pastilleQuantitiesList = [
   "5 pastillas"
 ];
 const List<String> periodicityList = ["Diaria", "Semanal", "Mensual"];
+
+const String SURVEY_COLLECTION_KEY = "surveys";

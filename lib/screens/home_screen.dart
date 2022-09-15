@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/screens/login_screen.dart';
+import 'package:near_you/screens/survey_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -454,7 +455,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(Icons.playlist_add_check_outlined, color: Colors.white),
             backgroundColor: Color(0xFF2F8F9D),
             onTap: () {
-              /* do anything */
+              goToSurvey();
             },
             labelWidget: Text(
               "Encuestas",
@@ -707,5 +708,15 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.pop(context);
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
+  }
+
+  void goToSurvey() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SurveyScreen(
+            currentUser!.userId!, currentUser!.fullName ?? "Paciente"),
+      ),
+    );
   }
 }
