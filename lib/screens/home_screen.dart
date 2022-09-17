@@ -175,21 +175,32 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
         color: Colors.white,
         onPressed: () {
           currentUser!.isPatiente()
-              ? showDialogVinculation(
-                  currentUser!.fullName ?? "Nombre",
-                  currentUser!.email!,
-                  context,
-                  currentUser!.isPatiente(),
-                  () {}, () {
-                  Navigator.pop(context);
-                  dialogWaitVinculation(context, () {
-                    Navigator.pop(context);
-                  }, currentUser!.isPatiente());
-                })
+              ? (isNotEmtpy(currentUser!.medicoId)
+                  ? showDialogDevinculation(context, currentUser!.userId!, true,
+                      () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => HomeScreen()));
+                    })
+                  : showDialogVinculation(
+                      currentUser!.fullName ?? "Nombre",
+                      currentUser!.email!,
+                      context,
+                      currentUser!.isPatiente(),
+                      () {}, () {
+                      Navigator.pop(context);
+                      dialogWaitVinculation(context, () {
+                        Navigator.pop(context);
+                      }, currentUser!.isPatiente());
+                    }))
               : () {};
         },
         child: Text(
-          currentUser!.isPatiente() ? 'Vincular' : 'Notificaciones',
+          currentUser!.isPatiente()
+              ? (isNotEmtpy(currentUser!.medicoId) ? 'Desvincular' : 'Vincular')
+              : 'Notificaciones',
           style: TextStyle(
               fontSize: getFontSizeVinculation(shrinkOffset, maxExtent),
               fontWeight: FontWeight.bold,
@@ -895,8 +906,15 @@ class _HomeScreenState extends State<HomeScreen> {
     await postDocRef.update({
       MEDICO_ID_KEY: medicoId,
       // ....rest of your data
-    }).then((value) =>
-        showDialogSuccessVinculation(context, currentUser!.isPatiente()));
+    }).then((value) => showDialogSuccessVinculation(context,
+            '¡Todo listo!\nSu ${currentUser!.isPatiente() ? "médico" : "paciente"} fue vinculado \ncorrectamente.',
+            () {
+          Navigator.pop(context);
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => HomeScreen()));
+        }));
   }
 
   void noAcceptVinculation(String pendingVinculationId) {

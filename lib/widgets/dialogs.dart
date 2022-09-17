@@ -201,7 +201,7 @@ void dialogWaitVinculation(
   );
 }
 
-void showDialogSuccessVinculation(BuildContext context, bool isPatient) {
+void showDialogSuccessVinculation(BuildContext context, String message, Function execute) {
   Navigator.pop(context);
   showDialog(
     context: context,
@@ -231,8 +231,7 @@ void showDialogSuccessVinculation(BuildContext context, bool isPatient) {
                     const SizedBox(
                       height: 10,
                     ),
-                    Text(
-                        '¡Todo listo!\nSu ${isPatient ? "médico" : "paciente"} fue vinculado \ncorrectamente.',
+                    Text(message,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 14,
@@ -255,7 +254,7 @@ void showDialogSuccessVinculation(BuildContext context, bool isPatient) {
                             color: const Color(0xff3BACB6),
                             textColor: Colors.white,
                             onPressed: () {
-                              Navigator.pop(context);
+                             execute();
                             },
                             child: const Text(
                               'Aceptar',
@@ -276,7 +275,6 @@ void showDialogSuccessVinculation(BuildContext context, bool isPatient) {
     },
   );
 }
-
 
 void dialogSuccessDoctorAccepts(BuildContext context) {
   showDialog(
@@ -324,7 +322,7 @@ void dialogSuccessDoctorAccepts(BuildContext context) {
                             color: const Color(0xff3BACB6),
                             textColor: Colors.white,
                             onPressed: () {
-                               Navigator.pop(context);
+                              Navigator.pop(context);
                             },
                             child: const Text(
                               'Aceptar',
@@ -332,6 +330,103 @@ void dialogSuccessDoctorAccepts(BuildContext context) {
                                 fontSize: 16,
                               ),
                             ),
+                          )
+                        ])
+                  ],
+                ))
+          ])
+        ],
+      );
+    },
+  );
+}
+
+void showDialogDevinculation(
+    BuildContext context, String patientId, bool isPatient, Function execute) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Wrap(alignment: WrapAlignment.center, children: [
+            AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    SvgPicture.asset(
+                      'assets/images/warning_icon.svg',
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                        isPatient
+                            ? '¿Desea desvincular al médico\n asignado?'
+                            : '¿Desea desvincular este\n paciente?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xfF67757F))),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          const SizedBox(
+                            height: 17,
+                          ),
+                          FlatButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.all(15),
+                            color: const Color(0xff3BACB6),
+                            textColor: Colors.white,
+                            onPressed: () {
+                              devinculate(context, patientId, isPatient, execute);
+                            },
+                            child: Text(
+                              isPatient ? 'Desvincular' : 'Sí, Desvincular',
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          FlatButton(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid)),
+                            padding: const EdgeInsets.all(15),
+                            color: Colors.white,
+                            textColor: const Color(0xff9D9CB5),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 12,
                           )
                         ])
                   ],

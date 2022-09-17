@@ -292,7 +292,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     );
   }
 
-  void startDevinculation() {}
+  void startDevinculation() {
+    showDialogDevinculation(context, currentUser!.userId!, true, (){
+      Navigator.pop(context);
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (BuildContext context) => MyProfileScreen(currentUser)));
+    });
+  }
 
   bool getVinculationCondition() {
     return !currentUser!.isPatiente() ||

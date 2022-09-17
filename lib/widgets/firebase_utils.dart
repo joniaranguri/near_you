@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import '../model/user.dart' as user;
 
 import '../Constants.dart';
+import 'dialogs.dart';
 
 Future<DocumentSnapshot> getUserById(String userId) async {
   final db = FirebaseFirestore.instance;
@@ -69,5 +71,16 @@ Future<void> deleteVinculation(String pendingVinculationId) async {
   final db = FirebaseFirestore.instance;
   await db
       .collection(PENDING_VINCULATIONS_COLLECTION_KEY)
-      .doc(pendingVinculationId).delete();
+      .doc(pendingVinculationId)
+      .delete();
+}
+
+Future<void> devinculate(
+    BuildContext context, String patientId, bool isPatient, Function execute) async {
+  final db = FirebaseFirestore.instance;
+  db.collection(USERS_COLLECTION_KEY).doc(patientId).update({
+    PATIENT_CURRENT_TREATMENT_KEY: "",
+    MEDICO_ID_KEY: "",
+  }).then((value) => showDialogSuccessVinculation(context,
+      'Su ${isPatient ? "médico" : "paciente"} fue desvinculado\n correctamente', execute));
 }

@@ -2,11 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:near_you/model/treatment.dart';
 import 'package:near_you/screens/patient_detail_screen.dart';
+import 'package:near_you/widgets/dialogs.dart';
 import '../model/user.dart' as user;
 
 import '../Constants.dart';
+import '../screens/home_screen.dart';
 
 class ListViewHomeLayout extends StatefulWidget {
   @override
@@ -22,20 +23,14 @@ class ListViewHome extends State<ListViewHomeLayout> {
 
   @override
   void initState() {
-    /* futureUser = getUserById(FirebaseAuth.instance.currentUser!.uid);
-    futureUser.then((value) => {
-      setState(() {
-        currentUser = user.User.fromSnapshot(value);
-        notifier = ValueNotifier(false);
-      })
-    });*/
     patientsListFuture = getListOfPatients();
     patientsListFuture.then((value) => {
-        if(this.mounted){
-          setState(() {
-            patients = value;
-          })
-        }
+          if (this.mounted)
+            {
+              setState(() {
+                patients = value;
+              })
+            }
         });
     super.initState();
   }
@@ -180,11 +175,23 @@ class ListViewHome extends State<ListViewHomeLayout> {
                                             Padding(
                                                 padding: const EdgeInsets.only(
                                                     right: 25),
-                                                child: Container(
-                                                    width: 24,
-                                                    height: 24,
-                                                    child: SvgPicture.asset(
-                                                        'assets/images/unlink_icon.svg')))
+                                                child: InkWell(
+                                                    onTap: () {
+                                                      showDialogDevinculation(
+                                                          context,
+                                                          patients[index]
+                                                              .userId!,
+                                                          false, () {
+                                                        Navigator.pop(context);
+                                                        Navigator.pushReplacement(context,
+                                                            MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                        width: 24,
+                                                        height: 24,
+                                                        child: SvgPicture.asset(
+                                                            'assets/images/unlink_icon.svg'))))
                                           ]))
                                   //SizedBox
                                 ],
