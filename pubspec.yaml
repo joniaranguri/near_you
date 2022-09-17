@@ -89,6 +89,9 @@ flutter:
     - assets/images/tab_person_unselected.svg
     - assets/images/person_default.png
     - assets/images/unlink_icon.svg
+    - assets/images/clock_icon.svg
+    - assets/images/person_tab_selected.svg
+    - assets/images/plus_tab_unselected.svg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -13,6 +13,7 @@ const String ALT_PHONE_NUMBER_KEY = "alternativePhone";
 const String SMOKING_KEY = "smoking";
 const String ALLERGIES_KEY = "allergies";
 const String USERS_COLLECTION_KEY = "users";
+const String PENDING_VINCULATIONS_COLLECTION_KEY = "pendingVinculations";
 const String USER_TYPE = "type";
 const String USER_ILLNESS = "illness";
 const String USER_TYPE_MEDICO = "MEDICO";
@@ -83,6 +84,7 @@ const String PERMITTED_KEY="permitted";
 const String YES_KEY="yes";
 const String NO_KEY="no";
 
+const String APPLICANT_VINCULATION_USER_TYPE = "applicantType";
 
 //TODO  Chequear el mostrar el role selection si es otro user
 

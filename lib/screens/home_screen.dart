@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/screens/login_screen.dart';
+import 'package:near_you/screens/my_profile_screen.dart';
 import 'package:near_you/screens/survey_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -10,7 +11,9 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:near_you/widgets/static_components.dart';
 
 import '../Constants.dart';
+import '../common/static_common_functions.dart';
 import '../model/user.dart' as user;
+import '../widgets/dialogs.dart';
 import '../widgets/grouped_bar_chart.dart';
 import '../widgets/patient_detail.dart';
 import '../widgets/treatments_list.dart';
@@ -35,7 +38,6 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     publicShrinkHome = shrinkOffset;
-    debugPrint(shrinkOffset.toString());
     return Container(
       color: Color(0xff2F8F9D),
       padding: EdgeInsets.only(top: 20),
@@ -77,29 +79,38 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                   shrinkOffset / _maxExtent,
                   0),
               child: Padding(
-                padding: EdgeInsets.only(
-                    left: 30,
-                    top: (shrinkOffset / _maxExtent) * 35,
-                    right: 30,
-                    bottom: 20),
-                child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xff7c94b6),
-                      image: DecorationImage(
-                        image: NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                      border: Border.all(
-                        color: Color(0xff47B4AC),
-                        width: 4.0,
-                      ),
-                    ),
-                    child: Image.asset(
-                      'assets/images/person_default.png',
-                      height: 50,
-                    )),
-              )
+                  padding: EdgeInsets.only(
+                      left: 30,
+                      top: (shrinkOffset / _maxExtent) * 35,
+                      right: 30,
+                      bottom: 20),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  MyProfileScreen(currentUser)));
+                    },
+                    child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xff7c94b6),
+                          image: DecorationImage(
+                            image:
+                                NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                          border: Border.all(
+                            color: Color(0xff47B4AC),
+                            width: 4.0,
+                          ),
+                        ),
+                        child: Image.asset(
+                          'assets/images/person_default.png',
+                          height: 50,
+                        )),
+                  ))
               /*SvgPicture.asset(
               'assets/images/tab_plus_selected.svg',
               height: 70,
@@ -161,7 +172,17 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
         ),
         padding: EdgeInsets.only(left: 30, right: 30, top: 5, bottom: 5),
         color: Colors.white,
-        onPressed: () {},
+        onPressed: () {
+          currentUser!.isPatiente()
+              ? showDialogVinculation(context, currentUser!.isPatiente(), () {},
+                  () {
+                  Navigator.pop(context);
+                  dialogWaitVinculation(context, () {
+                    Navigator.pop(context);
+                  }, currentUser!.isPatiente());
+                })
+              : () {};
+        },
         child: Text(
           currentUser!.isPatiente() ? 'Vincular' : 'Notificaciones',
           style: TextStyle(
@@ -574,126 +595,24 @@ class _HomeScreenState extends State<HomeScreen> {
         notifier.value = true;
       });
     } else {
-      showDialogVinculation();
+      showDialogVinculation(context, currentUser!.isPatiente(),
+          errorVinculation, successPendingVinculation);
     }
   }
 
-  void showDialogVinculation() {
-    String? emailPatient;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Wrap(alignment: WrapAlignment.center, children: [
-              AlertDialog(
-                  title: Column(children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text("Ingrese el correo electrónico")
-                  ]),
-                  titleTextStyle: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff67757F)),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  content: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      TextField(
-                        controller: TextEditingController(text: emailPatient),
-                        onChanged: (value) {
-                          emailPatient = value;
-                        },
-                        style: TextStyle(fontSize: 14),
-                        decoration: staticComponents
-                            .getInputDecoration('Correo del paciente'),
-                      ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            const SizedBox(
-                              height: 17,
-                            ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.all(15),
-                              color: const Color(0xff3BACB6),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                startVinculation(emailPatient);
-                              },
-                              child: const Text(
-                                'Vincular',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  side: const BorderSide(
-                                      color: Color(0xff9D9CB5),
-                                      width: 1,
-                                      style: BorderStyle.solid)),
-                              padding: const EdgeInsets.all(15),
-                              color: Colors.white,
-                              textColor: const Color(0xff9D9CB5),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text(
-                                'Cancelar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            )
-                          ])
-                    ],
-                  ))
-            ])
-          ],
-        );
-      },
-    );
-  }
-
-  void startVinculation(String? emailPatient) {
+/* void startVinculation(String? emailPatient) {
     attachMedicoToPatient(emailPatient);
   }
 
-  Future<void> attachMedicoToPatient(String? emailPatient) async {
+ Future<void> attachMedicoToPatient(String? emailPatient) async {
     final db = FirebaseFirestore.instance;
     String? medicoId = FirebaseAuth.instance.currentUser?.uid;
     if (medicoId == null) return;
-    var future = await db
-        .collection(USERS_COLLECTION_KEY)
-        .where(EMAIL_KEY, isEqualTo: emailPatient)
-        .limit(1)
-        .get();
-    if (future.docs.isEmpty) {
+    String? patientId = await getUserIdByEmail(emailPatient);
+    if (patientId == null) {
+      //error no id for email
       Navigator.pop(context);
-      return;
     }
-    String patientId = future.docs.first.id;
     var postDocRef = db.collection(USERS_COLLECTION_KEY).doc(patientId);
     await postDocRef
         .update({
@@ -702,7 +621,7 @@ class _HomeScreenState extends State<HomeScreen> {
         })
         .whenComplete(() => refreshScreen())
         .onError((error, stackTrace) => Navigator.pop(context));
-  }
+  }*/
 
   refreshScreen() {
     Navigator.pop(context);
@@ -718,5 +637,16 @@ class _HomeScreenState extends State<HomeScreen> {
             currentUser!.userId!, currentUser!.fullName ?? "Paciente"),
       ),
     );
+  }
+
+  errorVinculation() {
+    print("error vinculation");
+  }
+
+  successPendingVinculation() {
+    Navigator.pop(context);
+    dialogWaitVinculation(context, () {
+      Navigator.pop(context);
+    }, currentUser!.isPatiente());
   }
 }

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class StaticComponents {
   get emptyBox => const SizedBox(
-    height: 0,
-  );
+        height: 0,
+      );
+
   get inputBorder => OutlineInputBorder(
       borderSide: const BorderSide(color: Color(0xffCECECE)),
       borderRadius: BorderRadius.circular(10));
@@ -48,8 +49,7 @@ class StaticComponents {
         hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
         enabledBorder: middleInputBorder,
         border: middleInputBorder,
-        focusedBorder: middleInputBorder
-    );
+        focusedBorder: middleInputBorder);
   }
 
   getMiddleInputDecorationDisabled() {
@@ -60,8 +60,7 @@ class StaticComponents {
         fillColor: Color(0xffD9D9D9),
         enabledBorder: middleInputBorder,
         border: middleInputBorder,
-        focusedBorder: middleInputBorder
-    );
+        focusedBorder: middleInputBorder);
   }
 
   getBigInputDecoration(String hint) {
@@ -73,9 +72,9 @@ class StaticComponents {
         hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
         enabledBorder: middleInputBorder,
         border: middleInputBorder,
-        focusedBorder: middleInputBorder
-    );
+        focusedBorder: middleInputBorder);
   }
+
   getBigInputDecorationDisabled() {
     return InputDecoration(
         contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -83,7 +82,6 @@ class StaticComponents {
         enabled: false,
         enabledBorder: middleInputBorder,
         border: middleInputBorder,
-        focusedBorder: middleInputBorder
-    );
+        focusedBorder: middleInputBorder);
   }
 }

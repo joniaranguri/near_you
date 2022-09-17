@@ -21,7 +21,8 @@ class User {
       required this.illness,
       required this.currentTreatment,
       required this.attachedPatients,
-      required this.adherenceLevel});
+      required this.adherenceLevel,
+      required this.medicoId});
 
   String? attachedPatients;
   String? fullName;
@@ -30,6 +31,7 @@ class User {
   String? adherenceLevel;
   String? birthDay;
   String? phone;
+  String? medicoId;
 
   String? age;
 
@@ -71,7 +73,8 @@ class User {
         illness: realData[USER_ILLNESS],
         currentTreatment: realData[PATIENT_CURRENT_TREATMENT_KEY],
         attachedPatients: realData[ATTACHED_PATIENTS],
-        adherenceLevel: realData[ADHERENCE_LEVEL_KEY]
+        adherenceLevel: realData[ADHERENCE_LEVEL_KEY],
+        medicoId: realData[MEDICO_ID_KEY]
     );
   }
 
