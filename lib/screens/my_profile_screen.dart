@@ -155,9 +155,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                       onPressed: () {
                                         if (getVinculationCondition()) {
                                           showDialogVinculation(
+                                              currentUser!.fullName??"Nombre",currentUser!.email!,
                                               context,
                                               currentUser!.isPatiente(),
-                                              errorVinculation,
+                                              (){},
                                               successPendingVinculation);
                                         } else {
                                           startDevinculation();
@@ -296,10 +297,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   bool getVinculationCondition() {
     return !currentUser!.isPatiente() ||
         !isNotEmtpy(currentUser?.medicoId ?? "");
-  }
-
-  errorVinculation() {
-    print("error vinculation");
   }
 
   successPendingVinculation() {

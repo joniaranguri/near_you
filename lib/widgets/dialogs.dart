@@ -4,8 +4,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'firebase_utils.dart';
 
-void showDialogVinculation(BuildContext context, bool userIsPatient,
-    Function errorFunction, Function successFunction) {
+void showDialogVinculation(
+    String currentUserName,
+    String currentEmail,
+    BuildContext context,
+    bool userIsPatient,
+    Function errorFunction,
+    Function successFunction) {
   String? emailUser;
   bool validationError = false;
   final GlobalKey<FormState> vinculationFormKey = GlobalKey<FormState>();
@@ -75,6 +80,8 @@ void showDialogVinculation(BuildContext context, bool userIsPatient,
                               validationError = false;
                               if (form.validate()) {
                                 bool attachment = await attachMedicoToPatient(
+                                    currentUserName,
+                                    currentEmail,
                                     emailUser,
                                     userIsPatient,
                                     errorFunction,
@@ -183,6 +190,82 @@ void dialogWaitVinculation(
                                 fontSize: 16,
                               ),
                             ),
+                          )
+                        ])
+                  ],
+                ))
+          ])
+        ],
+      );
+    },
+  );
+}
+
+void showDialogSuccessVinculation(BuildContext context, bool isPatient) {
+  Navigator.pop(context);
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Wrap(alignment: WrapAlignment.center, children: [
+            AlertDialog(
+                title: Column(children: [
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text("Operación\n Exitosa", textAlign: TextAlign.center)
+                ]),
+                titleTextStyle: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xff67757F)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                        '¡Todo listo!\nSu ${isPatient ? "médico" : "paciente"} fue vinculado \ncorrectamente.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff999999))),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          const SizedBox(
+                            height: 17,
+                          ),
+                          FlatButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.all(15),
+                            color: const Color(0xff3BACB6),
+                            textColor: Colors.white,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text(
+                              'Aceptar',
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 12,
                           )
                         ])
                   ],

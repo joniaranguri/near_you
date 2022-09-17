@@ -12,6 +12,7 @@ import 'package:near_you/widgets/static_components.dart';
 
 import '../Constants.dart';
 import '../common/static_common_functions.dart';
+import '../model/pending_vinculation.dart';
 import '../model/user.dart' as user;
 import '../widgets/dialogs.dart';
 import '../widgets/grouped_bar_chart.dart';
@@ -174,8 +175,12 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
         color: Colors.white,
         onPressed: () {
           currentUser!.isPatiente()
-              ? showDialogVinculation(context, currentUser!.isPatiente(), () {},
-                  () {
+              ? showDialogVinculation(
+                  currentUser!.fullName ?? "Nombre",
+                  currentUser!.email!,
+                  context,
+                  currentUser!.isPatiente(),
+                  () {}, () {
                   Navigator.pop(context);
                   dialogWaitVinculation(context, () {
                     Navigator.pop(context);
@@ -335,9 +340,11 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
 class _HomeScreenState extends State<HomeScreen> {
   // bool isUserPatient = false;
   user.User? currentUser;
-  static StaticComponents staticComponents = StaticComponents();
   late final Future<DocumentSnapshot> futureUser;
   late ValueNotifier<bool> notifier = ValueNotifier(false);
+  List<PendingVinculation> pendingVinculationList = <PendingVinculation>[];
+  List<PendingVinculation> acceptedVinculationList = <PendingVinculation>[];
+  List<PendingVinculation> refusedVinculationList = <PendingVinculation>[];
 
   @override
   void initState() {
@@ -346,6 +353,30 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             currentUser = user.User.fromSnapshot(value);
             notifier = ValueNotifier(false);
+            getPendingVinculations().then((pendingResult) => {
+                  setState(() {
+                    if (pendingResult.isEmpty) {
+                      return;
+                    }
+                    pendingVinculationList = pendingResult;
+                    if (currentUser!.isPatiente()) {
+                      showNotificationPendingVinculation(
+                          pendingVinculationList[0]);
+                    }
+                  })
+                });
+
+            getRefusedVinculations().then((refusedList) => {
+                  setState(() {
+                    refusedVinculationList = refusedList;
+                  })
+                });
+
+            getAcceptedVinculations().then((acceptedList) => {
+                  setState(() {
+                    acceptedVinculationList = acceptedList;
+                  })
+                });
           })
         });
     super.initState();
@@ -595,8 +626,13 @@ class _HomeScreenState extends State<HomeScreen> {
         notifier.value = true;
       });
     } else {
-      showDialogVinculation(context, currentUser!.isPatiente(),
-          errorVinculation, successPendingVinculation);
+      showDialogVinculation(
+          currentUser!.fullName ?? "Nombre",
+          currentUser!.email!,
+          context,
+          currentUser!.isPatiente(),
+          errorVinculation,
+          successPendingVinculation);
     }
   }
 
@@ -648,5 +684,227 @@ class _HomeScreenState extends State<HomeScreen> {
     dialogWaitVinculation(context, () {
       Navigator.pop(context);
     }, currentUser!.isPatiente());
+  }
+
+  Future<List<PendingVinculation>> getPendingVinculations() async {
+    final db = FirebaseFirestore.instance;
+    final collectionRef = db.collection(PENDING_VINCULATIONS_COLLECTION_KEY);
+    final String currentUserId = currentUser!.userId!;
+    QuerySnapshot<Map<String, dynamic>> future;
+    if (currentUser!.isPatiente()) {
+      future = await collectionRef
+          .where(PATIENT_ID_KEY, isEqualTo: currentUserId)
+          .where(VINCULATION_STATUS_KEY, isEqualTo: VINCULATION_STATUS_PENDING)
+          .where(APPLICANT_VINCULATION_USER_TYPE, isEqualTo: USER_TYPE_MEDICO)
+          .limit(1)
+          .get();
+    } else {
+      future = await collectionRef
+          .where(MEDICO_ID_KEY, isEqualTo: currentUserId)
+          .where(VINCULATION_STATUS_KEY, isEqualTo: VINCULATION_STATUS_PENDING)
+          .where(APPLICANT_VINCULATION_USER_TYPE, isEqualTo: USER_TYPE_PACIENTE)
+          .get();
+    }
+
+    List<PendingVinculation> vinculations = <PendingVinculation>[];
+    for (var element in future.docs) {
+      PendingVinculation currentVinculation =
+          PendingVinculation.fromSnapshot(element);
+      vinculations.add(currentVinculation);
+    }
+    return vinculations;
+  }
+
+  getRefusedVinculations() async {
+    final db = FirebaseFirestore.instance;
+    final collectionRef = db.collection(PENDING_VINCULATIONS_COLLECTION_KEY);
+    final String currentUserId = currentUser!.userId!;
+    QuerySnapshot<Map<String, dynamic>> future;
+    if (currentUser!.isPatiente()) {
+      future = await collectionRef
+          .where(PATIENT_ID_KEY, isEqualTo: currentUserId)
+          .where(VINCULATION_STATUS_KEY, isEqualTo: VINCULATION_STATUS_REFUSED)
+          .where(APPLICANT_VINCULATION_USER_TYPE, isEqualTo: USER_TYPE_PACIENTE)
+          .limit(1)
+          .get();
+    } else {
+      future = await collectionRef
+          .where(MEDICO_ID_KEY, isEqualTo: currentUserId)
+          .where(VINCULATION_STATUS_KEY, isEqualTo: VINCULATION_STATUS_REFUSED)
+          .where(APPLICANT_VINCULATION_USER_TYPE, isEqualTo: USER_TYPE_MEDICO)
+          .get();
+    }
+
+    List<PendingVinculation> vinculations = <PendingVinculation>[];
+    for (var element in future.docs) {
+      PendingVinculation currentVinculation =
+          PendingVinculation.fromSnapshot(element);
+      vinculations.add(currentVinculation);
+    }
+    return vinculations;
+  }
+
+  getAcceptedVinculations() async {
+    final db = FirebaseFirestore.instance;
+    final collectionRef = db.collection(PENDING_VINCULATIONS_COLLECTION_KEY);
+    final String currentUserId = currentUser!.userId!;
+    QuerySnapshot<Map<String, dynamic>> future;
+    if (currentUser!.isPatiente()) {
+      future = await collectionRef
+          .where(PATIENT_ID_KEY, isEqualTo: currentUserId)
+          .where(VINCULATION_STATUS_KEY, isEqualTo: VINCULATION_STATUS_ACCEPTED)
+          .where(APPLICANT_VINCULATION_USER_TYPE, isEqualTo: USER_TYPE_PACIENTE)
+          .limit(1)
+          .get();
+    } else {
+      future = await collectionRef
+          .where(MEDICO_ID_KEY, isEqualTo: currentUserId)
+          .where(VINCULATION_STATUS_KEY, isEqualTo: VINCULATION_STATUS_ACCEPTED)
+          .where(APPLICANT_VINCULATION_USER_TYPE, isEqualTo: USER_TYPE_MEDICO)
+          .get();
+    }
+
+    List<PendingVinculation> vinculations = <PendingVinculation>[];
+    for (var element in future.docs) {
+      PendingVinculation currentVinculation =
+          PendingVinculation.fromSnapshot(element);
+      vinculations.add(currentVinculation);
+    }
+    return vinculations;
+  }
+
+  void showNotificationPendingVinculation(
+      PendingVinculation pendingVinculation) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Wrap(alignment: WrapAlignment.center, children: [
+              AlertDialog(
+                  title: Column(children: [
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Text("Notificación de\n Vinculación",
+                        textAlign: TextAlign.center)
+                  ]),
+                  titleTextStyle: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff67757F)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                          'El médico ${pendingVinculation.namePending}\n desea vincular su cuenta\n con usted',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff999999))),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 17,
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.all(15),
+                              color: const Color(0xff3BACB6),
+                              textColor: Colors.white,
+                              onPressed: () {
+                                acceptVinculationWithDoctor(
+                                    pendingVinculation.medicoId,
+                                    pendingVinculation.databaseId!);
+                              },
+                              child: const Text(
+                                'Aceptar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 12,
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: const BorderSide(
+                                      color: Color(0xff9D9CB5),
+                                      width: 1,
+                                      style: BorderStyle.solid)),
+                              padding: const EdgeInsets.all(15),
+                              color: Colors.white,
+                              textColor: const Color(0xff9D9CB5),
+                              onPressed: () {
+                                noAcceptVinculation(
+                                    pendingVinculation.databaseId!);
+                              },
+                              child: const Text(
+                                'Cancelar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 12,
+                            )
+                          ])
+                    ],
+                  ))
+            ])
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> acceptVinculationWithDoctor(
+      String? medicoId, String pendingVinculationId) async {
+    final db = FirebaseFirestore.instance;
+    String? patientId = FirebaseAuth.instance.currentUser?.uid;
+    if (patientId == null || medicoId == null) {
+      return;
+    }
+    updatePendingVinculationStatus(
+        VINCULATION_STATUS_ACCEPTED, pendingVinculationId);
+    var postDocRef = db.collection(USERS_COLLECTION_KEY).doc(patientId);
+    await postDocRef.update({
+      MEDICO_ID_KEY: medicoId,
+      // ....rest of your data
+    }).then((value) =>
+        showDialogSuccessVinculation(context, currentUser!.isPatiente()));
+  }
+
+  void noAcceptVinculation(String pendingVinculationId) {
+    Navigator.pop(context);
+    updatePendingVinculationStatus(
+        VINCULATION_STATUS_REFUSED, pendingVinculationId);
+  }
+
+  Future<void> updatePendingVinculationStatus(
+      String status, String pendingVinculationId) async {
+    final db = FirebaseFirestore.instance;
+    await db
+        .collection(PENDING_VINCULATIONS_COLLECTION_KEY)
+        .doc(pendingVinculationId)
+        .update({VINCULATION_STATUS_KEY: status});
   }
 }

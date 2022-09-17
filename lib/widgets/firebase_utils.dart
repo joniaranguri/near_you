@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../model/user.dart' as user;
 
 import '../Constants.dart';
 
@@ -28,8 +29,13 @@ Future<String?> getUserIdByEmail(String? email) async {
   return future.docs.first.id;
 }
 
-Future<bool> attachMedicoToPatient(String? emailUser, bool isPatient,
-    Function errorFunction, Function successFunction) async {
+Future<bool> attachMedicoToPatient(
+    String currentUserName,
+    String currentEmail,
+    String? emailUser,
+    bool isPatient,
+    Function errorFunction,
+    Function successFunction) async {
   final db = FirebaseFirestore.instance;
   String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
   if (currentUserId == null) {
@@ -46,6 +52,9 @@ Future<bool> attachMedicoToPatient(String? emailUser, bool isPatient,
   await db
       .collection(PENDING_VINCULATIONS_COLLECTION_KEY)
       .add({
+        VINCULATION_PENDING_EMAIL_KEY: currentEmail,
+        VINCULATION_PENDING_NAME_KEY: currentUserName,
+        VINCULATION_STATUS_KEY: VINCULATION_STATUS_PENDING,
         MEDICO_ID_KEY: medicoId,
         PATIENT_ID_KEY: patientId,
         APPLICANT_VINCULATION_USER_TYPE:

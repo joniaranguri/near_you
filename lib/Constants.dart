@@ -27,7 +27,7 @@ const String USER_ID_KEY = "userId";
 const String VINCULATIONS_KEY = "vinculations";
 const String ADHERENCE_LEVEL_KEY = "adherenceLevel";
 const String PATIENT_CURRENT_TREATMENT_KEY = "currentTreatment";
-const String EMPTY_STRING_VALUE="";
+const String EMPTY_STRING_VALUE = "";
 
 const String TREATMENT_ID_KEY = "treatmentId";
 const String TREATMENT_DATABASE_ID = "databaseId";
@@ -73,16 +73,20 @@ const String NUTRITION_PRESCRIPTION_COLLECTION_KEY = "nutritionPrescriptions";
 const String ACTIVITY_PRESCRIPTION_COLLECTION_KEY = "activityPrescriptions";
 const String OTHERS_PRESCRIPTION_COLLECTION_KEY = "othersPrescriptions";
 
-const String PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY = "pendingMedicationPrescriptions";
-const String PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY = "pendingNutritionPrescriptions";
-const String PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY = "pendingActivityPrescriptions";
-const String PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY = "pendingOthersPrescriptions";
+const String PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY =
+    "pendingMedicationPrescriptions";
+const String PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY =
+    "pendingNutritionPrescriptions";
+const String PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY =
+    "pendingActivityPrescriptions";
+const String PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY =
+    "pendingOthersPrescriptions";
 const String PENDING_PRESCRIPTIONS_TREATMENT_KEY = "pendingTreatmentId";
 const String PENDING_PRESCRIPTIONS_ID_KEY = "pendingPrescriptionId";
 
-const String PERMITTED_KEY="permitted";
-const String YES_KEY="yes";
-const String NO_KEY="no";
+const String PERMITTED_KEY = "permitted";
+const String YES_KEY = "yes";
+const String NO_KEY = "no";
 
 const String APPLICANT_VINCULATION_USER_TYPE = "applicantType";
 
@@ -99,10 +103,7 @@ const List<String> otherNamesList = [
   "Riesgo cardiovascular"
 ];
 const List<String> durationsActivityList = ["horas", "segundos", "horas"];
-const List<String> pastilleTypeList = [
-  "Pastilla antidiabética",
-  "Otro tipo"
-];
+const List<String> pastilleTypeList = ["Pastilla antidiabética", "Otro tipo"];
 const List<String> pastilleQuantitiesList = [
   "1 pastilla",
   "2 pastillas",
@@ -113,3 +114,10 @@ const List<String> pastilleQuantitiesList = [
 const List<String> periodicityList = ["Diaria", "Semanal", "Mensual"];
 
 const String SURVEY_COLLECTION_KEY = "surveys";
+
+const String VINCULATION_STATUS_KEY = "vinculationStatus";
+const String VINCULATION_STATUS_PENDING = "pending";
+const String VINCULATION_STATUS_ACCEPTED = "accepted";
+const String VINCULATION_STATUS_REFUSED = "refused";
+const String VINCULATION_PENDING_NAME_KEY = "pendingName";
+const String VINCULATION_PENDING_EMAIL_KEY = "pendingEmail";
