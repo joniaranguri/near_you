@@ -64,3 +64,10 @@ Future<bool> attachMedicoToPatient(
       .onError((error, stackTrace) => errorFunction());
   return true;
 }
+
+Future<void> deleteVinculation(String pendingVinculationId) async {
+  final db = FirebaseFirestore.instance;
+  await db
+      .collection(PENDING_VINCULATIONS_COLLECTION_KEY)
+      .doc(pendingVinculationId).delete();
+}

@@ -343,8 +343,6 @@ class _HomeScreenState extends State<HomeScreen> {
   late final Future<DocumentSnapshot> futureUser;
   late ValueNotifier<bool> notifier = ValueNotifier(false);
   List<PendingVinculation> pendingVinculationList = <PendingVinculation>[];
-  List<PendingVinculation> acceptedVinculationList = <PendingVinculation>[];
-  List<PendingVinculation> refusedVinculationList = <PendingVinculation>[];
 
   @override
   void initState() {
@@ -368,13 +366,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
             getRefusedVinculations().then((refusedList) => {
                   setState(() {
-                    refusedVinculationList = refusedList;
+                    for (int i = 0; i < refusedList.length; i++) {
+                      deleteVinculation(refusedList[i].databaseId!);
+                    }
                   })
                 });
 
             getAcceptedVinculations().then((acceptedList) => {
                   setState(() {
-                    acceptedVinculationList = acceptedList;
+                    if (acceptedList.isEmpty) {
+                      return;
+                    }
+                    if (currentUser!.isPatiente()) {
+                      dialogSuccessDoctorAccepts(context);
+                      deleteVinculation(acceptedList.first.databaseId!);
+                    }
                   })
                 });
           })
@@ -715,7 +721,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return vinculations;
   }
 
-  getRefusedVinculations() async {
+  Future<List<PendingVinculation>> getRefusedVinculations() async {
     final db = FirebaseFirestore.instance;
     final collectionRef = db.collection(PENDING_VINCULATIONS_COLLECTION_KEY);
     final String currentUserId = currentUser!.userId!;
@@ -744,7 +750,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return vinculations;
   }
 
-  getAcceptedVinculations() async {
+  Future<List<PendingVinculation>> getAcceptedVinculations() async {
     final db = FirebaseFirestore.instance;
     final collectionRef = db.collection(PENDING_VINCULATIONS_COLLECTION_KEY);
     final String currentUserId = currentUser!.userId!;

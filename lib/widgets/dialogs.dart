@@ -276,3 +276,69 @@ void showDialogSuccessVinculation(BuildContext context, bool isPatient) {
     },
   );
 }
+
+
+void dialogSuccessDoctorAccepts(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        //Center Row contents horizontally,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Wrap(alignment: WrapAlignment.center, children: [
+            AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                content: Column(
+                  children: [
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    SvgPicture.asset(
+                      'assets/images/success_icon_modal.svg',
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Text('¡Su medico acepto la\n vinculacion!',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff67757F))),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          const SizedBox(
+                            height: 17,
+                          ),
+                          FlatButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.all(15),
+                            color: const Color(0xff3BACB6),
+                            textColor: Colors.white,
+                            onPressed: () {
+                               Navigator.pop(context);
+                            },
+                            child: const Text(
+                              'Aceptar',
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                          )
+                        ])
+                  ],
+                ))
+          ])
+        ],
+      );
+    },
+  );
+}
