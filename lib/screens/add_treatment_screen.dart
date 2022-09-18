@@ -190,7 +190,6 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
 
   Widget _buildBottomBar() {
     return Container(
-      margin: EdgeInsets.only(bottom: 20),
       child: Material(
         elevation: 0.0,
         color: Colors.white,
