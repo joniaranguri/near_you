@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/screens/login_screen.dart';
 import 'package:near_you/screens/my_profile_screen.dart';
+import 'package:near_you/screens/routine_screen.dart';
 import 'package:near_you/screens/survey_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -537,7 +538,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(Icons.water_drop, color: Colors.white),
             backgroundColor: Color(0xFF2F8F9D),
             onTap: () {
-              /* do anything */
+              goToMyRoutine();
             },
             labelWidget: Text(
               "Mi rutina",
@@ -929,5 +930,15 @@ class _HomeScreenState extends State<HomeScreen> {
         .collection(PENDING_VINCULATIONS_COLLECTION_KEY)
         .doc(pendingVinculationId)
         .update({VINCULATION_STATUS_KEY: status});
+  }
+
+  void goToMyRoutine() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RoutineScreen(
+            currentUser!.currentTreatment),
+      ),
+    );
   }
 }

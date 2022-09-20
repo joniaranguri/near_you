@@ -9,6 +9,8 @@ class NutritionPrescription {
   String? maxCalories;
   String? permitted;
 
+  String result = "";
+
   NutritionPrescription({
     required this.databaseId,
     required this.treatmentId,

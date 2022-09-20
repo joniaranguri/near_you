@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../model/activityPrescription.dart';
+import '../model/medicationPrescription.dart';
+import '../model/nutritionPrescription.dart';
+import '../model/othersPrescription.dart';
 import '../model/user.dart' as user;
 
 import '../Constants.dart';
@@ -75,12 +79,70 @@ Future<void> deleteVinculation(String pendingVinculationId) async {
       .delete();
 }
 
-Future<void> devinculate(
-    BuildContext context, String patientId, bool isPatient, Function execute) async {
+Future<void> devinculate(BuildContext context, String patientId, bool isPatient,
+    Function execute) async {
   final db = FirebaseFirestore.instance;
   db.collection(USERS_COLLECTION_KEY).doc(patientId).update({
     PATIENT_CURRENT_TREATMENT_KEY: "",
     MEDICO_ID_KEY: "",
-  }).then((value) => showDialogSuccessVinculation(context,
-      'Su ${isPatient ? "médico" : "paciente"} fue desvinculado\n correctamente', execute));
+  }).then((value) => showDialogSuccessVinculation(
+      context,
+      'Su ${isPatient ? "médico" : "paciente"} fue desvinculado\n correctamente',
+      execute));
+}
+
+Future<List<MedicationPrescription>> getMedicationPrescriptions(
+    String currentTreatmentId) async {
+  List<MedicationPrescription> resultList = <MedicationPrescription>[];
+  final db = FirebaseFirestore.instance;
+  var future = await db
+      .collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY)
+      .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
+      .get();
+  for (var element in future.docs) {
+    resultList.add(MedicationPrescription.fromSnapshot(element));
+  }
+  return resultList;
+}
+
+Future<List<ActivityPrescription>> getActivityPrescriptions(
+    String currentTreatmentId) async {
+  List<ActivityPrescription> resultList = <ActivityPrescription>[];
+  final db = FirebaseFirestore.instance;
+  var future = await db
+      .collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY)
+      .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
+      .get();
+  for (var element in future.docs) {
+    resultList.add(ActivityPrescription.fromSnapshot(element));
+  }
+  return resultList;
+}
+
+Future<List<NutritionPrescription>> getNutritionPrescriptions(
+    String currentTreatmentId) async {
+  List<NutritionPrescription> resultList = <NutritionPrescription>[];
+  final db = FirebaseFirestore.instance;
+  var future = await db
+      .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
+      .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
+      .get();
+  for (var element in future.docs) {
+    resultList.add(NutritionPrescription.fromSnapshot(element));
+  }
+  return resultList;
+}
+
+Future<List<OthersPrescription>> getOthersPrescriptions(
+    String currentTreatmentId) async {
+  List<OthersPrescription> resultList = <OthersPrescription>[];
+  final db = FirebaseFirestore.instance;
+  var future = await db
+      .collection(OTHERS_PRESCRIPTION_COLLECTION_KEY)
+      .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
+      .get();
+  for (var element in future.docs) {
+    resultList.add(OthersPrescription.fromSnapshot(element));
+  }
+  return resultList;
 }
