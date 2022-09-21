@@ -37,6 +37,7 @@ dependencies:
   firebase_core: ^1.21.1
   firebase_auth: ^3.7.0
   cloud_firestore: ^3.4.6
+  flutter_svg: 0.22.0
 
 dev_dependencies:
   flutter_test:
@@ -49,7 +50,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
 
-  flutter_svg: 0.22.0
+  
   intl: ^0.17.0
   shared_preferences: 2.0.15
   percent_indicator: ^4.2.2
@@ -92,6 +93,8 @@ flutter:
     - assets/images/clock_icon.svg
     - assets/images/person_tab_selected.svg
     - assets/images/plus_tab_unselected.svg
+    - assets/images/logo.svg
+    - assets/images/logo.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
