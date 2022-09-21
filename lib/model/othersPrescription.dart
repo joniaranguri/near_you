@@ -2,7 +2,7 @@ import '../Constants.dart';
 
 class OthersPrescription {
   String? databaseId;
-  int state = 0;
+  int? state;
   String? treatmentId;
   String? name;
   String? duration;

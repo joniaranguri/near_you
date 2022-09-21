@@ -18,16 +18,15 @@ class RoutineScreen extends StatefulWidget {
 
 class _RoutineScreenState extends State<RoutineScreen> {
   static List<SurveyData> RoutineList = <SurveyData>[];
-  static List<String?> RoutineResults = List.filled(RoutineList.length, '0');
+   List<String?> RoutineResults = List.filled(RoutineList.length, '0');
   static List<Routine> routines = <Routine>[
     new Routine(
-        databaseId: null,
         treatmentId: null,
-        medicationPercentage: "80%",
-        activityPercentage: "80%",
-        nutritionPercentage: "80%",
-        examsPercentage: "80%",
-        date: null)
+        medicationPercentage: "80",
+        activityPercentage: "80",
+        nutritionPercentage: "80",
+        examsPercentage: "80",
+    totalPercentage: "0")
   ];
 
   late final Future<List<SurveyData>> futureRoutine;
@@ -38,8 +37,6 @@ class _RoutineScreenState extends State<RoutineScreen> {
   double screenWidth = 0;
 
   double screenHeight = 0;
-
-  var _selectedDate = DateTime.now();
 
   String? currentTreatmentId;
 
@@ -117,7 +114,7 @@ class _RoutineScreenState extends State<RoutineScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            CalendarTimeline(
+                            /*  CalendarTimeline(
                               showYears: false,
                               initialDate: _selectedDate,
                               firstDate:
@@ -133,7 +130,8 @@ class _RoutineScreenState extends State<RoutineScreen> {
                               selectableDayPredicate: (date) =>
                                   date == _selectedDate,
                               locale: 'es',
-                            ),
+                            ),*/
+                            SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -233,13 +231,13 @@ class _RoutineScreenState extends State<RoutineScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(top: 10),
+                  padding: EdgeInsets.only(top: 20),
                   child: Text("8:00"),
                 ),
                 Expanded(
                     child: InkWell(
                   onTap: () {
-                    if(isNotEmpty(currentTreatmentId)){
+                    if (isNotEmpty(currentTreatmentId)) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -292,7 +290,7 @@ class _RoutineScreenState extends State<RoutineScreen> {
                                                             .spaceBetween,
                                                     children: <Widget>[
                                                       Text(
-                                                        "• Nivel de adherencia: ",
+                                                        "• Medicación: ",
                                                         style: const TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
@@ -322,7 +320,7 @@ class _RoutineScreenState extends State<RoutineScreen> {
                                                             .spaceBetween,
                                                     children: <Widget>[
                                                       Text(
-                                                        "• Nivel de adherencia: ",
+                                                        "• Alimentación: ",
                                                         style: const TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
@@ -352,7 +350,7 @@ class _RoutineScreenState extends State<RoutineScreen> {
                                                             .spaceBetween,
                                                     children: <Widget>[
                                                       Text(
-                                                        "• Nivel de adherencia: ",
+                                                        "• Actividad Física: ",
                                                         style: const TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
@@ -382,7 +380,7 @@ class _RoutineScreenState extends State<RoutineScreen> {
                                                             .spaceBetween,
                                                     children: <Widget>[
                                                       Text(
-                                                        "• Nivel de adherencia: ",
+                                                        "• Exámenes: ",
                                                         style: const TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
@@ -469,83 +467,6 @@ class _RoutineScreenState extends State<RoutineScreen> {
         .collection(ROUTINES_COLLECTION_KEY)
         .add(data)
         .then((value) => dialogSuccess());*/
-  }
-
-  void dialogSuccess() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          //Center Row contents horizontally,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Wrap(alignment: WrapAlignment.center, children: [
-              AlertDialog(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  content: Column(
-                    children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      SvgPicture.asset(
-                        'assets/images/success_icon_modal.svg',
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Text('Encuesta\n completada',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff67757F))),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Text(
-                          '¡Gracias por completar el\nprogreso de su adherencia',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff999999))),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            const SizedBox(
-                              height: 17,
-                            ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.all(15),
-                              color: const Color(0xff3BACB6),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                              },
-                              child: const Text(
-                                'Aceptar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            )
-                          ])
-                    ],
-                  ))
-            ])
-          ],
-        );
-      },
-    );
   }
 
   Future<List<SurveyData>> getRoutineList() async {

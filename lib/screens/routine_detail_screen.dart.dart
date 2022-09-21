@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
@@ -38,10 +39,6 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   List<ActivityPrescription> activitiesNoPermittedList =
       <ActivityPrescription>[];
   List<OthersPrescription> othersList = <OthersPrescription>[];
-  int totalPrescriptions = 0;
-  String? medicationNameValue;
-  String? medicationPeriodicityValue;
-  String? medicationRecommendationValue;
   var currentRoutineIndex = 0;
 
   double percentageProgress = 0;
@@ -175,7 +172,9 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                 children: [
                                   Icon(Icons.calendar_month,
                                       color: Color(0xff999999)),
-                                  Text(DateFormat(' dd - MMM yyyy hh:mm:ss').format(DateTime.now()),
+                                  Text(
+                                      DateFormat(' dd - MMM yyyy hh:mm:ss')
+                                          .format(DateTime.now()),
                                       style: TextStyle(
                                           fontSize: 20,
                                           color: Color(0xff999999)))
@@ -499,14 +498,24 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                               ),
                               height: 25,
                               onPressed: () {
-                                // _signInWithEmailAndPassword();
+                                int value = medicationsList[index].state ?? 0;
+                                int newValue = value == 0 ? 1 : 0;
+                                setState(() {
+                                  medicationsList[index].state = newValue;
+                                  updatePercentageProgress();
+                                });
                               },
-                              color: Colors.white,
-                              child: const Text(
+                              color: (medicationsList[index].state ?? 0) == 0
+                                  ? Colors.white
+                                  : const Color(0xff3BACB6),
+                              child: Text(
                                 'Listo',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xff2F8F9D),
+                                  color:
+                                      (medicationsList[index].state ?? 0) == 0
+                                          ? const Color(0xff2F8F9D)
+                                          : Colors.white,
                                 ),
                               ),
                             )
@@ -601,14 +610,15 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                 Expanded(
                                   child: Row(
                                     children: [
-                                      Radio<String>(
-                                          value: "1",
+                                      Radio<int>(
+                                          value: 1,
                                           groupValue:
-                                              nutritionList[index].result,
+                                              nutritionList[index].state,
                                           onChanged: (value) {
                                             setState(() {
-                                              nutritionList[index].result =
+                                              nutritionList[index].state =
                                                   value!;
+                                              updatePercentageProgress();
                                             });
                                           }),
                                       Expanded(
@@ -626,14 +636,15 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                 Expanded(
                                   child: Row(
                                     children: [
-                                      Radio<String>(
-                                          value: "0",
+                                      Radio<int>(
+                                          value: 0,
                                           groupValue:
-                                              nutritionList[index].result,
+                                              nutritionList[index].state,
                                           onChanged: (value) {
                                             setState(() {
-                                              nutritionList[index].result =
+                                              nutritionList[index].state =
                                                   value!;
+                                              updatePercentageProgress();
                                             });
                                           }),
                                       Expanded(
@@ -677,7 +688,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                     child: Column(
                       children: [
                         Text(
-                          "${index + 1}.¿Hoy consumiste tu porción de\n ${nutritionList[index].name} diaria?",
+                          "${index + 1}.¿Hoy consumiste \n ${nutritionNoPermittedList[index].name}?",
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Color(0xff808080)),
                         ),
@@ -690,15 +701,16 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                 Expanded(
                                   child: Row(
                                     children: [
-                                      Radio<String>(
-                                          value: "1",
+                                      Radio<int>(
+                                          value: 1,
                                           groupValue:
                                               nutritionNoPermittedList[index]
-                                                  .result,
+                                                  .state,
                                           onChanged: (value) {
                                             setState(() {
                                               nutritionNoPermittedList[index]
-                                                  .result = value!;
+                                                  .state = value!;
+                                              updatePercentageProgress();
                                             });
                                           }),
                                       Expanded(
@@ -716,15 +728,16 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                 Expanded(
                                   child: Row(
                                     children: [
-                                      Radio<String>(
-                                          value: "0",
+                                      Radio<int>(
+                                          value: 0,
                                           groupValue:
                                               nutritionNoPermittedList[index]
-                                                  .result,
+                                                  .state,
                                           onChanged: (value) {
                                             setState(() {
                                               nutritionNoPermittedList[index]
-                                                  .result = value!;
+                                                  .state = value!;
+                                              updatePercentageProgress();
                                             });
                                           }),
                                       Expanded(
@@ -808,14 +821,23 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                               ),
                               height: 25,
                               onPressed: () {
-                                // _signInWithEmailAndPassword();
+                                int value = activitiesList[index].state ?? 0;
+                                int newValue = value == 0 ? 1 : 0;
+                                setState(() {
+                                  activitiesList[index].state = newValue;
+                                  updatePercentageProgress();
+                                });
                               },
-                              color: Colors.white,
-                              child: const Text(
+                              color: (activitiesList[index].state ?? 0) == 0
+                                  ? Colors.white
+                                  : const Color(0xff3BACB6),
+                              child: Text(
                                 'Listo',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xff2F8F9D),
+                                  color: (activitiesList[index].state ?? 0) == 0
+                                      ? const Color(0xff2F8F9D)
+                                      : Colors.white,
                                 ),
                               ),
                             )
@@ -937,7 +959,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: nutritionList.length,
+                itemCount: othersList.length,
                 itemBuilder: (context, index) {
                   return Column(
                     children: [
@@ -963,14 +985,15 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                     Expanded(
                                       child: Row(
                                         children: [
-                                          Radio<String>(
-                                              value: "1",
+                                          Radio<int>(
+                                              value: 1,
                                               groupValue:
-                                                  nutritionList[index].result,
+                                                  othersList[index].state,
                                               onChanged: (value) {
                                                 setState(() {
-                                                  nutritionList[index].result =
+                                                  othersList[index].state =
                                                       value!;
+                                                  updatePercentageProgress();
                                                 });
                                               }),
                                           Expanded(
@@ -988,14 +1011,15 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                     Expanded(
                                       child: Row(
                                         children: [
-                                          Radio<String>(
-                                              value: "0",
+                                          Radio<int>(
+                                              value: 0,
                                               groupValue:
-                                                  nutritionList[index].result,
+                                                  othersList[index].state,
                                               onChanged: (value) {
                                                 setState(() {
-                                                  nutritionList[index].result =
+                                                  othersList[index].state =
                                                       value!;
+                                                  updatePercentageProgress();
                                                 });
                                               }),
                                           Expanded(
@@ -1035,7 +1059,56 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     }
   }
 
-  void updatePercentageProgress() {}
+  void updatePercentageProgress() {
+    int total = medicationsList.length +
+        activitiesList.length +
+        nutritionNoPermittedList.length +
+        nutritionList.length +
+        othersList.length;
+    int medicationCompleted = 0;
+    int activityCompleted = 0;
+    int nutritionCompleted = 0;
+    int othersCompleted = 0;
+    final data = <String, Object>{};
+    for (var element in medicationsList) {
+      medicationCompleted += element.state ?? 0;
+      if (element.name != null) {
+        data.addAll({element.name!: element.state ?? 0});
+      }
+    }
+    for (var element in activitiesList) {
+      activityCompleted += element.state ?? 0;
+      if (element.name != null) {
+        data.addAll({element.name!: element.state ?? 0});
+      }
+    }
+    for (var element in nutritionList) {
+      if (element.state != null) nutritionCompleted++;
+      if (element.name != null) {
+        data.addAll({element.name!: element.state ?? 0});
+      }
+    }
+    for (var element in nutritionNoPermittedList) {
+      if (element.state != null) nutritionCompleted++;
+      if (element.name != null) {
+        data.addAll({element.name!: element.state ?? 0});
+      }
+    }
+    for (var element in othersList) {
+      if (element.state != null) othersCompleted++;
+      if (element.name != null) {
+        data.addAll({element.name!: element.state ?? 0});
+      }
+    }
+    int currentCompleted = medicationCompleted +
+        nutritionCompleted +
+        othersCompleted +
+        activityCompleted;
+    percentageProgress = currentCompleted / total;
+    data.addAll({ROUTINE_TOTAL_PERCENTAGE_KEY: percentageProgress});
+    saveResultsInDatabase(data, medicationCompleted, nutritionCompleted,
+        activityCompleted, othersCompleted);
+  }
 
   Widget getNutritionsLists() {
     return Column(
@@ -1063,5 +1136,37 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         getNutritionListProhibited()
       ],
     );
+  }
+
+  void saveResultsInDatabase(
+      Map<String, Object> data,
+      int medicationCompleted,
+      int nutritionCompleted,
+      int activityCompleted,
+      int othersCompleted) async {
+    final db = FirebaseFirestore.instance;
+    String todayFormattedDate =
+        DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    final int medicationListSize = medicationsList.length;
+    final int activitiesListSize = activitiesList.length;
+    final int nutritionsListSize =
+        nutritionList.length + nutritionNoPermittedList.length;
+    final int examsListSize = othersList.length;
+    data.addAll({
+      ROUTINE_MEDICATION_PERCENTAGE_KEY:
+          medicationListSize > 0 ? medicationCompleted / medicationListSize : 0,
+      ROUTINE_ACTIVITY_PERCENTAGE_KEY:
+          activitiesListSize > 0 ? activityCompleted / activitiesListSize : 0,
+      ROUTINE_NUTRITION_PERCENTAGE_KEY:
+          nutritionsListSize > 0 ? nutritionCompleted / nutritionsListSize : 0,
+      ROUTINE_EXAMS_PERCENTAGE_KEY:
+          examsListSize > 0 ? othersCompleted / examsListSize : 0
+    });
+    db
+        .collection(ROUTINES_COLLECTION_KEY)
+        .doc(currentTreatmentId) // TODO: add currentTreatmentId when created
+        .collection(ROUTINES_RESULTS_KEY)
+        .doc(todayFormattedDate)
+        .set(data);
   }
 }

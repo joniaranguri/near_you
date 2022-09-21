@@ -2,14 +2,12 @@ import '../Constants.dart';
 
 class NutritionPrescription {
   String? databaseId;
-  int state = 0;
+  int? state;
   String? treatmentId;
   String? name;
   String? carbohydrates;
   String? maxCalories;
   String? permitted;
-
-  String result = "";
 
   NutritionPrescription({
     required this.databaseId,

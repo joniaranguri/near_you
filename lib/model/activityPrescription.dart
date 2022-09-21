@@ -2,7 +2,7 @@ import '../Constants.dart';
 
 class ActivityPrescription {
   String? databaseId;
-  int state = 0;
+  int? state;
   String? name;
   String? activity;
   String? periodicity;
