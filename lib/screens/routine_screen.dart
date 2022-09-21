@@ -1,9 +1,13 @@
-import 'package:calendar_timeline/calendar_timeline.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:near_you/common/survey_static_values.dart';
+import 'package:intl/intl.dart';
+import 'package:near_you/main.dart';
 import 'package:near_you/model/routine.dart';
+import 'package:near_you/screens/home_screen.dart';
 import 'package:near_you/screens/routine_detail_screen.dart.dart';
+
+import '../Constants.dart';
 
 class RoutineScreen extends StatefulWidget {
   String? currentTreatmentId;
@@ -17,26 +21,10 @@ class RoutineScreen extends StatefulWidget {
 }
 
 class _RoutineScreenState extends State<RoutineScreen> {
-  static List<SurveyData> RoutineList = <SurveyData>[];
-   List<String?> RoutineResults = List.filled(RoutineList.length, '0');
-  static List<Routine> routines = <Routine>[
-    new Routine(
-        treatmentId: null,
-        medicationPercentage: "80",
-        activityPercentage: "80",
-        nutritionPercentage: "80",
-        examsPercentage: "80",
-    totalPercentage: "0")
-  ];
-
-  late final Future<List<SurveyData>> futureRoutine;
+  static Map<String, Routine> routines = <String, Routine>{};
+  String currentDateSelected = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+  late final Future<Map<String, Routine>> futureRoutine;
   var _currentIndex = 1;
-
-  double percentageProgress = 0;
-
-  double screenWidth = 0;
-
-  double screenHeight = 0;
 
   String? currentTreatmentId;
 
@@ -47,8 +35,7 @@ class _RoutineScreenState extends State<RoutineScreen> {
     futureRoutine = getRoutineList();
     futureRoutine.then((value) => {
           setState(() {
-            RoutineList = value;
-            RoutineResults = List.filled(RoutineList.length, null);
+            routines = value;
           })
         });
     super.initState();
@@ -56,8 +43,6 @@ class _RoutineScreenState extends State<RoutineScreen> {
 
   @override
   Widget build(BuildContext context) {
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
     bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Stack(children: <Widget>[
       Scaffold(
@@ -217,36 +202,23 @@ class _RoutineScreenState extends State<RoutineScreen> {
   }
 
   getScreenType() {
-    if (routines.isEmpty) {
+    if (!routines.containsKey(currentDateSelected)) {
       return noRoutineView();
     }
     return SizedBox(
-      width: 400,
-      height: 600,
-      child: ListView.builder(
-          itemCount: routines.length,
-          padding: EdgeInsets.only(bottom: 60),
-          itemBuilder: (context, index) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        width: HomeScreen.screenWidth,
+        height: 600,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 20),
+              child: Text(routines[currentDateSelected]?.hourCompleted??"00:00"),
+            ),
+            Wrap(
               children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Text("8:00"),
-                ),
-                Expanded(
-                    child: InkWell(
-                  onTap: () {
-                    if (isNotEmpty(currentTreatmentId)) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              RoutineDetailScreen(currentTreatmentId!),
-                        ),
-                      );
-                    }
-                  },
+                SizedBox(
+                  width: HomeScreen.screenWidth* 0.8,
                   child: Card(
                       margin: EdgeInsets.all(20),
                       child: ClipPath(
@@ -276,131 +248,151 @@ class _RoutineScreenState extends State<RoutineScreen> {
                                         right: 20, top: 10, left: 10),
                                     child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceBetween,
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: <Widget>[
                                           Column(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                               children: <Widget>[
                                                 Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                     children: <Widget>[
                                                       Text(
                                                         "• Medicación: ",
                                                         style: const TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
-                                                              FontWeight.normal,
+                                                          FontWeight.normal,
                                                           color:
-                                                              Color(0xff67757F),
+                                                          Color(0xff67757F),
                                                         ),
                                                       ),
                                                       Text(
-                                                        (routines[index].activityPercentage ??
-                                                                    0)
-                                                                .toString() +
+                                                        ((routines[currentDateSelected]
+                                                            ?.medicationPercentage ??
+                                                            0) *
+                                                            100).toInt()
+                                                            .toString() +
                                                             "%",
                                                         style: TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              getAdherenceLevelColor(
-                                                                  index),
+                                                          FontWeight.bold,
+                                                          color: getAdherenceLevelColor(
+                                                              ((routines[currentDateSelected]
+                                                                  ?.medicationPercentage ??
+                                                                  0) *
+                                                                  100)
+                                                                  .toInt()),
                                                         ),
                                                       )
                                                     ]),
                                                 Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                     children: <Widget>[
                                                       Text(
                                                         "• Alimentación: ",
                                                         style: const TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
-                                                              FontWeight.normal,
+                                                          FontWeight.normal,
                                                           color:
-                                                              Color(0xff67757F),
+                                                          Color(0xff67757F),
                                                         ),
                                                       ),
                                                       Text(
-                                                        (routines[index].activityPercentage ??
-                                                                    0)
-                                                                .toString() +
+                                                        ((routines[currentDateSelected]
+                                                            ?.nutritionPercentage ??
+                                                            0) *
+                                                            100).toInt()
+                                                            .toString() +
                                                             "%",
                                                         style: TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              getAdherenceLevelColor(
-                                                                  index),
+                                                          FontWeight.bold,
+                                                          color: getAdherenceLevelColor(
+                                                              ((routines[currentDateSelected]
+                                                                  ?.nutritionPercentage ??
+                                                                  0) *
+                                                                  100)
+                                                                  .toInt()),
                                                         ),
                                                       )
                                                     ]),
                                                 Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                     children: <Widget>[
                                                       Text(
                                                         "• Actividad Física: ",
                                                         style: const TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
-                                                              FontWeight.normal,
+                                                          FontWeight.normal,
                                                           color:
-                                                              Color(0xff67757F),
+                                                          Color(0xff67757F),
                                                         ),
                                                       ),
                                                       Text(
-                                                        (routines[index].activityPercentage ??
-                                                                    0)
-                                                                .toString() +
+                                                        ((routines[currentDateSelected]
+                                                            ?.activityPercentage ??
+                                                            0) *
+                                                            100).toInt()
+                                                            .toString() +
                                                             "%",
                                                         style: TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              getAdherenceLevelColor(
-                                                                  index),
+                                                          FontWeight.bold,
+                                                          color: getAdherenceLevelColor(
+                                                              ((routines[currentDateSelected]
+                                                                  ?.activityPercentage ??
+                                                                  0) *
+                                                                  100)
+                                                                  .toInt()),
                                                         ),
                                                       )
                                                     ]),
                                                 Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                     children: <Widget>[
                                                       Text(
                                                         "• Exámenes: ",
                                                         style: const TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
-                                                              FontWeight.normal,
+                                                          FontWeight.normal,
                                                           color:
-                                                              Color(0xff67757F),
+                                                          Color(0xff67757F),
                                                         ),
                                                       ),
                                                       Text(
-                                                        (routines[index].activityPercentage ??
-                                                                    0)
-                                                                .toString() +
+                                                        ((routines[currentDateSelected]
+                                                            ?.examsPercentage ??
+                                                            0) *
+                                                            100).toInt()
+                                                            .toString() +
                                                             "%",
                                                         style: TextStyle(
                                                           fontSize: 15,
                                                           fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              getAdherenceLevelColor(
-                                                                  index),
+                                                          FontWeight.bold,
+                                                          color: getAdherenceLevelColor(
+                                                              ((routines[currentDateSelected]
+                                                                  ?.examsPercentage ??
+                                                                  0) *
+                                                                  100)
+                                                                  .toInt()),
                                                         ),
                                                       )
                                                     ]),
@@ -413,11 +405,11 @@ class _RoutineScreenState extends State<RoutineScreen> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(3))),
                       )),
-                ))
+                )
               ],
-            );
-          }), //Padding
-    );
+            )
+          ],
+        ));
   }
 
   /*Future<List<RoutineData>> getRoutineQuestions() async {
@@ -427,7 +419,7 @@ class _RoutineScreenState extends State<RoutineScreen> {
   noRoutineView() {
     return Container(
       width: double.infinity,
-      height: screenHeight,
+      height: HomeScreen.screenHeight,
       child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 40),
           child: Column(
@@ -469,18 +461,27 @@ class _RoutineScreenState extends State<RoutineScreen> {
         .then((value) => dialogSuccess());*/
   }
 
-  Future<List<SurveyData>> getRoutineList() async {
-    return <SurveyData>[];
+  Future<Map<String, Routine>> getRoutineList() async {
+    final db = FirebaseFirestore.instance;
+//    String todayFormattedDate = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    Map<String, Routine> routines = <String, Routine>{};
+
+    var future = await db
+        .collection(ROUTINES_COLLECTION_KEY)
+        .doc(currentTreatmentId) // TODO: add currentTreatmentId when created
+        .collection(ROUTINES_RESULTS_KEY)
+        .get();
+
+    for (var element in future.docs) {
+      routines.addAll({element.id: Routine.fromSnapshot(element)});
+    }
+    return routines;
   }
 
-  getAdherenceLevelColor(int index) {
+  getAdherenceLevelColor(int adherenceLevel) {
     var value = 0xff47B4AC;
-    int adherenceLevel =
-        23; // int.parse(patients[index].adherenceLevel ?? "0");
-    if (adherenceLevel <= 33) {
+    if (adherenceLevel < 80) {
       value = 0xffF8191E;
-    } else if (adherenceLevel <= 66) {
-      value = 0xffFFCC4D;
     }
     return Color(value);
   }

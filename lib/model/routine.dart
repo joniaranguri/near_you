@@ -4,30 +4,29 @@ import '../Constants.dart';
 
 class Routine {
   Routine(
-      {
-      required this.treatmentId,
+      {required this.hourCompleted,
       required this.medicationPercentage,
       required this.activityPercentage,
       required this.nutritionPercentage,
       required this.examsPercentage,
       required this.totalPercentage});
 
-  String? treatmentId;
-  String? medicationPercentage;
-  String? databaseId;
-  String? activityPercentage;
-  String? nutritionPercentage;
-  String? examsPercentage;
-  String? totalPercentage;
+  String? dateId;
+  String? hourCompleted;
+  double medicationPercentage;
+  double activityPercentage;
+  double nutritionPercentage;
+  double examsPercentage;
+  double totalPercentage;
 
   factory Routine.fromSnapshot(snapshot) {
     var realData = snapshot.data();
     return Routine(
-        treatmentId: realData[TREATMENT_ID_KEY],
-        medicationPercentage: realData[ROUTINE_MEDICATION_PERCENTAGE_KEY],
-        nutritionPercentage: realData[ROUTINE_NUTRITION_PERCENTAGE_KEY],
-        activityPercentage: realData[ROUTINE_ACTIVITY_PERCENTAGE_KEY],
-        examsPercentage: realData[ROUTINE_EXAMS_PERCENTAGE_KEY],
-        totalPercentage: realData[ROUTINE_TOTAL_PERCENTAGE_KEY]);
+        hourCompleted: realData[ROUTINE_HOUR_COMPLETED_KEY],
+        medicationPercentage: realData[ROUTINE_MEDICATION_PERCENTAGE_KEY]??0,
+        nutritionPercentage: realData[ROUTINE_NUTRITION_PERCENTAGE_KEY]??0,
+        activityPercentage: realData[ROUTINE_ACTIVITY_PERCENTAGE_KEY]??0,
+        examsPercentage: realData[ROUTINE_EXAMS_PERCENTAGE_KEY]??0,
+        totalPercentage: realData[ROUTINE_TOTAL_PERCENTAGE_KEY]??0);
   }
 }

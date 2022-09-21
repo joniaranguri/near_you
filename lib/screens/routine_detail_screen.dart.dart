@@ -18,7 +18,7 @@ class RoutineDetailScreen extends StatefulWidget {
 
   RoutineDetailScreen(this.currentTreatmentId);
 
-  static const routeName = '/RoutineDetail';
+  static const routeName = '/routine_detail';
 
   @override
   _RoutineDetailScreenState createState() =>
@@ -1160,7 +1160,8 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       ROUTINE_NUTRITION_PERCENTAGE_KEY:
           nutritionsListSize > 0 ? nutritionCompleted / nutritionsListSize : 0,
       ROUTINE_EXAMS_PERCENTAGE_KEY:
-          examsListSize > 0 ? othersCompleted / examsListSize : 0
+          examsListSize > 0 ? othersCompleted / examsListSize : 0,
+      ROUTINE_HOUR_COMPLETED_KEY : DateFormat('hh:mm').format(DateTime.now())
     });
     db
         .collection(ROUTINES_COLLECTION_KEY)
