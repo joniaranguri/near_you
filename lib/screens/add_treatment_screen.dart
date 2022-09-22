@@ -1268,6 +1268,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY,
           OTHERS_PRESCRIPTION_COLLECTION_KEY);
       final db = FirebaseFirestore.instance;
+      db.collection(ROUTINES_COLLECTION_KEY).doc(pendingTreatmentId).delete();
       db
           .collection(TREATMENTS_KEY)
           .doc(pendingTreatmentId)
@@ -1308,6 +1309,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   savePendingTreatmentAndGoBack(String treatId) {
     final db = FirebaseFirestore.instance;
     try {
+      db.collection(ROUTINES_COLLECTION_KEY).doc(treatId).set({});
       deletePendingPrescriptions(
           PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY);
       deletePendingPrescriptions(PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY);
@@ -1323,7 +1325,10 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   deleteRealPrescriptions(
       QueryDocumentSnapshot<Map<String, dynamic>> doc, String collectionId) {
     final db = FirebaseFirestore.instance;
-    db.collection(collectionId).doc(doc.data()[PENDING_PRESCRIPTIONS_ID_KEY]).delete();
+    db
+        .collection(collectionId)
+        .doc(doc.data()[PENDING_PRESCRIPTIONS_ID_KEY])
+        .delete();
     doc.reference.delete();
   }
 }
