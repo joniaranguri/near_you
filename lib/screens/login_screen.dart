@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/Constants.dart';
@@ -57,6 +56,7 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   @override
   Widget build(BuildContext context) {
+    //return GettingStartedScreen();
     return Stack(children: <Widget>[
       Container(
           color: Colors.blue,
@@ -101,18 +101,16 @@ class _LoginWidgetState extends State<LoginWidget> {
                   const SizedBox(
                     height: 5,
                   ),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        const Text(
-                          'Inicia sesión con una cuenta',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xff555555),
-                          ),
-                        )
-                      ]),
+                  Column(crossAxisAlignment: CrossAxisAlignment.center, children: const <Widget>[
+                    Text(
+                      'Inicia sesión con una cuenta',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xff555555),
+                      ),
+                    )
+                  ]),
                   const SizedBox(
                     height: 20,
                   ),
@@ -124,8 +122,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         children: <Widget>[
                           Container(
                             decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 1, color: const Color(0xffCECECE)),
+                                border: Border.all(width: 1, color: const Color(0xffCECECE)),
                                 borderRadius: BorderRadius.circular(5),
                                 shape: BoxShape.rectangle),
                             child: IconButton(
@@ -140,8 +137,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 1, color: const Color(0xffCECECE)),
+                                border: Border.all(width: 1, color: const Color(0xffCECECE)),
                                 borderRadius: BorderRadius.circular(5),
                                 shape: BoxShape.rectangle),
                             child: IconButton(
@@ -156,8 +152,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 1, color: const Color(0xffCECECE)),
+                                border: Border.all(width: 1, color: const Color(0xffCECECE)),
                                 borderRadius: BorderRadius.circular(5),
                                 shape: BoxShape.rectangle),
                             child: IconButton(
@@ -175,32 +170,30 @@ class _LoginWidgetState extends State<LoginWidget> {
                   const SizedBox(
                     height: 25,
                   ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: const <Widget>[
-                        Expanded(
-                            child: Divider(
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: const <Widget>[
+                    Expanded(
+                        child: Divider(
+                      color: Color(0xffCECECE),
+                      thickness: 1,
+                    )),
+                    Padding(
+                      padding: EdgeInsets.only(left: 20, right: 20),
+                      //apply padding to all four sides
+                      child: Text(
+                        'o',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                           color: Color(0xffCECECE),
-                          thickness: 1,
-                        )),
-                        Padding(
-                          padding: EdgeInsets.only(left: 20, right: 20),
-                          //apply padding to all four sides
-                          child: Text(
-                            'o',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xffCECECE),
-                            ),
-                          ),
                         ),
-                        Expanded(
-                            child: Divider(
-                          color: Color(0xffCECECE),
-                          thickness: 1,
-                        )),
-                      ]),
+                      ),
+                    ),
+                    Expanded(
+                        child: Divider(
+                      color: Color(0xffCECECE),
+                      thickness: 1,
+                    )),
+                  ]),
                   const SizedBox(
                     height: 20,
                   ),
@@ -210,8 +203,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                       emailValue = value;
                     },
                     style: const TextStyle(fontSize: 14),
-                    decoration: staticComponents
-                        .getInputDecoration('Correo Electrónico'),
+                    decoration: staticComponents.getInputDecoration('Correo Electrónico'),
                   ),
                   SizeBox12,
                   TextField(
@@ -221,57 +213,51 @@ class _LoginWidgetState extends State<LoginWidget> {
                     },
                     obscureText: true,
                     style: const TextStyle(fontSize: 14),
-                    decoration:
-                        staticComponents.getInputDecoration('Contraseña'),
+                    decoration: staticComponents.getInputDecoration('Contraseña'),
                   ),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        const SizedBox(
-                          height: 17,
+                  Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
+                    const SizedBox(
+                      height: 17,
+                    ),
+                    FlatButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.all(15),
+                      color: const Color(0xff3BACB6),
+                      textColor: Colors.white,
+                      onPressed: () {
+                        _signInWithEmailAndPassword();
+                      },
+                      child: const Text(
+                        'Iniciar Sesión',
+                        style: TextStyle(
+                          fontSize: 16,
                         ),
-                        FlatButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          padding: const EdgeInsets.all(15),
-                          color: const Color(0xff3BACB6),
-                          textColor: Colors.white,
-                          onPressed: () {
-                            _signInWithEmailAndPassword();
-                          },
-                          child: const Text(
-                            'Iniciar Sesión',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
+                      ),
+                    ),
+                    SizeBox12,
+                    FlatButton(
+                      shape: RoundedRectangleBorder(
+                          side: const BorderSide(
+                              color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
+                          borderRadius: BorderRadius.circular(30)),
+                      padding: const EdgeInsets.all(15),
+                      textColor: const Color(0xff9D9CB5),
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(SignupScreen.routeName);
+                      },
+                      child: const Text(
+                        'Registrarme',
+                        style: TextStyle(
+                          fontSize: 16,
                         ),
-                        SizeBox12,
-                        FlatButton(
-                          shape: RoundedRectangleBorder(
-                              side: const BorderSide(
-                                  color: Color(0xff9D9CB5),
-                                  width: 1,
-                                  style: BorderStyle.solid),
-                              borderRadius: BorderRadius.circular(30)),
-                          padding: const EdgeInsets.all(15),
-                          textColor: const Color(0xff9D9CB5),
-                          onPressed: () {
-                            Navigator.of(context)
-                                .pushNamed(SignupScreen.routeName);
-                          },
-                          child: const Text(
-                            'Registrarme',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                      ]),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                  ]),
                 ],
               ),
             ),
@@ -283,17 +269,20 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   void _signInWithEmailAndPassword() async {
     final User? user = (await _auth.signInWithEmailAndPassword(
-      email: emailValue,
-      password: passwordValue,
-    )).user;
+      email: 'yeisson@medico.com',
+      password: '12345678',
+      /* email: emailValue,
+      password: passwordValue, */
+    ))
+        .user;
 
     if (user != null) {
       SharedPreferences.getInstance().then((prefValue) => {
-        setState(() {
-          showSelectRole = !prefValue.containsKey(user.uid);
-          prefValue.setString(user.uid, user.uid);
-        })
-      });
+            setState(() {
+              showSelectRole = !prefValue.containsKey(user.uid);
+              prefValue.setString(user.uid, user.uid);
+            })
+          });
       Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute<void>(
@@ -317,8 +306,7 @@ class _LoginWidgetState extends State<LoginWidget> {
             Wrap(alignment: WrapAlignment.center, children: [
               AlertDialog(
                   shape: const RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.all(const Radius.circular(10))),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
                   content: Column(
                     children: [
                       const SizedBox(
@@ -332,44 +320,38 @@ class _LoginWidgetState extends State<LoginWidget> {
                       ),
                       const Text('¡Error!',
                           style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff67757F))),
+                              fontSize: 25, fontWeight: FontWeight.bold, color: Color(0xff67757F))),
                       const SizedBox(
                         height: 20,
                       ),
                       const Text('Email o contraseña inválidos!',
                           style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff67757F))),
+                              fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xff67757F))),
                       const SizedBox(
                         height: 20,
                       ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            const SizedBox(
-                              height: 17,
+                      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
+                        const SizedBox(
+                          height: 17,
+                        ),
+                        FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: const EdgeInsets.all(15),
+                          color: const Color(0xff3BACB6),
+                          textColor: Colors.white,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Aceptar',
+                            style: TextStyle(
+                              fontSize: 16,
                             ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.all(15),
-                              color: const Color(0xff3BACB6),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text(
-                                'Aceptar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            )
-                          ])
+                          ),
+                        )
+                      ])
                     ],
                   ))
             ])

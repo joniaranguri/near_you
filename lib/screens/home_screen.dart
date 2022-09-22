@@ -8,16 +8,13 @@ import 'package:near_you/screens/routine_detail_screen.dart.dart';
 import 'package:near_you/screens/routine_screen.dart';
 import 'package:near_you/screens/survey_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:near_you/widgets/static_components.dart';
 
 import '../Constants.dart';
 import '../common/static_common_functions.dart';
 import '../model/pending_vinculation.dart';
 import '../model/user.dart' as user;
 import '../widgets/dialogs.dart';
-import '../widgets/grouped_bar_chart.dart';
 import '../widgets/patient_detail.dart';
 import '../widgets/treatments_list.dart';
 
@@ -36,8 +33,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   static double publicShrinkHome = 0;
   user.User? currentUser;
 
-  MySliverHeaderDelegate(
-      {required this.onActionTap, required this.currentUser});
+  MySliverHeaderDelegate({required this.onActionTap, required this.currentUser});
 
   @override
   Widget build(
@@ -46,12 +42,12 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     HomeScreen.screenHeight = MediaQuery.of(context).size.height;
     publicShrinkHome = shrinkOffset;
     return Container(
-      color: Color(0xff2F8F9D),
-      padding: EdgeInsets.only(top: 20),
+      color: const Color(0xff2F8F9D),
+      padding: const EdgeInsets.only(top: 20),
       child: Stack(
         children: [
           Align(
-              alignment: Alignment(
+              alignment: const Alignment(
                   //little padding
                   0,
                   100),
@@ -60,22 +56,17 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                      padding: EdgeInsets.only(
-                          top: getPaddingTopTitle(shrinkOffset, maxExtent)),
+                      padding: EdgeInsets.only(top: getPaddingTopTitle(shrinkOffset, maxExtent)),
                       child: Text(
                           currentUser != null
-                              ? currentUser?.fullName ??
-                                  currentUser?.type ??
-                                  "Nombre"
+                              ? currentUser?.fullName ?? currentUser?.type ?? "Nombre"
                               : "Nombre",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold))),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))),
                   //apply padding to all four sides
                   Text(
                     getTextSubtitleHeader(),
-                    style: TextStyle(fontSize: 10, color: Colors.white),
+                    style: const TextStyle(fontSize: 10, color: Colors.white),
                   ),
                   getButtonVinculation(context, shrinkOffset, _maxExtent)
                 ],
@@ -87,29 +78,24 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                   0),
               child: Padding(
                   padding: EdgeInsets.only(
-                      left: 30,
-                      top: (shrinkOffset / _maxExtent) * 35,
-                      right: 30,
-                      bottom: 20),
+                      left: 30, top: (shrinkOffset / _maxExtent) * 35, right: 30, bottom: 20),
                   child: InkWell(
                     onTap: () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  MyProfileScreen(currentUser)));
+                              builder: (BuildContext context) => MyProfileScreen(currentUser)));
                     },
                     child: Container(
                         decoration: BoxDecoration(
                           color: const Color(0xff7c94b6),
-                          image: DecorationImage(
-                            image:
-                                NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
+                          image: const DecorationImage(
+                            image: NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
                             fit: BoxFit.cover,
                           ),
-                          borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                          borderRadius: const BorderRadius.all(Radius.circular(50.0)),
                           border: Border.all(
-                            color: Color(0xff47B4AC),
+                            color: const Color(0xff47B4AC),
                             width: 4.0,
                           ),
                         ),
@@ -159,7 +145,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     Navigator.pushReplacement<void, void>(
       context,
       MaterialPageRoute<void>(
-        builder: (BuildContext context) => LoginScreen(),
+        builder: (BuildContext context) => const LoginScreen(),
       ),
     );
   }
@@ -170,32 +156,25 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     double maxExtent,
   ) {
     if (shrinkOffset > (maxExtent * 0.2)) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     } else {
       return FlatButton(
         height: 20,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
         ),
-        padding: EdgeInsets.only(left: 30, right: 30, top: 5, bottom: 5),
+        padding: const EdgeInsets.only(left: 30, right: 30, top: 5, bottom: 5),
         color: Colors.white,
         onPressed: () {
           currentUser!.isPatiente()
               ? (isNotEmtpy(currentUser!.medicoId)
-                  ? showDialogDevinculation(context, currentUser!.userId!, true,
-                      () {
+                  ? showDialogDevinculation(context, currentUser!.userId!, true, () {
                       Navigator.pop(context);
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => HomeScreen()));
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
                     })
-                  : showDialogVinculation(
-                      currentUser!.fullName ?? "Nombre",
-                      currentUser!.email!,
-                      context,
-                      currentUser!.isPatiente(),
-                      () {}, () {
+                  : showDialogVinculation(currentUser!.fullName ?? "Nombre", currentUser!.email!,
+                      context, currentUser!.isPatiente(), () {}, () {
                       Navigator.pop(context);
                       dialogWaitVinculation(context, () {
                         Navigator.pop(context);
@@ -210,7 +189,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
           style: TextStyle(
               fontSize: getFontSizeVinculation(shrinkOffset, maxExtent),
               fontWeight: FontWeight.bold,
-              color: Color(0xff9D9CB5)),
+              color: const Color(0xff9D9CB5)),
         ),
       );
     }
@@ -262,17 +241,15 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
           children: [
             Wrap(alignment: WrapAlignment.center, children: [
               AlertDialog(
-                  title: Column(children: [
-                    const SizedBox(
+                  title: Column(children: const [
+                    SizedBox(
                       height: 20,
                     ),
                     Text("Cerrar sesión")
                   ]),
-                  titleTextStyle: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff67757F)),
-                  shape: RoundedRectangleBorder(
+                  titleTextStyle: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xff67757F)),
+                  shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   content: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -283,67 +260,59 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                       ),
                       const Text('¿Estás seguro que deseas ',
                           style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff999999))),
+                              fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xff999999))),
                       const Text('cerrar la sesión?',
                           style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff999999))),
+                              fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xff999999))),
                       const SizedBox(
                         height: 20,
                       ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            const SizedBox(
-                              height: 17,
+                      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
+                        const SizedBox(
+                          height: 17,
+                        ),
+                        FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: const EdgeInsets.all(15),
+                          color: const Color(0xff3BACB6),
+                          textColor: Colors.white,
+                          onPressed: () {
+                            logOut(context);
+                          },
+                          child: const Text(
+                            'Aceptar',
+                            style: TextStyle(
+                              fontSize: 16,
                             ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.all(15),
-                              color: const Color(0xff3BACB6),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                logOut(context);
-                              },
-                              child: const Text(
-                                'Aceptar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        FlatButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              side: const BorderSide(
+                                  color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid)),
+                          padding: const EdgeInsets.all(15),
+                          color: Colors.white,
+                          textColor: const Color(0xff9D9CB5),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Cancelar',
+                            style: TextStyle(
+                              fontSize: 16,
                             ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  side: const BorderSide(
-                                      color: Color(0xff9D9CB5),
-                                      width: 1,
-                                      style: BorderStyle.solid)),
-                              padding: const EdgeInsets.all(15),
-                              color: Colors.white,
-                              textColor: const Color(0xff9D9CB5),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text(
-                                'Cancelar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            )
-                          ])
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        )
+                      ])
                     ],
                   ))
             ])
@@ -375,8 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                     pendingVinculationList = pendingResult;
                     if (currentUser!.isPatiente()) {
-                      showNotificationPendingVinculation(
-                          pendingVinculationList[0]);
+                      showNotificationPendingVinculation(pendingVinculationList[0]);
                     }
                   })
                 });
@@ -426,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ];
           },
           body: Stack(children: <Widget>[
-            Container(
+            SizedBox(
                 width: double.maxFinite,
                 height: double.maxFinite,
                 child: FittedBox(
@@ -436,9 +404,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Scaffold(
                 backgroundColor: Colors.transparent,
                 body: LayoutBuilder(
-                  builder: (BuildContext context,
-                      BoxConstraints viewportConstraints) {
-                    return Container(
+                  builder: (BuildContext context, BoxConstraints viewportConstraints) {
+                    return SizedBox(
                       width: double.infinity,
                       child: SingleChildScrollView(
                         child: ConstrainedBox(
@@ -456,17 +423,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 future: futureUser,
                                 builder: (context, AsyncSnapshot snapshot) {
                                   //currentUser = user.User.fromSnapshot(snapshot.data);
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.done) {
+                                  if (snapshot.connectionState == ConnectionState.done) {
                                     return getScreenType();
                                   }
-                                  return CircularProgressIndicator();
+                                  return const CircularProgressIndicator();
                                 },
                               ),
                               Row(
-                                children: [_getFABDial()],
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.end,
+                                children: [_getFABDial()],
                               )
                             ],
                           ),
@@ -481,7 +447,7 @@ class _HomeScreenState extends State<HomeScreen> {
         floatingActionButton: /* _getEmptyFABDial() */
             GestureDetector(
           child: Container(
-            padding: EdgeInsets.only(top: 40),
+            padding: const EdgeInsets.only(top: 40),
             child: SvgPicture.asset(
               notifier.value
                   ? 'assets/images/tab_close_selected.svg'
@@ -502,7 +468,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _getFABDial() {
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
-      animatedIconTheme: IconThemeData(size: 22),
+      animatedIconTheme: const IconThemeData(size: 22),
       backgroundColor: Colors.transparent,
       visible: false,
       curve: Curves.bounceIn,
@@ -516,43 +482,37 @@ class _HomeScreenState extends State<HomeScreen> {
       spacing: 200,
       children: [
         SpeedDialChild(
-            child: Icon(Icons.list, color: Colors.white),
-            backgroundColor: Color(0xFF2F8F9D),
+            child: const Icon(Icons.list, color: Colors.white),
+            backgroundColor: const Color(0xFF2F8F9D),
             onTap: () {
              goToAllRoutines();
             },
-            labelWidget: Text(
+            labelWidget: const Text(
               "Todas mis Rutinas",
-              style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF47B4AC),
-                  fontSize: 16.0),
+              style:
+                  TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF47B4AC), fontSize: 16.0),
             )),
         SpeedDialChild(
-            child: Icon(Icons.playlist_add_check_outlined, color: Colors.white),
-            backgroundColor: Color(0xFF2F8F9D),
+            child: const Icon(Icons.playlist_add_check_outlined, color: Colors.white),
+            backgroundColor: const Color(0xFF2F8F9D),
             onTap: () {
               goToSurvey();
             },
-            labelWidget: Text(
+            labelWidget: const Text(
               "Encuestas",
-              style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF47B4AC),
-                  fontSize: 16.0),
+              style:
+                  TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF47B4AC), fontSize: 16.0),
             )),
         SpeedDialChild(
-            child: Icon(Icons.water_drop, color: Colors.white),
-            backgroundColor: Color(0xFF2F8F9D),
+            child: const Icon(Icons.water_drop, color: Colors.white),
+            backgroundColor: const Color(0xFF2F8F9D),
             onTap: () {
               goToMyRoutine();
             },
-            labelWidget: Text(
+            labelWidget: const Text(
               "Mi rutina",
-              style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF47B4AC),
-                  fontSize: 16.0),
+              style:
+                  TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF47B4AC), fontSize: 16.0),
             ))
       ],
     );
@@ -596,15 +556,14 @@ class _HomeScreenState extends State<HomeScreen> {
     if (MySliverHeaderDelegate.publicShrinkHome < 120) {
       return 7.toDouble();
     } else {
-      var cant =
-          (MySliverHeaderDelegate.publicShrinkHome - 168.toDouble()) / 10;
+      var cant = (MySliverHeaderDelegate.publicShrinkHome - 168.toDouble()) / 10;
       return (50 + cant * 9.3).toDouble();
     }
   }
 
   getScreenType() {
     if (currentUser == null) {
-      return CircularProgressIndicator();
+      return const CircularProgressIndicator();
     } else if (currentUser!.isPatiente()) {
       return PatientDetail.forPatientView(currentUser);
     } else {
@@ -619,24 +578,20 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Column(
           children: [
-            Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[]),
+            Column(crossAxisAlignment: CrossAxisAlignment.center, children: const <Widget>[]),
             const SizedBox(
               height: 20,
             ),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: const <Widget>[
-                  Text(
-                    'Mis pacientes',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xff999999),
-                    ),
-                  )
-                ]),
+            Row(mainAxisAlignment: MainAxisAlignment.start, children: const <Widget>[
+              Text(
+                'Mis pacientes',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xff999999),
+                ),
+              )
+            ]),
             SizedBox(height: 500, child: ListViewHomeLayout())
             //SizedBox
           ],
@@ -650,13 +605,8 @@ class _HomeScreenState extends State<HomeScreen> {
         notifier.value = true;
       });
     } else {
-      showDialogVinculation(
-          currentUser!.fullName ?? "Nombre",
-          currentUser!.email!,
-          context,
-          currentUser!.isPatiente(),
-          errorVinculation,
-          successPendingVinculation);
+      showDialogVinculation(currentUser!.fullName ?? "Nombre", currentUser!.email!, context,
+          currentUser!.isPatiente(), errorVinculation, successPendingVinculation);
     }
   }
 
@@ -685,16 +635,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   refreshScreen() {
     Navigator.pop(context);
-    Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
   }
 
   void goToSurvey() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SurveyScreen(
-            currentUser!.userId!, currentUser!.fullName ?? "Paciente"),
+        builder: (context) =>
+            SurveyScreen(currentUser!.userId!, currentUser!.fullName ?? "Paciente"),
       ),
     );
   }
@@ -732,8 +682,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     List<PendingVinculation> vinculations = <PendingVinculation>[];
     for (var element in future.docs) {
-      PendingVinculation currentVinculation =
-          PendingVinculation.fromSnapshot(element);
+      PendingVinculation currentVinculation = PendingVinculation.fromSnapshot(element);
       vinculations.add(currentVinculation);
     }
     return vinculations;
@@ -761,8 +710,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     List<PendingVinculation> vinculations = <PendingVinculation>[];
     for (var element in future.docs) {
-      PendingVinculation currentVinculation =
-          PendingVinculation.fromSnapshot(element);
+      PendingVinculation currentVinculation = PendingVinculation.fromSnapshot(element);
       vinculations.add(currentVinculation);
     }
     return vinculations;
@@ -790,15 +738,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     List<PendingVinculation> vinculations = <PendingVinculation>[];
     for (var element in future.docs) {
-      PendingVinculation currentVinculation =
-          PendingVinculation.fromSnapshot(element);
+      PendingVinculation currentVinculation = PendingVinculation.fromSnapshot(element);
       vinculations.add(currentVinculation);
     }
     return vinculations;
   }
 
-  void showNotificationPendingVinculation(
-      PendingVinculation pendingVinculation) {
+  void showNotificationPendingVinculation(PendingVinculation pendingVinculation) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -808,18 +754,15 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Wrap(alignment: WrapAlignment.center, children: [
               AlertDialog(
-                  title: Column(children: [
-                    const SizedBox(
+                  title: Column(children: const [
+                    SizedBox(
                       height: 20,
                     ),
-                    Text("Notificación de\n Vinculación",
-                        textAlign: TextAlign.center)
+                    Text("Notificación de\n Vinculación", textAlign: TextAlign.center)
                   ]),
-                  titleTextStyle: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff67757F)),
-                  shape: RoundedRectangleBorder(
+                  titleTextStyle: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xff67757F)),
+                  shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   content: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -831,66 +774,58 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                           'El médico ${pendingVinculation.namePending}\n desea vincular su cuenta\n con usted',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff999999))),
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xff999999))),
                       const SizedBox(
                         height: 20,
                       ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            const SizedBox(
-                              height: 17,
+                      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
+                        const SizedBox(
+                          height: 17,
+                        ),
+                        FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: const EdgeInsets.all(15),
+                          color: const Color(0xff3BACB6),
+                          textColor: Colors.white,
+                          onPressed: () {
+                            acceptVinculationWithDoctor(
+                                pendingVinculation.medicoId, pendingVinculation.databaseId!);
+                          },
+                          child: const Text(
+                            'Aceptar',
+                            style: TextStyle(
+                              fontSize: 16,
                             ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.all(15),
-                              color: const Color(0xff3BACB6),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                acceptVinculationWithDoctor(
-                                    pendingVinculation.medicoId,
-                                    pendingVinculation.databaseId!);
-                              },
-                              child: const Text(
-                                'Aceptar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        FlatButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              side: const BorderSide(
+                                  color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid)),
+                          padding: const EdgeInsets.all(15),
+                          color: Colors.white,
+                          textColor: const Color(0xff9D9CB5),
+                          onPressed: () {
+                            noAcceptVinculation(pendingVinculation.databaseId!);
+                          },
+                          child: const Text(
+                            'Cancelar',
+                            style: TextStyle(
+                              fontSize: 16,
                             ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  side: const BorderSide(
-                                      color: Color(0xff9D9CB5),
-                                      width: 1,
-                                      style: BorderStyle.solid)),
-                              padding: const EdgeInsets.all(15),
-                              color: Colors.white,
-                              textColor: const Color(0xff9D9CB5),
-                              onPressed: () {
-                                noAcceptVinculation(
-                                    pendingVinculation.databaseId!);
-                              },
-                              child: const Text(
-                                'Cancelar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            )
-                          ])
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        )
+                      ])
                     ],
                   ))
             ])
@@ -900,15 +835,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> acceptVinculationWithDoctor(
-      String? medicoId, String pendingVinculationId) async {
+  Future<void> acceptVinculationWithDoctor(String? medicoId, String pendingVinculationId) async {
     final db = FirebaseFirestore.instance;
     String? patientId = FirebaseAuth.instance.currentUser?.uid;
     if (patientId == null || medicoId == null) {
       return;
     }
-    updatePendingVinculationStatus(
-        VINCULATION_STATUS_ACCEPTED, pendingVinculationId);
+    updatePendingVinculationStatus(VINCULATION_STATUS_ACCEPTED, pendingVinculationId);
     var postDocRef = db.collection(USERS_COLLECTION_KEY).doc(patientId);
     await postDocRef.update({
       MEDICO_ID_KEY: medicoId,
@@ -918,20 +851,16 @@ class _HomeScreenState extends State<HomeScreen> {
             () {
           Navigator.pop(context);
           Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => HomeScreen()));
+              context, MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
         }));
   }
 
   void noAcceptVinculation(String pendingVinculationId) {
     Navigator.pop(context);
-    updatePendingVinculationStatus(
-        VINCULATION_STATUS_REFUSED, pendingVinculationId);
+    updatePendingVinculationStatus(VINCULATION_STATUS_REFUSED, pendingVinculationId);
   }
 
-  Future<void> updatePendingVinculationStatus(
-      String status, String pendingVinculationId) async {
+  Future<void> updatePendingVinculationStatus(String status, String pendingVinculationId) async {
     final db = FirebaseFirestore.instance;
     await db
         .collection(PENDING_VINCULATIONS_COLLECTION_KEY)

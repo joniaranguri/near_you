@@ -260,7 +260,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                             padding: const EdgeInsets.only(
                                                 top: 5, left: 15, right: 15, bottom: 5),
                                             child: const Text(
-                                              " miento",
+                                              "ID Tratamiento",
                                               style: TextStyle(
                                                   color: Color(0xff999999),
                                                   fontWeight: FontWeight.normal,
