@@ -40,7 +40,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       <ActivityPrescription>[];
   List<OthersPrescription> othersList = <OthersPrescription>[];
   var currentRoutineIndex = 0;
-
+  int totalPrescriptions = 0;
   double percentageProgress = 0;
   double screenWidth = 0;
   double screenHeight = 0;
@@ -66,6 +66,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
             {
               setState(() {
                 medicationsList = value;
+                totalPrescriptions = getTotalPrescriptionsSize();
               })
             }
         });
@@ -81,6 +82,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                   } else {
                     nutritionNoPermittedList.add(value[i]);
                   }
+                  totalPrescriptions = getTotalPrescriptionsSize();
                 }
               })
             }
@@ -97,6 +99,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                   } else {
                     activitiesNoPermittedList.add(value[i]);
                   }
+                  totalPrescriptions = getTotalPrescriptionsSize();
                 }
               })
             }
@@ -106,6 +109,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
             {
               setState(() {
                 othersList = value;
+                totalPrescriptions = getTotalPrescriptionsSize();
               })
             }
         });
@@ -259,7 +263,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                 //patientUser = user.User.fromSnapshot(snapshot.data);
                                 if (snapshot.connectionState ==
                                     ConnectionState.done) {
-                                  if (false) {
+                                  if (totalPrescriptions == 0) {
                                     return getEmptyView();
                                   }
                                   return Column(
@@ -383,10 +387,6 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         .then((value) => dialogSuccess());*/
   }
 
-  Future<List<SurveyData>> getRoutineDetailList() async {
-    return <SurveyData>[];
-  }
-
   Widget getEmptyView() {
     return Container(
       width: double.infinity,
@@ -440,6 +440,9 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   Widget getMedicationList() {
+    if (medicationsList.length + nutritionNoPermittedList.length == 0) {
+      return getEmptyView();
+    }
     return SizedBox(
         child: ListView.builder(
             padding: EdgeInsets.zero,
@@ -763,6 +766,9 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   Widget getActivityList() {
+    if (activitiesList.isEmpty) {
+      return getEmptyView();
+    }
     return SizedBox(
         child: ListView.builder(
             padding: EdgeInsets.zero,
@@ -894,6 +900,9 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   Widget getExamsList() {
+    if (othersList.isEmpty) {
+      return getEmptyView();
+    }
     return Column(
       children: [
         Column(
@@ -1111,6 +1120,9 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   Widget getNutritionsLists() {
+    if (nutritionList.isEmpty) {
+      return getEmptyView();
+    }
     return Column(
       children: [
         Row(
@@ -1161,7 +1173,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
           nutritionsListSize > 0 ? nutritionCompleted / nutritionsListSize : 0,
       ROUTINE_EXAMS_PERCENTAGE_KEY:
           examsListSize > 0 ? othersCompleted / examsListSize : 0,
-      ROUTINE_HOUR_COMPLETED_KEY : DateFormat('hh:mm').format(DateTime.now())
+      ROUTINE_HOUR_COMPLETED_KEY: DateFormat('hh:mm').format(DateTime.now())
     });
     db
         .collection(ROUTINES_COLLECTION_KEY)
@@ -1169,5 +1181,13 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         .collection(ROUTINES_RESULTS_KEY)
         .doc(todayFormattedDate)
         .set(data);
+  }
+
+  int getTotalPrescriptionsSize() {
+    return medicationsList.length +
+        activitiesList.length +
+        nutritionList.length +
+        nutritionNoPermittedList.length +
+        othersList.length;
   }
 }
