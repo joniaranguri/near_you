@@ -8,6 +8,7 @@ import 'package:near_you/screens/home_screen.dart';
 import 'package:near_you/screens/routine_detail_screen.dart.dart';
 
 import '../Constants.dart';
+import '../widgets/calendar_timeline.dart';
 
 class RoutineScreen extends StatefulWidget {
   String? currentTreatmentId;
@@ -99,23 +100,16 @@ class _RoutineScreenState extends State<RoutineScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            /*  CalendarTimeline(
-                              showYears: false,
-                              initialDate: _selectedDate,
-                              firstDate:
-                                  _selectedDate.subtract(Duration(days: 30)),
-                              lastDate: _selectedDate,
-                              onDateSelected: (date) => {},
-                              monthColor: Colors.white70,
-                              dayColor: Colors.teal[200],
-                              dayNameColor: Color(0xFF333A47),
-                              activeDayColor: Colors.white,
-                              activeBackgroundDayColor: Color(0xff2F8F9D),
-                              dotsColor: Color(0xff2F8F9D),
-                              selectableDayPredicate: (date) =>
-                                  date == _selectedDate,
-                              locale: 'es',
-                            ),*/
+                            SizedBox(
+                              height: 20,
+                            ),
+                            CalendarTimeline(
+                              onChanged: (value){
+                                setState(() {
+                                  currentDateSelected = value;
+                                });
+                              },
+                            ),
                             SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
