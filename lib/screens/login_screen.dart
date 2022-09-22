@@ -269,8 +269,10 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   void _signInWithEmailAndPassword() async {
     final User? user = (await _auth.signInWithEmailAndPassword(
-      email: emailValue,
-      password: passwordValue,
+      email: 'yeisson@medico.com',
+      password: '12345678',
+      /* email: emailValue,
+      password: passwordValue, */
     ))
         .user;
 
