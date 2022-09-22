@@ -23,10 +23,10 @@ class Routine {
     var realData = snapshot.data();
     return Routine(
         hourCompleted: realData[ROUTINE_HOUR_COMPLETED_KEY],
-        medicationPercentage: realData[ROUTINE_MEDICATION_PERCENTAGE_KEY]??0,
-        nutritionPercentage: realData[ROUTINE_NUTRITION_PERCENTAGE_KEY]??0,
-        activityPercentage: realData[ROUTINE_ACTIVITY_PERCENTAGE_KEY]??0,
-        examsPercentage: realData[ROUTINE_EXAMS_PERCENTAGE_KEY]??0,
-        totalPercentage: realData[ROUTINE_TOTAL_PERCENTAGE_KEY]??0);
+        medicationPercentage: (realData[ROUTINE_MEDICATION_PERCENTAGE_KEY]??0).toDouble(),
+        nutritionPercentage: (realData[ROUTINE_NUTRITION_PERCENTAGE_KEY]??0).toDouble(),
+        activityPercentage: (realData[ROUTINE_ACTIVITY_PERCENTAGE_KEY]??0).toDouble(),
+        examsPercentage: (realData[ROUTINE_EXAMS_PERCENTAGE_KEY]??0).toDouble(),
+        totalPercentage: (realData[ROUTINE_TOTAL_PERCENTAGE_KEY]??0).toDouble());
   }
 }
