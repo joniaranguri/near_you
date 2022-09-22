@@ -440,7 +440,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   Widget getMedicationList() {
-    if (medicationsList.length + nutritionNoPermittedList.length == 0) {
+    if (medicationsList.isEmpty) {
       return getEmptyView();
     }
     return SizedBox(
@@ -1120,7 +1120,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   Widget getNutritionsLists() {
-    if (nutritionList.isEmpty) {
+    if (nutritionList.isEmpty && nutritionNoPermittedList.isEmpty) {
       return getEmptyView();
     }
     return Column(
