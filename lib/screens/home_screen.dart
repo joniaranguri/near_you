@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/screens/login_screen.dart';
 import 'package:near_you/screens/my_profile_screen.dart';
+import 'package:near_you/screens/routine_detail_screen.dart.dart';
+import 'package:near_you/screens/routine_screen.dart';
 import 'package:near_you/screens/survey_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -21,6 +23,8 @@ import '../widgets/treatments_list.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
+  static double screenWidth = 0;
+  static double screenHeight = 0;
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -38,6 +42,8 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
+    HomeScreen.screenWidth = MediaQuery.of(context).size.width;
+    HomeScreen.screenHeight = MediaQuery.of(context).size.height;
     publicShrinkHome = shrinkOffset;
     return Container(
       color: Color(0xff2F8F9D),
@@ -401,6 +407,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    HomeScreen.screenWidth = MediaQuery.of(context).size.width;
+    HomeScreen.screenHeight = MediaQuery.of(context).size.height;
     final expandedHeight = MediaQuery.of(context).size.height * 0.2;
     return Stack(children: <Widget>[
       Scaffold(
@@ -511,7 +519,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(Icons.list, color: Colors.white),
             backgroundColor: Color(0xFF2F8F9D),
             onTap: () {
-              /* do anything */
+             goToAllRoutines();
             },
             labelWidget: Text(
               "Todas mis Rutinas",
@@ -537,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(Icons.water_drop, color: Colors.white),
             backgroundColor: Color(0xFF2F8F9D),
             onTap: () {
-              /* do anything */
+              goToMyRoutine();
             },
             labelWidget: Text(
               "Mi rutina",
@@ -554,7 +562,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBottomBar() {
     return Container(
-      margin: EdgeInsets.only(bottom: 20),
       child: Material(
         elevation: 0.0,
         color: Colors.white,
@@ -930,5 +937,29 @@ class _HomeScreenState extends State<HomeScreen> {
         .collection(PENDING_VINCULATIONS_COLLECTION_KEY)
         .doc(pendingVinculationId)
         .update({VINCULATION_STATUS_KEY: status});
+  }
+
+  void goToMyRoutine() {
+    if (currentUser!.currentTreatment != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              RoutineDetailScreen(currentUser!.currentTreatment!),
+        ),
+      );
+    }
+  }
+
+  void goToAllRoutines() {
+    if (currentUser!.currentTreatment != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              RoutineScreen(currentUser!.currentTreatment!),
+        ),
+      );
+    }
   }
 }

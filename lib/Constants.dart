@@ -121,3 +121,13 @@ const String VINCULATION_STATUS_ACCEPTED = "accepted";
 const String VINCULATION_STATUS_REFUSED = "refused";
 const String VINCULATION_PENDING_NAME_KEY = "pendingName";
 const String VINCULATION_PENDING_EMAIL_KEY = "pendingEmail";
+
+const String ROUTINE_MEDICATION_PERCENTAGE_KEY = "medicationPercentage";
+const String ROUTINE_NUTRITION_PERCENTAGE_KEY = "nutritionPercentage";
+const String ROUTINE_ACTIVITY_PERCENTAGE_KEY = "activityPercentage";
+const String ROUTINE_EXAMS_PERCENTAGE_KEY = "examsPercentage";
+const String ROUTINE_TOTAL_PERCENTAGE_KEY = "totalPercentage";
+const String ROUTINE_HOUR_COMPLETED_KEY = "hourCompleted";
+
+const String ROUTINES_COLLECTION_KEY = "routines";
+const String ROUTINES_RESULTS_KEY = "routinesResults";

@@ -37,6 +37,7 @@ dependencies:
   firebase_core: ^1.21.1
   firebase_auth: ^3.7.0
   cloud_firestore: ^3.4.6
+  calendar_timeline: ^1.0.5
 
 dev_dependencies:
   flutter_test:
@@ -91,14 +92,22 @@ flutter:
     - assets/images/unlink_icon.svg
     - assets/images/clock_icon.svg
     - assets/images/person_tab_selected.svg
-    - assets/images/plus_tab_unselected.svg
+    - assets/images/activity_selected.svg
+    - assets/images/exams_unselected.svg
+    - assets/images/nutrition_unselected.svg
+    - assets/images/medication_unselected.svg
+    - assets/images/activity_unselected.svg
+    - assets/images/exams_selected.svg
+    - assets/images/nutrition_selected.svg
+    - assets/images/medication_selected.svg
+    - assets/images/no_routine_icon.svg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
-  # An image asset can refer to one or more resolution-specific "variants", see
+  # An image asseflutter pub add calendar_timelinet can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
   # For details regarding adding assets from package dependencies, see

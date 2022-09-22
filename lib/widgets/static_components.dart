@@ -63,6 +63,17 @@ class StaticComponents {
         focusedBorder: middleInputBorder);
   }
 
+  getMiddleInputDecorationDisabledRoutine() {
+    return InputDecoration(
+        contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        filled: true,
+        enabled: false,
+        fillColor: Color(0xffF1F1F1),
+        enabledBorder: middleInputBorder,
+        border: middleInputBorder,
+        focusedBorder: middleInputBorder);
+  }
+
   getBigInputDecoration(String hint) {
     return InputDecoration(
         contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -80,6 +91,17 @@ class StaticComponents {
         contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         filled: true,
         enabled: false,
+        enabledBorder: middleInputBorder,
+        border: middleInputBorder,
+        focusedBorder: middleInputBorder);
+  }
+
+  getBigInputDecorationDisabledRoutine() {
+    return InputDecoration(
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        filled: true,
+        enabled: false,
+        fillColor: Color(0xffF1F1F1),
         enabledBorder: middleInputBorder,
         border: middleInputBorder,
         focusedBorder: middleInputBorder);
