@@ -483,7 +483,7 @@ class PatientDetailState extends State<PatientDetail> {
                                     },
                                   ),
                                   const Text(
-                                    'Tratamiento Actual',
+                                    'Consulta Actual',
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -831,7 +831,7 @@ class PatientDetailState extends State<PatientDetail> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Row(
+                   /*  Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("Estado",
@@ -841,8 +841,8 @@ class PatientDetailState extends State<PatientDetail> {
                     ),
                     const SizedBox(
                       height: 5,
-                    ),
-                    SizedBox(
+                    ), */
+                    /* SizedBox(
                         height: 35,
                         child: TextField(
                           controller: TextEditingController(text: stateValue),
@@ -854,7 +854,7 @@ class PatientDetailState extends State<PatientDetail> {
                         )),
                     const SizedBox(
                       height: 10,
-                    ),
+                    ), */
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
