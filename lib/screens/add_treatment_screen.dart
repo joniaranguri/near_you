@@ -987,7 +987,13 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
         MEDICO_ID_KEY: medicoId!,
       }).then((treatment) => savePendingTreatment(treatment, currentIndex));
     } else {
-      var currentTreatmentId = patientUser?.currentTreatment ?? pendingTreatmentId;
+      String? currentTreatmentId;
+      if (patientUser?.currentTreatment == null || patientUser!.currentTreatment!.isEmpty) {
+        currentTreatmentId = pendingTreatmentId;
+      } else {
+        currentTreatmentId = patientUser?.currentTreatment;
+      }
+      //var currentTreatmentId = patientUser?.currentTreatment ?? pendingTreatmentId;
       navigateWithResult(currentTreatmentId, currentIndex);
     }
   }
@@ -1021,6 +1027,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     );
   }
 
+  //Cczun85DPGtFITsn0rjH
   savePendingTreatment(DocumentReference<Map<String, dynamic>> treatment, int currentIndex) {
     hasPendingTreatment = true;
     pendingTreatmentId = treatment.id;
