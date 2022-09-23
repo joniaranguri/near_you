@@ -152,25 +152,3 @@ const String DATA_ACTIVIDAD_FISICA_KEY = "ActividadFisica";
 const String DATA_EXAMENES_KEY = "Examenes";
 const String DATA_SUMA_KEY = "Suma";
 const String DATA_ADHERENCIA_KEY = "Adherencia";
-/*Edad Sexo Estado
-Civil
-Nivel
-Educacional
-Fuma Pregunta
-1
-Pregunta
-2
-Pregunta
-3
-Pregunta
-4
-Pregunta
-5
-Medicación
-20 Hombre Soltero Secundaria
-completa
-0 1 2 0 0 1 2
-Alimentación Actividad física Exámenes Suma Adherencia
-0 2 3 (Suma de la columna desde
-Fuma + hasta Exámenes) = 11
-1 – (11/36) = 0.6*/
