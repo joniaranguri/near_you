@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Constants.dart';
 
 class User {
+  String? civilStatus;      //TODO: Add this in signup
+  String? educationalLevel;      //TODO: Add this in signup
+
   User(
       {required this.fullName,
       required this.email,

@@ -114,6 +114,7 @@ const List<String> pastilleQuantitiesList = [
 const List<String> periodicityList = ["Diaria", "Semanal", "Mensual"];
 
 const String SURVEY_COLLECTION_KEY = "surveys";
+const String SURVEY_TIMESTAMP_KEY = "timestamp";
 
 const String VINCULATION_STATUS_KEY = "vinculationStatus";
 const String VINCULATION_STATUS_PENDING = "pending";
@@ -131,3 +132,23 @@ const String ROUTINE_HOUR_COMPLETED_KEY = "hourCompleted";
 
 const String ROUTINES_COLLECTION_KEY = "routines";
 const String ROUTINES_RESULTS_KEY = "routinesResults";
+
+const String DATA_COLLECTION_KEY = "data";
+
+const String DATA_EDAD_KEY = "Edad";
+const String DATA_SEXO_KEY = "Sexo";
+const String DATA_ESTADO_CIVIL_KEY = "EstadoCivil";
+const String DATA_NIVEL_EDUCACIONAL_KEY = "NivelEducacional";
+const String DATA_FUMA_KEY = "Fuma";
+const String DATA_PREGUNTA1_KEY = "Pregunta1";
+const String DATA_PREGUNTA2_KEY = "Pregunta2";
+const String DATA_PREGUNTA3_KEY = "Pregunta3";
+const String DATA_PREGUNTA4_KEY = "Pregunta4";
+const String DATA_PREGUNTA5_KEY = "Pregunta5";
+const String DATA_PREGUNTA6_KEY = "Pregunta6";
+const String DATA_MEDICACION_KEY = "Medicacion";
+const String DATA_ALIMENTACION_KEY = "Alimentacion";
+const String DATA_ACTIVIDAD_FISICA_KEY = "ActividadFisica";
+const String DATA_EXAMENES_KEY = "Examenes";
+const String DATA_SUMA_KEY = "Suma";
+const String DATA_ADHERENCIA_KEY = "Adherencia";
