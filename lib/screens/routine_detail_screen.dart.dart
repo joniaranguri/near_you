@@ -1336,7 +1336,6 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       DATA_ADHERENCIA_KEY: adherenceData
     };
 
-    print(dataToAdd);
     db
         .collection(DATA_COLLECTION_KEY)
         .doc("$currentTreatmentId-$todayFormattedDate")
