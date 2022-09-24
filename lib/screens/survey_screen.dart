@@ -286,10 +286,11 @@ class _SurveyScreenState extends State<SurveyScreen> {
                                                                 Color>((Set<MaterialState> states) {
                                                           return const Color(0xff999999);
                                                         }),
-                                                        value: (surveyList[index].options.length -
+                                                        value: i.toString(),
+                                                       /*  value: (surveyList[index].options.length -
                                                                 i -
                                                                 1)
-                                                            .toString(),
+                                                            .toString(), */
                                                         groupValue: surveyResults[index],
                                                         onChanged: (value) {
                                                           setState(() {
@@ -387,7 +388,8 @@ class _SurveyScreenState extends State<SurveyScreen> {
     final db = FirebaseFirestore.instance;
     final data = <String, String>{};
     for (int i = 0; i < surveyResults.length; i++) {
-      data.putIfAbsent((i + 1).toString(), () => surveyResults[i]!);
+      int number = i + 1;
+      data.putIfAbsent("Pregunta$number".toString(), () => surveyResults[i]!);
     }
     db
         .collection(USERS_COLLECTION_KEY)
