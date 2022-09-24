@@ -9,7 +9,7 @@ import '../Constants.dart';
 class RoleSelectionScreen extends StatelessWidget {
   static const routeName = '/role_selection';
   static const PACIENTE = "Paciente";
-  static const MEDICO = "Endocrinólogo";
+  static const MEDICO = "Médico";
 
   @override
   Widget build(BuildContext context) {
