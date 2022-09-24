@@ -683,7 +683,7 @@ class PatientDetailState extends State<PatientDetail> {
                                   child: Column(
                                     children: [
                                       Text(
-                                        "Exáenes",
+                                        "Exámenes",
                                         style: TextStyle(
                                             color: Color(0xff797979),
                                             fontWeight: FontWeight.bold),
@@ -726,6 +726,7 @@ class PatientDetailState extends State<PatientDetail> {
                       const SizedBox(
                         height: 20,
                       ),
+                      // TODO: Review this to get pinned at bottom
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: <Widget>[
