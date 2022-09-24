@@ -152,3 +152,6 @@ const String DATA_ACTIVIDAD_FISICA_KEY = "ActividadFisica";
 const String DATA_EXAMENES_KEY = "Examenes";
 const String DATA_SUMA_KEY = "Suma";
 const String DATA_ADHERENCIA_KEY = "Adherencia";
+
+const String REGEX_PASSWORD = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[#?!@\$%^&*-]).{7,}\$";
+const String REGEX_EMAIL = "^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+.[a-zA-Z]+";
