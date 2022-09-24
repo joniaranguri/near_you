@@ -103,6 +103,8 @@ flutter:
     - assets/images/medication_selected.svg
     - assets/images/no_routine_icon.svg
     - assets/images/refresh_icon.svg
+    - assets/images/arrow_up_red.png
+    - assets/images/arrow_up_blue.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

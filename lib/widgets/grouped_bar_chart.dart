@@ -16,19 +16,20 @@ class GroupedBarChart extends StatelessWidget {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return charts.BarChart(
       primaryMeasureAxis:
-      new charts.NumericAxisSpec(renderSpec: new charts.NoneRenderSpec()),
-
+          new charts.NumericAxisSpec(renderSpec: new charts.NoneRenderSpec()),
       domainAxis: new charts.OrdinalAxisSpec(
-          showAxisLine: true,
-          renderSpec: new charts.NoneRenderSpec()),
+        showAxisLine: false,
+        // renderSpec: new charts.NoneRenderSpec()
+      ),
       seriesList,
       animate: animate,
       barGroupingType: charts.BarGroupingType.grouped,
+      defaultRenderer: charts.BarRendererConfig(
+          cornerStrategy: const charts.ConstCornerStrategy(9)),
     );
   }
 
@@ -43,9 +44,12 @@ class GroupedBarChart extends StatelessWidget {
 
     final tableSalesData = [
       new OrdinalSales('2014', 25),
-      new OrdinalSales('2015', 50),
+      new OrdinalSales('2015', 90),
       new OrdinalSales('2016', 10),
       new OrdinalSales('2017', 20),
+      new OrdinalSales('2018', 50),
+      new OrdinalSales('2019', 80),
+      new OrdinalSales('2020', 20),
     ];
 
     final tableSalesData2 = [
@@ -62,39 +66,19 @@ class GroupedBarChart extends StatelessWidget {
       new OrdinalSales('2021', 20),
     ];
 
-
     return [
       new charts.Series<OrdinalSales, String>(
         id: 'Tablet',
+        labelAccessorFn: (OrdinalSales sales, _) => '${sales.sales}%',
         domainFn: (OrdinalSales sales, _) => sales.year,
         measureFn: (OrdinalSales sales, _) => sales.sales,
-        colorFn: (_, __) => charts.MaterialPalette.cyan.shadeDefault,
-
+        colorFn: (ordinary, __) {
+          if (ordinary.sales >= 80)
+            return charts.Color.fromHex(code: "#DCF0EF");
+          return charts.Color.fromHex(code: "#2F8F9D");
+        },
         data: tableSalesData,
       ),
-
-      new charts.Series<OrdinalSales, String>(
-        id: 'Desktop',
-        domainFn: (OrdinalSales sales, _) => sales.year,
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        colorFn: (_, __) => charts.MaterialPalette.cyan.shadeDefault.lighter,
-        data: desktopSalesData,
-      ),
-      new charts.Series<OrdinalSales, String>(
-        id: 'Tablet',
-        domainFn: (OrdinalSales sales, _) => sales.year,
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        colorFn: (_, __) => charts.MaterialPalette.cyan.shadeDefault,
-        data: tableSalesData2,
-      ),
-
-    new charts.Series<OrdinalSales, String>(
-    id: 'Tablet',
-    domainFn: (OrdinalSales sales, _) => sales.year,
-    measureFn: (OrdinalSales sales, _) => sales.sales,
-      colorFn: (_, __) => charts.MaterialPalette.cyan.shadeDefault.lighter,
-      data: tableSalesData3,
-    )
     ];
   }
 }

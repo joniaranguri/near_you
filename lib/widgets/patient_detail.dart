@@ -225,224 +225,520 @@ class PatientDetailState extends State<PatientDetail> {
         height: 580,
         child: Padding(
           padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
-                  Widget>[
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.arrow_back, color: Color(0xff2F8F9D)),
-                        onPressed: () {
-                          goBack();
-                        },
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 40, right: 40),
-                        //apply padding to all four sides
-                        child: Text(
-                          'Adherencia',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xff2F8F9D),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon:
-                            Icon(Icons.arrow_forward, color: Color(0xff2F8F9D)),
-                        onPressed: () {
-                          goAhead();
-                        },
-                      )
-                    ]),
-                const SizedBox(
-                  height: 20,
-                ),
-                CircularPercentIndicator(
-                    radius: 100,
-                    lineWidth: 10,
-                    percent: 0.75,
-                    //center: Text("75%", style: TextStyle(color: Color(0xFF1AB600), fontSize: 27, fontWeight: FontWeight.bold, backgroundColor: Colors.red)),
-                    center: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
-                        Text("75%",
-                            style: TextStyle(
-                                color: Color(0xff6EC6A4),
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold)),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          'ADHERENCIA',
-                          style:
-                              TextStyle(fontSize: 11, color: Color(0xff666666)),
-                        ),
-                        Text('NORMAL',
-                            style: TextStyle(
-                                fontSize: 11, color: Color(0xff666666)))
-                      ],
-                    ),
-                    linearGradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        colors: <Color>[Color(0xff6EC6A4), Color(0xff6EC6A4)]),
-                    rotateLinearGradient: true,
-                    circularStrokeCap: CircularStrokeCap.round),
-                const SizedBox(
-                  height: 20,
-                ),
-                const Text(
-                  '¡Te felicito, sigue así!',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff999999),
-                  ),
-                )
-              ]),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: const <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(left: 20, right: 20),
-                      //apply padding to all four sides
-                      child: Text(
-                        'Periodo',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                          color: Color(0xffCECECE),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                        child: Divider(
-                      color: Color(0xffCECECE),
-                      thickness: 1,
-                    )),
-                    Padding(
-                      padding: EdgeInsets.only(left: 20, right: 2),
-                      //apply padding to all four sides
-                      child: Text(
-                        'Lower',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                          color: Color(0xffCECECE),
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '53%',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
-                        color: Color(0xffF8191E),
-                      ),
-                    ),
-                    Icon(Icons.keyboard_arrow_down, color: Color(0xffF8191E))
-                  ]),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      height: 20,
-                      color: const Color(0xff3BACB6),
-                      textColor: Colors.white,
-                      onPressed: () {
-                        // _signInWithEmailAndPassword();
-                      },
-                      child: const Text(
-                        'Semanal',
-                        style: TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      height: 20,
-                      color: const Color(0xff3BACB6),
-                      textColor: Colors.white,
-                      onPressed: () {
-                        // _signInWithEmailAndPassword();
-                      },
-                      child: const Text(
-                        'Semanal',
-                        style: TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      height: 20,
-                      color: const Color(0xff3BACB6),
-                      textColor: Colors.white,
-                      onPressed: () {
-                        // _signInWithEmailAndPassword();
-                      },
-                      child: const Text(
-                        'Semanal',
-                        style: TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                    )
-                  ]),
-              Container(height: 76, child: GroupedBarChart.withSampleData()),
-              Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Padding(
-                        padding: EdgeInsets.only(left: 30, right: 30),
-                        child: FlatButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          color: const Color(0xff3BACB6),
-                          textColor: Colors.white,
-                          onPressed: () {
-                            // _signInWithEmailAndPassword();
-                          },
-                          height: 27,
-                          child: const Text(
-                            'ver gráficos',
-                            style: TextStyle(
-                              fontSize: 16,
+          child: SingleChildScrollView(
+              child: ConstrainedBox(
+                  child: Column(
+                    children: [
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: Icon(Icons.arrow_back,
+                                        color: Color(0xff2F8F9D)),
+                                    onPressed: () {
+                                      goBack();
+                                    },
+                                  ),
+                                  const Padding(
+                                    padding:
+                                        EdgeInsets.only(left: 40, right: 40),
+                                    //apply padding to all four sides
+                                    child: Text(
+                                      'Adherencia',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2F8F9D),
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.arrow_forward,
+                                        color: Color(0xff2F8F9D)),
+                                    onPressed: () {
+                                      goAhead();
+                                    },
+                                  )
+                                ]),
+                            Transform.scale(
+                                scale: 0.9,
+                                child: Material(
+                                    elevation: 10,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(100)),
+                                    child: CircularPercentIndicator(
+                                        backgroundColor: Colors.white,
+                                        radius: 100,
+                                        lineWidth: 15,
+                                        percent: 0.8,
+                                        center: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            ShaderMask(
+                                              blendMode: BlendMode.srcIn,
+                                              shaderCallback: (bounds) =>
+                                                  LinearGradient(
+                                                          colors:
+                                                              getGradientColors(
+                                                                  80))
+                                                      .createShader(
+                                                Rect.fromLTRB(
+                                                    0,
+                                                    0,
+                                                    bounds.width,
+                                                    bounds.height),
+                                              ),
+                                              child: const Text("80" + "%",
+                                                  style: TextStyle(
+                                                      fontSize: 42,
+                                                      fontWeight:
+                                                          FontWeight.w900)),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            const Text(
+                                              'RIESGO DE\nABANDONO',
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Color(0xff666666)),
+                                            )
+                                          ],
+                                        ),
+                                        linearGradient: LinearGradient(
+                                            begin: Alignment.topRight,
+                                            end: Alignment.bottomLeft,
+                                            colors: getGradientColors(80)),
+                                        rotateLinearGradient: true,
+                                        circularStrokeCap:
+                                            CircularStrokeCap.round))),
+                            const SizedBox(
+                              height: 20,
                             ),
-                          ),
-                        )),
-                  ]),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    blueIndicator,
-                    grayIndicator,
-                    grayIndicator
-                  ]),
-              //SizedBox
-            ],
-          ), //Column
+                            Text(
+                              getAdherenceMessage(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xff999999),
+                              ),
+                            )
+                          ]),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: const <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              //apply padding to all four sides
+                              child: Text(
+                                'Periodo',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Color(0xffCECECE),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                                child: Divider(
+                              color: Color(0xffCECECE),
+                              thickness: 1,
+                            )),
+                            Padding(
+                              padding: EdgeInsets.only(left: 20, right: 2),
+                              //apply padding to all four sides
+                              child: Text(
+                                'Adherencia',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Color(0xffCECECE),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(right: 20, left: 2),
+                              //apply padding to all four sides
+                              child: Text(
+                                '53%',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                  color: Color(0xffF8191E),
+                                ),
+                              ),
+                            )
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              height: 20,
+                              color: const Color(0xff3BACB6),
+                              textColor: Colors.white,
+                              onPressed: () {
+                                // _signInWithEmailAndPassword();
+                              },
+                              child: const Text(
+                                'Diario',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                side: const BorderSide(
+                                    color: Color(0xff3BACB6),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                              ),
+                              height: 20,
+                              color:
+                                  true ? Colors.white : const Color(0xff3BACB6),
+                              textColor:
+                                  true ? Color(0xff999999) : Colors.white,
+                              onPressed: () {
+                                // _signInWithEmailAndPassword();
+                              },
+                              child: const Text(
+                                'Semanal',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                side: const BorderSide(
+                                    color: Color(0xff3BACB6),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                              ),
+                              height: 20,
+                              color:
+                                  true ? Colors.white : const Color(0xff3BACB6),
+                              textColor:
+                                  true ? Color(0xff999999) : Colors.white,
+                              onPressed: () {
+                                // _signInWithEmailAndPassword();
+                              },
+                              child: const Text(
+                                'Mensual',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                            )
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: const <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(left: 20, right: 2),
+                              //apply padding to all four sides
+                              child: Text(
+                                'Adherencia de Hoy',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xff2F8F9D),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                                padding: EdgeInsets.only(right: 30, left: 2),
+                                //apply padding to all four sides
+                                child: Text(
+                                  '53%',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.normal,
+                                    color: Color(0xffF8191E),
+                                  ),
+                                ))
+                          ]),
+                      Container(
+                          height: 150, child: GroupedBarChart.withSampleData()),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: const <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(left: 20, right: 2),
+                              child: Text(
+                                'Cumplimiento de rutinas',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xff999999),
+                                ),
+                              ),
+                            )
+                          ]),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      SizedBox(
+                          height: 86,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 5),
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        color: Color(0xFFEBE3E3), width: 1),
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            10) //         <--- border radius here
+                                        ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text("Medicación",
+                                          style: TextStyle(
+                                              color: Color(0xff797979),
+                                              fontWeight: FontWeight.bold)),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          ShaderMask(
+                                            blendMode: BlendMode.srcIn,
+                                            shaderCallback: (bounds) =>
+                                                LinearGradient(
+                                                        colors:
+                                                            getGradientColors(
+                                                                50, true))
+                                                    .createShader(
+                                              Rect.fromLTRB(0, 0, bounds.width,
+                                                  bounds.height),
+                                            ),
+                                            child: const Text("50" + "%",
+                                                style: TextStyle(
+                                                    fontSize: 42,
+                                                    fontWeight:
+                                                        FontWeight.w900)),
+                                          ),
+                                          SizedBox(
+                                              height: 30,
+                                              child: getColoredTriangle(50.0))
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 5),
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        color: Color(0xFFEBE3E3), width: 1),
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            10) //         <--- border radius here
+                                        ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        "Alimentación",
+                                        style: TextStyle(
+                                            color: Color(0xff797979),
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          ShaderMask(
+                                            blendMode: BlendMode.srcIn,
+                                            shaderCallback: (bounds) =>
+                                                LinearGradient(
+                                                        colors:
+                                                            getGradientColors(
+                                                                86, true))
+                                                    .createShader(
+                                              Rect.fromLTRB(0, 0, bounds.width,
+                                                  bounds.height),
+                                            ),
+                                            child: const Text("86" + "%",
+                                                style: TextStyle(
+                                                    fontSize: 42,
+                                                    fontWeight:
+                                                        FontWeight.w900)),
+                                          ),
+                                          SizedBox(
+                                            height: 30,
+                                            child: getColoredTriangle(86.0),
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          )),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      SizedBox(
+                          height: 86,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 5),
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        color: Color(0xFFEBE3E3), width: 1),
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            10) //         <--- border radius here
+                                        ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text("Actividad Física",
+                                          style: TextStyle(
+                                              color: Color(0xff797979),
+                                              fontWeight: FontWeight.bold)),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          ShaderMask(
+                                            blendMode: BlendMode.srcIn,
+                                            shaderCallback: (bounds) =>
+                                                LinearGradient(
+                                                        colors:
+                                                            getGradientColors(
+                                                                95, true))
+                                                    .createShader(
+                                              Rect.fromLTRB(0, 0, bounds.width,
+                                                  bounds.height),
+                                            ),
+                                            child: const Text("95" + "%",
+                                                style: TextStyle(
+                                                    fontSize: 42,
+                                                    fontWeight:
+                                                        FontWeight.w900)),
+                                          ),
+                                          SizedBox(
+                                            height: 30,
+                                            child: getColoredTriangle(95.0),
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 5),
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        color: Color(0xFFEBE3E3), width: 1),
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            10) //         <--- border radius here
+                                        ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        "Exáenes",
+                                        style: TextStyle(
+                                            color: Color(0xff797979),
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          ShaderMask(
+                                            blendMode: BlendMode.srcIn,
+                                            shaderCallback: (bounds) =>
+                                                LinearGradient(
+                                                        colors:
+                                                            getGradientColors(
+                                                                20, true))
+                                                    .createShader(
+                                              Rect.fromLTRB(0, 0, bounds.width,
+                                                  bounds.height),
+                                            ),
+                                            child: const Text("20" + "%",
+                                                style: TextStyle(
+                                                    fontSize: 42,
+                                                    fontWeight:
+                                                        FontWeight.w900)),
+                                          ),
+                                          SizedBox(
+                                            height: 30,
+                                            child: getColoredTriangle(20.0),
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          )),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            blueIndicator,
+                            grayIndicator,
+                            grayIndicator
+                          ]),
+                      //SizedBox
+                    ],
+                  ),
+                  constraints: BoxConstraints(
+                    minHeight: 200,
+                  ))), //Column
         ), //Padding
       ), //SizedBox
     );
@@ -1727,5 +2023,43 @@ class PatientDetailState extends State<PatientDetail> {
       result.add(currentValue);
     }
     return result;
+  }
+
+  getGradientColors(double percentage, [bool? inverted]) {
+    var redList = <Color>[
+      Color(0xff9D2F2F),
+      Color(0xffE72A2A),
+      Color(0xff9D2F2F)
+    ];
+    var blueList = <Color>[
+      Color(0xff2F8F9D),
+      Color(0xff47B4AC),
+      Color(0xff2F8F9D)
+    ];
+    if (percentage >= 80) {
+      return inverted != null && inverted ? blueList : redList;
+    }
+    return inverted != null && inverted ? redList : blueList;
+  }
+
+  String getAdherenceMessage() {
+    double percentage = 81.0;
+    if (percentage >= 80) {
+      return "Ten cuidado, tus niveles de abandono al tratamiento son altos";
+    }
+    return "¡Sigue así con tu tratamiento!";
+  }
+
+  getColoredTriangle(double percentage) {
+    if (percentage < 80) {
+      return Image.asset(
+        'assets/images/arrow_up_red.png',
+        fit: BoxFit.none,
+      );
+    }
+    return Image.asset(
+      'assets/images/arrow_up_blue.png',
+      fit: BoxFit.none,
+    );
   }
 }
