@@ -51,35 +51,33 @@ class _SurveyScreenState extends State<SurveyScreen> {
     return Stack(children: <Widget>[
       Scaffold(
         appBar: PreferredSize(
-            preferredSize: Size.fromHeight(80), // here the desired height
+            preferredSize: const Size.fromHeight(80), // here the desired height
             child: AppBar(
               actions: [
                 IconButton(
-                  icon: Icon(Icons.info_outline, color: Colors.white),
+                  icon: const Icon(Icons.info_outline, color: Colors.white),
                   onPressed: () {
                     //
                   },
                 )
               ],
-              backgroundColor: Color(0xff2F8F9D),
+              backgroundColor: const Color(0xff2F8F9D),
               centerTitle: true,
-              title: Padding(
+              title: const Padding(
                   padding: EdgeInsets.only(top: 40),
                   child: Text('Encuestas',
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold))),
+                          color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold))),
               elevation: 0,
               leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
                   Navigator.pop(context);
                 },
               ),
             )),
         body: Stack(children: <Widget>[
-          Container(
+          SizedBox(
               width: double.maxFinite,
               height: double.maxFinite,
               child: FittedBox(
@@ -89,9 +87,8 @@ class _SurveyScreenState extends State<SurveyScreen> {
           Scaffold(
               backgroundColor: Colors.transparent,
               body: LayoutBuilder(
-                builder:
-                    (BuildContext context, BoxConstraints viewportConstraints) {
-                  return Container(
+                builder: (BuildContext context, BoxConstraints viewportConstraints) {
+                  return SizedBox(
                     width: double.infinity,
                     child: SingleChildScrollView(
                       child: ConstrainedBox(
@@ -102,18 +99,17 @@ class _SurveyScreenState extends State<SurveyScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             FutureBuilder(
                               future: futureSurvey,
                               builder: (context, AsyncSnapshot snapshot) {
                                 //patientUser = user.User.fromSnapshot(snapshot.data);
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
+                                if (snapshot.connectionState == ConnectionState.done) {
                                   return getScreenType();
                                 }
-                                return CircularProgressIndicator();
+                                return const CircularProgressIndicator();
                               },
                             ),
                           ],
@@ -130,9 +126,8 @@ class _SurveyScreenState extends State<SurveyScreen> {
             ? null
             : GestureDetector(
                 child: Container(
-                  padding: EdgeInsets.only(top: 40),
-                  child:
-                      SvgPicture.asset('assets/images/tab_plus_selected.svg'),
+                  padding: const EdgeInsets.only(top: 40),
+                  child: SvgPicture.asset('assets/images/tab_plus_selected.svg'),
                 ),
                 onTap: () {
                   setState(() {
@@ -185,14 +180,13 @@ class _SurveyScreenState extends State<SurveyScreen> {
       width: 400,
       height: 600,
       child: Padding(
-          padding:
-              const EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 10),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
-                  Widget>[
+          padding: const EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 10),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
             GFProgressBar(
               percentage: percentageProgress,
               lineHeight: 17,
+              backgroundColor: const Color(0xffD9D9D9),
+              progressBarColor: const Color(0xff2F8F9D),
               child: Padding(
                 padding: EdgeInsets.only(right: 5),
                 child: Text(
@@ -201,16 +195,14 @@ class _SurveyScreenState extends State<SurveyScreen> {
                   style: TextStyle(fontSize: 12, color: Colors.white),
                 ),
               ),
-              backgroundColor: Color(0xffD9D9D9),
-              progressBarColor: Color(0xff2F8F9D),
             ),
             const SizedBox(
               height: 10,
             ),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               Text(
-                'Hola ' + userName,
-                style: TextStyle(
+                'Hola $userName',
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xff2F8F9D),
@@ -231,7 +223,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
               height: 520,
               child: SingleChildScrollView(
                   child: ConstrainedBox(
-                      constraints: BoxConstraints(
+                      constraints: const BoxConstraints(
                         minHeight: 200,
                       ),
                       child: Form(
@@ -240,8 +232,8 @@ class _SurveyScreenState extends State<SurveyScreen> {
                             children: [
                               Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
-                                  children: <Widget>[
-                                    const Text(
+                                  children: const <Widget>[
+                                    Text(
                                       "Tienes una encuesta pendiente",
                                       style: TextStyle(
                                         fontSize: 14,
@@ -257,25 +249,21 @@ class _SurveyScreenState extends State<SurveyScreen> {
                                   child: ListView.builder(
                                       padding: EdgeInsets.zero,
                                       shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
+                                      physics: const NeverScrollableScrollPhysics(),
                                       itemCount: surveyList.length,
                                       itemBuilder: (context, index) {
                                         return Column(children: [
                                           Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: <Widget>[
                                               Flexible(
                                                   child: Text(
                                                 surveyList[index].question,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     color: Color(0xff67757F),
                                                     fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.w600),
+                                                    fontWeight: FontWeight.w600),
                                               ))
                                             ],
                                           ),
@@ -283,103 +271,66 @@ class _SurveyScreenState extends State<SurveyScreen> {
                                             child: ListView.builder(
                                                 padding: EdgeInsets.zero,
                                                 shrinkWrap: true,
-                                                physics:
-                                                    const NeverScrollableScrollPhysics(),
-                                                itemCount: surveyList[index]
-                                                    .options
-                                                    .length,
+                                                physics: const NeverScrollableScrollPhysics(),
+                                                itemCount: surveyList[index].options.length,
                                                 itemBuilder: (context, i) {
                                                   return ListTile(
                                                       dense: true,
                                                       leading: Radio<String>(
-                                                        visualDensity:
-                                                            const VisualDensity(
-                                                          horizontal:
-                                                              VisualDensity
-                                                                  .minimumDensity,
-                                                          vertical: VisualDensity
-                                                              .minimumDensity,
+                                                        visualDensity: const VisualDensity(
+                                                          horizontal: VisualDensity.minimumDensity,
+                                                          vertical: VisualDensity.minimumDensity,
                                                         ),
                                                         fillColor:
-                                                            MaterialStateProperty
-                                                                .resolveWith<
-                                                                    Color>((Set<
-                                                                        MaterialState>
-                                                                    states) {
-                                                          return Color(
-                                                              0xff999999);
+                                                            MaterialStateProperty.resolveWith<
+                                                                Color>((Set<MaterialState> states) {
+                                                          return const Color(0xff999999);
                                                         }),
-                                                        value: (surveyList[
-                                                                        index]
-                                                                    .options
-                                                                    .length -
+                                                        value: (surveyList[index].options.length -
                                                                 i -
                                                                 1)
                                                             .toString(),
-                                                        groupValue:
-                                                            surveyResults[
-                                                                index],
+                                                        groupValue: surveyResults[index],
                                                         onChanged: (value) {
                                                           setState(() {
-                                                            surveyResults[
-                                                                index] = value!;
-                                                            int currentTotal =
-                                                                0;
+                                                            surveyResults[index] = value!;
+                                                            int currentTotal = 0;
                                                             for (int j = 0;
-                                                                j <
-                                                                    surveyResults
-                                                                        .length;
+                                                                j < surveyResults.length;
                                                                 j++) {
-                                                              if (surveyResults[
-                                                                      j] !=
-                                                                  null) {
+                                                              if (surveyResults[j] != null) {
                                                                 currentTotal++;
                                                               }
                                                             }
                                                             percentageProgress =
-                                                                currentTotal /
-                                                                    surveyResults
-                                                                        .length;
+                                                                currentTotal / surveyResults.length;
                                                           });
                                                         },
                                                       ),
                                                       title: Text(
-                                                        (surveyList[index]
-                                                                        .options
-                                                                        .length -
-                                                                    i)
-                                                                .toString() +
-                                                            ".- " +
-                                                            surveyList[index]
-                                                                .options[i],
+                                                        "${surveyList[index].options.length - i}.- ${surveyList[index].options[i]}",
                                                         style: const TextStyle(
-                                                            color: Color(
-                                                                0xff67757F),
+                                                            color: Color(0xff67757F),
                                                             fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w600),
-                                                        textAlign:
-                                                            TextAlign.left,
+                                                            fontWeight: FontWeight.w600),
+                                                        textAlign: TextAlign.left,
                                                       ));
                                                 }),
                                           ),
-                                          SizedBox(height: 10)
+                                          const SizedBox(height: 10)
                                         ]);
                                       })),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   FlatButton(
-                                    disabledColor: Color(0xffD9D9D9),
+                                    disabledColor: const Color(0xffD9D9D9),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(30),
                                     ),
                                     color: const Color(0xff2F8F9D),
                                     textColor: Colors.white,
-                                    onPressed: percentageProgress == 1
-                                        ? saveAndGoBack
-                                        : null,
+                                    onPressed: percentageProgress == 1 ? saveAndGoBack : null,
                                     child: const Text(
                                       'Enviar',
                                       style: TextStyle(
@@ -403,34 +354,32 @@ class _SurveyScreenState extends State<SurveyScreen> {
   }
 
   noSurveyView() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 470,
       child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                const SizedBox(
-                  height: 200,
-                ),
-                Text(
-                  'Ya has completado  \nla encuesta',
-                  textAlign: TextAlign.center,
-                  maxLines: 5,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xff999999),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(
-                  height: 100,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-              ])),
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: const <Widget>[
+            SizedBox(
+              height: 200,
+            ),
+            Text(
+              'Ya has completado  \nla encuesta',
+              textAlign: TextAlign.center,
+              maxLines: 5,
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xff999999),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            SizedBox(
+              height: 100,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+          ])),
     );
   }
 
@@ -459,7 +408,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
           children: [
             Wrap(alignment: WrapAlignment.center, children: [
               AlertDialog(
-                  shape: RoundedRectangleBorder(
+                  shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   content: Column(
                     children: [
@@ -475,47 +424,40 @@ class _SurveyScreenState extends State<SurveyScreen> {
                       const Text('Encuesta\n completada',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff67757F))),
+                              fontSize: 25, fontWeight: FontWeight.bold, color: Color(0xff67757F))),
                       const SizedBox(
                         height: 20,
                       ),
-                      const Text(
-                          '¡Gracias por completar el\nprogreso de su adherencia',
+                      const Text('¡Gracias por completar el\nprogreso de su adherencia',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff999999))),
+                              fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xff999999))),
                       const SizedBox(
                         height: 20,
                       ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            const SizedBox(
-                              height: 17,
+                      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
+                        const SizedBox(
+                          height: 17,
+                        ),
+                        FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: const EdgeInsets.all(15),
+                          color: const Color(0xff3BACB6),
+                          textColor: Colors.white,
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Aceptar',
+                            style: TextStyle(
+                              fontSize: 16,
                             ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.all(15),
-                              color: const Color(0xff3BACB6),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                              },
-                              child: const Text(
-                                'Aceptar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            )
-                          ])
+                          ),
+                        )
+                      ])
                     ],
                   ))
             ])
