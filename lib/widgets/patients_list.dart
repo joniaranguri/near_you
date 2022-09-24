@@ -184,6 +184,7 @@ class PatientListState extends State<PatientsListLayout> {
                                                     right: 25),
                                                 child: InkWell(
                                                     onTap: () {
+                                                      //TODO: remove pending notifications to user if devinculate
                                                       showDialogDevinculation(
                                                           context,
                                                           patients[index]

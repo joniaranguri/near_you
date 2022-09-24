@@ -34,6 +34,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   user.User? currentUser;
 
   Function initAllData;
+  Function showNotificationsModal;
 
   int patientsCounter;
 
@@ -43,7 +44,9 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
       {required this.onActionTap,
       required this.currentUser,
       required this.initAllData,
-      required this.patientsCounter});
+      required this.patientsCounter,
+      required this.notificationsCounter,
+      required this.showNotificationsModal});
 
   @override
   Widget build(
@@ -180,7 +183,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                             Navigator.pop(context);
                           }, currentUser!.isPatiente());
                         }))
-                  : () {};
+                  : showNotificationsModal(context);
             },
             child: Text(
               currentUser!.isPatiente()
@@ -194,30 +197,34 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                   color: Color(0xff9D9CB5)),
             ),
           ),
-          currentUser!.isPatiente()? const SizedBox(height: 0,):
-          Positioned(
-            right: 0,
-            top: 7,
-            child: new Container(
-              padding: EdgeInsets.all(2),
-              decoration: new BoxDecoration(
-                color: notificationsCounter > 0 ? Colors.red : Colors.grey,
-                borderRadius: BorderRadius.circular(100),
-              ),
-              constraints: BoxConstraints(
-                minWidth: 12,
-                minHeight: 12,
-              ),
-              child: new Text(
-                notificationsCounter.toString(),
-                style: new TextStyle(
-                  color: Colors.white,
-                  fontSize: 8,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          )
+          currentUser!.isPatiente()
+              ? const SizedBox(
+                  height: 0,
+                )
+              : Positioned(
+                  right: 0,
+                  top: 7,
+                  child: new Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: new BoxDecoration(
+                      color:
+                          notificationsCounter > 0 ? Colors.red : Colors.grey,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 12,
+                      minHeight: 12,
+                    ),
+                    child: new Text(
+                      notificationsCounter.toString(),
+                      style: new TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
         ],
       );
     }
@@ -417,6 +424,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<PendingVinculation> pendingVinculationList = <PendingVinculation>[];
   int patientsCounter = 0;
 
+  Future<List<PendingVinculation>>? pendingVinculationsFuture;
+
+  int notificationsCounter = 0;
+
   @override
   void initState() {
     initAllData();
@@ -443,7 +454,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     initAllData: () {
                       initAllData();
                     },
-                    patientsCounter: patientsCounter),
+                    patientsCounter: patientsCounter,
+                    notificationsCounter: notificationsCounter,
+                    showNotificationsModal: (context) {
+                      showNOtificationsModal(context);
+                    }),
               ),
             ];
           },
@@ -896,6 +911,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               onPressed: () {
                                 acceptVinculationWithDoctor(
                                     pendingVinculation.medicoId,
+                                    FirebaseAuth.instance.currentUser?.uid,
                                     pendingVinculation.databaseId!);
                               },
                               child: const Text(
@@ -943,9 +959,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> acceptVinculationWithDoctor(
-      String? medicoId, String pendingVinculationId) async {
+      String? medicoId, String? patientId, String pendingVinculationId) async {
     final db = FirebaseFirestore.instance;
-    String? patientId = FirebaseAuth.instance.currentUser?.uid;
     if (patientId == null || medicoId == null) {
       return;
     }
@@ -1010,12 +1025,15 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             currentUser = user.User.fromSnapshot(value);
             notifier = ValueNotifier(false);
-            getPendingVinculations().then((pendingResult) => {
+            pendingVinculationsFuture = getPendingVinculations();
+            pendingVinculationsFuture?.then((pendingResult) => {
                   setState(() {
                     if (pendingResult.isEmpty) {
                       return;
                     }
                     pendingVinculationList = pendingResult;
+                    notificationsCounter = pendingResult.length;
+                    print("patients: $notificationsCounter");
                     if (currentUser!.isPatiente()) {
                       showNotificationPendingVinculation(
                           pendingVinculationList[0]);
@@ -1043,6 +1061,204 @@ class _HomeScreenState extends State<HomeScreen> {
                   })
                 });
           })
+        });
+  }
+
+  void showNOtificationsModal(context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Wrap(alignment: WrapAlignment.center, children: [
+              AlertDialog(
+                  title: Column(children: [
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Text("Notificaciones")
+                  ]),
+                  titleTextStyle: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff999999)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                          height: HomeScreen.screenHeight * 0.3,
+                          width: HomeScreen.screenWidth * 0.6,
+                          child: getNotificationsList()),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 17,
+                            ),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.all(15),
+                              color: const Color(0xff3BACB6),
+                              textColor: Colors.white,
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                'Cerrar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 12,
+                            )
+                          ])
+                    ],
+                  ))
+            ])
+          ],
+        );
+      },
+    );
+  }
+
+  getNotificationsList() {
+    return FutureBuilder(
+        future: pendingVinculationsFuture,
+        builder: (context, AsyncSnapshot<List<PendingVinculation>> snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (pendingVinculationList.isEmpty) {
+            return Container(
+              width: HomeScreen.screenWidth * 0.6,
+              height: HomeScreen.screenHeight * 0.3,
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 40),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'Usted no tiene notificaciones',
+                          textAlign: TextAlign.center,
+                          maxLines: 5,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xff999999),
+                            fontFamily: 'Italic',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ])),
+            );
+          }
+          return ListView.builder(
+              itemCount: pendingVinculationList.length,
+              padding: EdgeInsets.only(bottom: 60),
+              itemBuilder: (context, index) {
+                return Card(
+                    color: Color(0xffF1F1F1),
+                    margin: EdgeInsets.only(top: 10, bottom: 10),
+                    child: ClipPath(
+                      clipper: ShapeBorderClipper(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(3))),
+                      child: Wrap(
+                        children: [
+                          Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Padding(
+                                      padding: EdgeInsets.only(left: 10),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            pendingVinculationList[index]
+                                                    .namePending ??
+                                                "Paciente x",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xff2F8F9D),
+                                                fontSize: 14),
+                                          ),
+                                          Text(
+                                              pendingVinculationList[index]
+                                                      .emailPending ??
+                                                  "email",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color(0xff67757F),
+                                                  fontSize: 10)),
+                                        ],
+                                      )),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      IconButton(
+                                          onPressed: () {
+                                            noAcceptVinculation(
+                                                pendingVinculationList[index]
+                                                    .databaseId!);
+                                            setState(() {
+                                              pendingVinculationList.removeAt(index);
+                                              notificationsCounter = pendingVinculationList.length;
+
+                                            });
+                                          },
+                                          padding: EdgeInsets.zero,
+                                          constraints: BoxConstraints(),
+                                          icon: Icon(Icons.close,
+                                              color: Color(0xff2F8F9D))),
+                                      IconButton(
+                                          onPressed: () {
+                                            acceptVinculationWithDoctor(
+                                                pendingVinculationList[index]
+                                                    .medicoId,
+                                                pendingVinculationList[index]
+                                                    .patientId,
+                                                pendingVinculationList[index]
+                                                    .databaseId!);
+                                            setState(() {
+                                              pendingVinculationList.removeAt(index);
+                                              notificationsCounter = pendingVinculationList.length;
+                                            });
+                                          },
+                                          icon: Icon(
+                                            Icons.check,
+                                            color: Color(0xff2F8F9D),
+                                          ))
+                                    ],
+                                  )
+                                ],
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ));
+              });
         });
   }
 }
