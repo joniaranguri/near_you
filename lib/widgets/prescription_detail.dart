@@ -62,6 +62,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   bool readOnlyMedication = false;
   bool isMedicationLoading = false;
   bool isNutritionLoading = false;
+  bool isPhisicalActivityLoading = false;
 
   String? medicationStartDateValue;
   String? medicationNameValue;
@@ -198,13 +199,32 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     medicationRecommendationValue = null;
   }
 
+  void refreshActivityPrescription() async {
+    setState(() => isPhisicalActivityLoading = true);
+    final response = await getActivityPrescriptions();
+    activitiesList = response;
+    /* setState(() {
+        activitiesList = [];
+        activitiesNoPermittedList = [];
+        for (int i = 0; i < response.length; i++) {
+          if (response[i].permitted == YES_KEY) {
+            activitiesList.add(response[i]);
+          } else {
+            activitiesNoPermittedList.add(response[i]);
+          }
+        }
+      }); */
+    setState(() => isPhisicalActivityLoading = false);
+  }
+
   @override
   void initState() {
     refreshMedicationPrescription();
     refreshNutritionPrescription();
+    refreshActivityPrescription();
     //medicationPrescriptionFuture = getMedicationPrescriptions();
     //nutritionPrescriptionFuture = getNutritionPrescriptions();
-    activityPrescriptionFuture = getActivityPrescriptions();
+    //activityPrescriptionFuture = getActivityPrescriptions();
     othersPrescriptionFuture = getOthersPrescriptions();
     /* medicationPrescriptionFuture.then((value) => {
           if (mounted)
@@ -230,7 +250,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
               })
             }
         }); */
-    activityPrescriptionFuture.then((value) => {
+    /* activityPrescriptionFuture.then((value) => {
           if (mounted)
             {
               setState(() {
@@ -245,7 +265,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 }
               })
             }
-        });
+        }); */
     othersPrescriptionFuture.then((value) => {
           if (mounted)
             {
@@ -749,7 +769,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       ),
                       color: const Color(0xff2F8F9D),
                       textColor: Colors.white,
-                      onPressed: saveActivityInDatabase,
+                      onPressed: () async {
+                        await saveActivityInDatabase();
+                        if (mounted) {
+                          Navigator.pop(context, _currentPage);
+                        }
+                      },
                       child: const Text(
                         'Guardar',
                         style: TextStyle(
@@ -2302,163 +2327,134 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   getPhisicalActivityView() {
-    return FutureBuilder(
-        future: activityPrescriptionFuture,
-        builder: (context, AsyncSnapshot<List<ActivityPrescription>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Container(
-              width: double.infinity,
-              height: 470,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                  child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minHeight: 200,
-                      ),
-                      child: Column(
-                        children: [
-                          /* Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: const [
-                              Text("Rutina física ",
-                                  style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                            ],
-                          ), */
-                          //sizedBox10,
-                          /*  SizedBox(
-                              child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: activitiesList.length,
-                                  itemBuilder: (context, index) {
-                                    return Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        SizedBox(
-                                            height: 35,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 40),
-                                              onPressed: () {},
-                                              icon: const Icon(Icons.keyboard_arrow_down,
-                                                  size: 30,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            )),
-                                        SizedBox(
-                                            height: 35,
-                                            width: 150,
-                                            child: Text(activitiesList[index].name ?? "Actividad",
-                                                textAlign: TextAlign.left,
-                                                style: const TextStyle(
-                                                    fontSize: 14, color: Color(0xff999999)))),
-                                        SizedBox(
-                                            height: 35,
-                                            width: 14,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 14),
-                                              onPressed: () {
-                                                editActivity(index, true);
-                                              },
-                                              icon: const Icon(Icons.edit,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            )),
-                                        SizedBox(
-                                            height: 35,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 30),
-                                              onPressed: () {
-                                                deleteActivity(index, true);
-                                              },
-                                              icon: const Icon(Icons.delete,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            ))
-                                      ],
-                                    );
-                                  })), */
-                          //getButtonAddRoutineOrList(),
-                          /* sizedBox10,
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: const [
-                              Text("Rutinas físicas no permitidas",
-                                  style: TextStyle(fontSize: 14, color: Color(0xff999999))),
-                            ],
-                          ), */
-                          //sizedBox10,
-                          /* SizedBox(
-                              child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: activitiesNoPermittedList.length,
-                                  itemBuilder: (context, index) {
-                                    return Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        SizedBox(
-                                            height: 35,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 40),
-                                              onPressed: () {},
-                                              icon: const Icon(Icons.keyboard_arrow_down,
-                                                  size: 30,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            )),
-                                        SizedBox(
-                                            height: 35,
-                                            width: 150,
-                                            child: Text(
-                                                activitiesNoPermittedList[index].name ??
-                                                    "Actividad",
-                                                textAlign: TextAlign.left,
-                                                style: const TextStyle(
-                                                    fontSize: 14, color: Color(0xff999999)))),
-                                        SizedBox(
-                                            height: 35,
-                                            width: 14,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 14),
-                                              onPressed: () {
-                                                editActivity(index, false);
-                                              },
-                                              icon: const Icon(Icons.edit,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            )),
-                                        SizedBox(
-                                            height: 35,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 30),
-                                              onPressed: () {
-                                                deleteActivity(index, false);
-                                              },
-                                              icon: const Icon(Icons.delete,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            ))
-                                      ],
-                                    );
-                                  })), */
-                          //getButtonAddProhibitedRoutineOrList(),
-                          buildPhisicalActivityForm(),
-                          getActivityButtons()
-                        ],
-                      ))),
-            );
-          }
-          return const SizedBox(
-            height: 460,
-          );
-        });
+    return Container(
+      width: double.infinity,
+      height: 470,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: isPhisicalActivityLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 200,
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                          child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: activitiesList.length,
+                              itemBuilder: (context, index) {
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    SizedBox(
+                                        height: 35,
+                                        child: IconButton(
+                                          padding: const EdgeInsets.only(bottom: 40),
+                                          onPressed: () {
+                                            setState(() {
+                                              readOnlyActivity = !readOnlyActivity;
+                                            });
+                                            fillActivityFormWithValues(index);
+                                          },
+                                          icon: const Icon(Icons.keyboard_arrow_down,
+                                              size: 30,
+                                              color: Color(
+                                                  0xff999999)), // myIcon is a 48px-wide widget.
+                                        )),
+                                    SizedBox(
+                                        height: 35,
+                                        child: Text(activitiesList[index].name ?? "Actividad",
+                                            textAlign: TextAlign.left,
+                                            style: const TextStyle(
+                                                fontSize: 14, color: Color(0xff999999)))),
+                                    const Spacer(),
+                                    SizedBox(
+                                        height: 35,
+                                        width: 14,
+                                        child: IconButton(
+                                          padding: const EdgeInsets.only(bottom: 14),
+                                          onPressed: () {
+                                            editActivity(index);
+                                          },
+                                          icon: const Icon(Icons.edit,
+                                              color: Color(
+                                                  0xff999999)), // myIcon is a 48px-wide widget.
+                                        )),
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                        height: 35,
+                                        child: IconButton(
+                                          padding: const EdgeInsets.only(bottom: 30),
+                                          onPressed: () {
+                                            deleteActivity(index);
+                                          },
+                                          icon: const Icon(Icons.delete,
+                                              color: Color(
+                                                  0xff999999)), // myIcon is a 48px-wide widget.
+                                        ))
+                                  ],
+                                );
+                              })),
+                      sizedBox10,
+                      getFormOrButtonActivity(),
+
+                      /*  buildPhisicalActivityForm(),
+                      getActivityButtons(), */
+                    ],
+                  ))),
+    );
   }
+
+  bool editingActivity = false;
+  bool addNewActivity = false;
+  bool readOnlyActivity = false;
+
+  Widget getFormOrButtonActivity() {
+    if (editingActivity || readOnlyActivity || addNewActivity) {
+      return Column(
+        children: [
+          DisableWidget(isDisable: readOnlyActivity, child: buildPhisicalActivityForm()),
+          if (readOnlyActivity == false) getActivityButtons()
+        ],
+      );
+    }
+
+    return GestureDetector(
+        onTap: () {
+          setState(() {
+            editingActivity = false;
+            addNewActivity = true;
+          });
+        },
+        child: TextField(
+            minLines: 1,
+            maxLines: 10,
+            enabled: false,
+            style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              prefixIcon: const Icon(Icons.circle, color: Colors.white),
+              filled: true,
+              fillColor: const Color(0xffD9D9D9),
+              hintText: "Agregar Actividad",
+              hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+              focusedBorder: borderGray,
+              border: borderGray,
+              enabledBorder: borderGray,
+            )
+            // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+
+            ));
+  }
+
+  final TextEditingController activityNameFormValue = TextEditingController();
+  final TextEditingController activityTimeFormValue = TextEditingController();
+  String? activityDurationFormValue;
 
   Widget buildPhisicalActivityForm() {
     return Container(
@@ -2479,10 +2475,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   height: 40,
                   width: 185,
                   child: TextFormField(
-                      controller: TextEditingController(text: medicationNameValue),
-                      onChanged: (value) {
-                        medicationNameValue = value;
-                      },
+                      controller: activityNameFormValue,
+                      /* onChanged: (value) {
+                        activityNameFormValue = value;
+                      }, */
                       style: const TextStyle(fontSize: 14),
                       decoration:
                           staticComponents.getMiddleInputDecoration('Nombre de la actividad')),
@@ -2490,10 +2486,19 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 Flexible(
                     child: GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onTap: () {
-                    setState(() {
-                      editingMedication = false;
+                  onTap: () async {
+                    /* setState(() {
+                      editingActivity = false;
                     });
+                    await saveMedicationInDatabase();
+                    refreshActivityPrescription(); */
+                    setState(() {
+                      isPhisicalActivityLoading = true;
+                    });
+                    await saveActivityInDatabase();
+                    addNewActivity = false;
+                    editingActivity = false;
+                    refreshActivityPrescription();
                   },
                   child: Container(
                     decoration: const BoxDecoration(
@@ -2525,10 +2530,11 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   child: SizedBox(
                     height: 35,
                     child: TextFormField(
-                      //controller: TextEditingController(text: medicationNameValue),
+                      controller: activityTimeFormValue,
+                      /* controller: TextEditingController(text: medicationNameValue),
                       onChanged: (value) {
-                        medicationNameValue = value;
-                      },
+                        activityTimeFormValue = value;
+                      }, */
                       style: const TextStyle(fontSize: 14),
                       decoration: staticComponents.getMiddleInputDecoration('2'),
                       keyboardType: TextInputType.number,
@@ -2556,18 +2562,22 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             child: ButtonTheme(
                               alignedDropdown: true,
                               child: DropdownButton<String>(
-                                hint: const Text(
-                                  'Horas',
-                                  style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                hint: Text(
+                                  activityDurationFormValue ?? 'Horas',
+                                  style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                                 ),
                                 dropdownColor: Colors.white,
-                                value: null,
+                                value: activityDurationFormValue,
                                 icon:
                                     const Icon(Icons.keyboard_arrow_down, color: Color(0xff999999)),
                                 onChanged: (newValue) {
                                   setState(() {
-                                    //durationTypeValue = newValue.toString();
+                                    activityDurationFormValue = newValue;
                                   });
+
+                                  /* setState(() {
+                                    //durationTypeValue = newValue.toString();
+                                  }); */
                                 },
                                 items: ['Horas', 'Minutos'].map((String item) {
                                   return DropdownMenuItem(
@@ -3759,21 +3769,21 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId)); */
   }
 
-  saveActivityInDatabase() {
+  Future<void> saveActivityInDatabase() async {
     final db = FirebaseFirestore.instance;
     final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
     final data = <String, String>{
       TREATMENT_ID_KEY: currentTreatmentDatabaseId,
-      ACTIVITY_NAME_KEY: activityNameValue ?? "",
-      ACTIVITY_ACTIVITY_KEY: activityActivityValue ?? "",
-      ACTIVITY_TIME_NUMBER_KEY: activityTimeNumberValue ?? "",
-      ACTIVITY_TIME_TYPE_KEY: activityTimeTypeValue ?? "",
-      ACTIVITY_PERIODICITY_KEY: activityPeriodicityValue ?? "",
-      ACTIVITY_CALORIES_KEY: activityCaloriesValue ?? "",
-      PERMITTED_KEY: editingPermittedActivity ? YES_KEY : NO_KEY
+      ACTIVITY_NAME_KEY: activityNameFormValue.text,
+      //ACTIVITY_ACTIVITY_KEY: activityActivityValue ?? "",
+      ACTIVITY_TIME_NUMBER_KEY: activityTimeFormValue.text,
+      ACTIVITY_TIME_TYPE_KEY: activityDurationFormValue ?? "",
+      //ACTIVITY_PERIODICITY_KEY: activityPeriodicityValue ?? "",
+      //ACTIVITY_CALORIES_KEY: activityCaloriesValue ?? "",
+      //PERMITTED_KEY: editingPermittedActivity ? YES_KEY : NO_KEY
     };
 
-    if (updatePermittedActivity >= 0 || updateNoPermittedActivity >= 0) {
+    /*  if (updatePermittedActivity >= 0 || updateNoPermittedActivity >= 0) {
       String? databaseId;
       if (updatePermittedActivity >= 0) {
         databaseId = activitiesList[updatePermittedActivity].databaseId;
@@ -3786,11 +3796,20 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
           .doc(databaseId)
           .update(data)
           .then((value) => Navigator.pop(context, _currentPage));
+    } else { */
+    if (editingActivity) {
+      String? databaseId = activitiesList[activityIndex].databaseId;
+      await db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).doc(databaseId).update(data);
     } else {
-      db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).add(data).then((value) =>
-          saveInPendingList(
-              PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId));
+      final response = await db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).add(data);
+      await saveInPendingList(
+          PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY, response.id, currentTreatmentDatabaseId);
     }
+
+    /*  .then((value) =>
+          saveInPendingList(
+              PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId)); */
+    //}
   }
 
   Future<void> saveMedicationInDatabase() async {
@@ -4194,6 +4213,17 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     });
   }
 
+  void deleteActivity(int index) {
+    final db = FirebaseFirestore.instance;
+    db
+        .collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY)
+        .doc(activitiesList[index].databaseId)
+        .delete();
+    setState(() {
+      activitiesList.removeAt(index);
+    });
+  }
+
   void deleteNutritionPermitted(int index, bool permitted) {
     String? deleteId;
     if (permitted) {
@@ -4217,6 +4247,24 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     setState(() {
       othersList.removeAt(index);
     });
+  }
+
+  int activityIndex = 0;
+
+  void editActivity(int index) {
+    setState(() {
+      editingActivity = true;
+      addNewActivity = false;
+      activityIndex = index;
+      fillActivityFormWithValues(index);
+      readOnlyActivity = false;
+    });
+  }
+
+  fillActivityFormWithValues(int index) {
+    activityNameFormValue.text = activitiesList[index].name ?? '';
+    activityTimeFormValue.text = activitiesList[index].timeNumber ?? '';
+    activityDurationFormValue = activitiesList[index].timeType ?? '';
   }
 
   void editMedication(int index) {
@@ -4269,7 +4317,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     });
   }
 
-  void editActivity(int index, bool permitted) {
+  /*  void editActivity(int index, bool permitted) {
     setState(() {
       editingPermittedActivity = permitted;
       if (editingPermittedActivity) {
@@ -4298,7 +4346,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         }
       }
     });
-  }
+  } */
 
   void editOthers(int index) {
     setState(() {
@@ -4312,7 +4360,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     });
   }
 
-  void deleteActivity(int index, bool permitted) {
+  /* void deleteActivity(int index, bool permitted) {
     String? deleteId;
     if (permitted) {
       deleteId = activitiesList[index].databaseId;
@@ -4327,7 +4375,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     }
     final db = FirebaseFirestore.instance;
     db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).doc(deleteId).delete();
-  }
+  } */
 
   void _calculateIMC(String value) {
     double height = double.parse(heightController.text.isEmpty ? '0.0' : heightController.text);
