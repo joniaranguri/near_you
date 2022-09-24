@@ -30,7 +30,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   final GlobalKey<FormState> signUpFormKeySecondScreen = GlobalKey<FormState>();
 
   static StaticComponents staticComponents = StaticComponents();
-  bool secondScreen = !false;
+  bool secondScreen = false;
   String emailValue = "";
   String passwordValue = "";
   String fullNameValue = "";
