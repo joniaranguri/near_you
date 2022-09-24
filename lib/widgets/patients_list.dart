@@ -138,7 +138,7 @@ class PatientListState extends State<PatientsListLayout> {
                                                     CrossAxisAlignment.start,
                                                 children: <Widget>[
                                                   Text(
-                                                    "•  1 Tratamiento",
+                                                    "•  1 Consulta",
                                                     style: const TextStyle(
                                                       fontSize: 10,
                                                       fontWeight:
@@ -215,7 +215,7 @@ class PatientListState extends State<PatientsListLayout> {
 
   getAdherenceLevelColor(int index) {
     var value = 0xff47B4AC;
-    int adherenceLevel = int.parse(patients[index].adherenceLevel ?? "85");
+    int adherenceLevel = int.parse(patients[index].adherenceLevel ?? "0");
     if (adherenceLevel < 80) {
       value = 0xffF8191E;
     }

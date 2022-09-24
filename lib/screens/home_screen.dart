@@ -37,6 +37,8 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   int patientsCounter;
 
+  int notificationsCounter = 0;
+
   MySliverHeaderDelegate(
       {required this.onActionTap,
       required this.currentUser,
@@ -146,46 +148,77 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     if (shrinkOffset > (maxExtent * 0.1)) {
       return SizedBox.shrink();
     } else {
-      return FlatButton(
-        height: 20,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        padding: EdgeInsets.only(left: 30, right: 30, top: 5, bottom: 5),
-        color: Colors.white,
-        onPressed: () {
-          currentUser!.isPatiente()
-              ? (isNotEmtpy(currentUser!.medicoId)
-                  ? showDialogDevinculation(context, currentUser!.userId!, true,
-                      () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
+      return Stack(
+        children: <Widget>[
+          FlatButton(
+            height: 20,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            padding: EdgeInsets.only(left: 30, right: 30, top: 5, bottom: 5),
+            color: Colors.white,
+            onPressed: () {
+              currentUser!.isPatiente()
+                  ? (isNotEmtpy(currentUser!.medicoId)
+                      ? showDialogDevinculation(
+                          context, currentUser!.userId!, true, () {
+                          Navigator.pop(context);
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      HomeScreen()));
+                        })
+                      : showDialogVinculation(
+                          currentUser!.fullName ?? "Nombre",
+                          currentUser!.email!,
                           context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => HomeScreen()));
-                    })
-                  : showDialogVinculation(
-                      currentUser!.fullName ?? "Nombre",
-                      currentUser!.email!,
-                      context,
-                      currentUser!.isPatiente(),
-                      () {}, () {
-                      Navigator.pop(context);
-                      dialogWaitVinculation(context, () {
-                        Navigator.pop(context);
-                      }, currentUser!.isPatiente());
-                    }))
-              : () {};
-        },
-        child: Text(
-          currentUser!.isPatiente()
-              ? (isNotEmtpy(currentUser!.medicoId) ? 'Desvincular' : 'Vincular')
-              : 'Notificaciones',
-          style: TextStyle(
-              fontSize: getFontSizeVinculation(shrinkOffset, maxExtent),
-              fontWeight: FontWeight.bold,
-              color: Color(0xff9D9CB5)),
-        ),
+                          currentUser!.isPatiente(),
+                          () {}, () {
+                          Navigator.pop(context);
+                          dialogWaitVinculation(context, () {
+                            Navigator.pop(context);
+                          }, currentUser!.isPatiente());
+                        }))
+                  : () {};
+            },
+            child: Text(
+              currentUser!.isPatiente()
+                  ? (isNotEmtpy(currentUser!.medicoId)
+                      ? 'Desvincular'
+                      : 'Vincular')
+                  : 'Notificaciones',
+              style: TextStyle(
+                  fontSize: getFontSizeVinculation(shrinkOffset, maxExtent),
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff9D9CB5)),
+            ),
+          ),
+          currentUser!.isPatiente()? const SizedBox(height: 0,):
+          Positioned(
+            right: 0,
+            top: 7,
+            child: new Container(
+              padding: EdgeInsets.all(2),
+              decoration: new BoxDecoration(
+                color: notificationsCounter > 0 ? Colors.red : Colors.grey,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              constraints: BoxConstraints(
+                minWidth: 12,
+                minHeight: 12,
+              ),
+              child: new Text(
+                notificationsCounter.toString(),
+                style: new TextStyle(
+                  color: Colors.white,
+                  fontSize: 8,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          )
+        ],
       );
     }
   }
@@ -410,7 +443,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     initAllData: () {
                       initAllData();
                     },
-                patientsCounter: patientsCounter),
+                    patientsCounter: patientsCounter),
               ),
             ];
           },
@@ -577,7 +610,9 @@ class _HomeScreenState extends State<HomeScreen> {
           items: [
             BottomNavigationBarItem(
                 icon: SvgPicture.asset(
-                  'assets/images/tab_metrics_unselected.svg',
+                  currentUser?.isPatiente() ?? false
+                      ? 'assets/images/tab_metrics_unselected.svg'
+                      : "",
                 ),
                 label: ""),
             BottomNavigationBarItem(
@@ -639,11 +674,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 ]),
             SizedBox(
-                height: 500, child: PatientsListLayout((int cant) {
-              setState(() {
-                patientsCounter = cant;
-              });
-            }))
+                height: 500,
+                child: PatientsListLayout((int cant) {
+                  setState(() {
+                    patientsCounter = cant;
+                  });
+                }))
             //SizedBox
           ],
         ));
