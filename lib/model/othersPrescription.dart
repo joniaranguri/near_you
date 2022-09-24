@@ -42,3 +42,41 @@ class OthersPrescription {
         recommendation: realData[OTHERS_RECOMMENDATION_KEY]);
   }
 }
+
+class ExamnPrescription {
+  String? databaseId;
+  int? state;
+  String? treatmentId;
+  String? name;
+  String? endDate;
+  String? periodicity;
+
+  ExamnPrescription({
+    required this.databaseId,
+    required this.treatmentId,
+    required this.name,
+    required this.periodicity,
+    required this.endDate,
+  });
+
+  factory ExamnPrescription.empty() {
+    return ExamnPrescription(
+      databaseId: "",
+      treatmentId: "",
+      name: "",
+      periodicity: "",
+      endDate: '',
+    );
+  }
+
+  factory ExamnPrescription.fromSnapshot(snapshot) {
+    var realData = snapshot.data();
+    return ExamnPrescription(
+      databaseId: snapshot.id,
+      treatmentId: realData[TREATMENT_ID_KEY],
+      name: realData[EXAMN_NAME_KEY],
+      periodicity: realData[EXAMN_PERIODICITY_KEY],
+      endDate: realData[EXAMN_END_DATE_KEY],
+    );
+  }
+}

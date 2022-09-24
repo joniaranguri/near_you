@@ -33,7 +33,7 @@ class StaticComponents {
   getLittleInputDecoration(String hint) {
     return InputDecoration(
         filled: true,
-        fillColor: Color(0xFFF1F1F1),
+        fillColor: const Color(0xFFF1F1F1),
         hintText: hint,
         hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
         enabledBorder: littleInputBorder,
@@ -43,22 +43,23 @@ class StaticComponents {
 
   getMiddleInputDecoration(String hint) {
     return InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-        filled: true,
-        fillColor: Colors.white,
-        hintText: hint,
-        hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-        enabledBorder: middleInputBorder,
-        border: middleInputBorder,
-        focusedBorder: middleInputBorder);
+      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+      filled: true,
+      fillColor: Colors.white,
+      hintText: hint,
+      hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+      enabledBorder: middleInputBorder,
+      border: middleInputBorder,
+      focusedBorder: middleInputBorder,
+    );
   }
 
   getMiddleInputDecorationDisabled() {
     return InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
         filled: true,
         enabled: false,
-        fillColor: Color(0xffD9D9D9),
+        fillColor: const Color(0xffD9D9D9),
         enabledBorder: middleInputBorder,
         border: middleInputBorder,
         focusedBorder: middleInputBorder);
@@ -66,10 +67,10 @@ class StaticComponents {
 
   getMiddleInputDecorationDisabledRoutine() {
     return InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
         filled: true,
         enabled: false,
-        fillColor: Color(0xffF1F1F1),
+        fillColor: const Color(0xffF1F1F1),
         enabledBorder: middleInputBorder,
         border: middleInputBorder,
         focusedBorder: middleInputBorder);
@@ -77,7 +78,7 @@ class StaticComponents {
 
   getBigInputDecoration(String hint) {
     return InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         filled: true,
         fillColor: Colors.white,
         hintText: hint,
@@ -89,7 +90,7 @@ class StaticComponents {
 
   getBigInputDecorationDisabled() {
     return InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         filled: true,
         enabled: false,
         enabledBorder: middleInputBorder,
@@ -99,10 +100,10 @@ class StaticComponents {
 
   getBigInputDecorationDisabledRoutine() {
     return InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         filled: true,
         enabled: false,
-        fillColor: Color(0xffF1F1F1),
+        fillColor: const Color(0xffF1F1F1),
         enabledBorder: middleInputBorder,
         border: middleInputBorder,
         focusedBorder: middleInputBorder);

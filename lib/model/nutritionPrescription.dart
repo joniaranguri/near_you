@@ -8,6 +8,9 @@ class NutritionPrescription {
   String? carbohydrates;
   String? maxCalories;
   String? permitted;
+  double? height;
+  double? weight;
+  double? imc;
 
   NutritionPrescription({
     required this.databaseId,

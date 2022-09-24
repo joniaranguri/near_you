@@ -22,8 +22,7 @@ class AddTreatmentScreen extends StatefulWidget {
   static const routeName = '/add_treatment';
 
   @override
-  _AddTreatmentScreenState createState() =>
-      _AddTreatmentScreenState(userId, currentTreatment);
+  _AddTreatmentScreenState createState() => _AddTreatmentScreenState(userId, currentTreatment);
 }
 
 class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
@@ -39,8 +38,11 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   String? durationValue;
   String? stateValue;
   String? descriptionValue;
+
+  DateTime? validInitDateTime;
   String? startDateValue;
   String? endDateValue;
+
   bool startDateError = false;
   bool endDateError = false;
   bool durationError = false;
@@ -67,8 +69,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   }
 
   get borderWhite => OutlineInputBorder(
-      borderSide: const BorderSide(color: Colors.white),
-      borderRadius: BorderRadius.circular(5));
+      borderSide: const BorderSide(color: Colors.white), borderRadius: BorderRadius.circular(5));
 
   get borderGray => OutlineInputBorder(
       borderSide: const BorderSide(color: Color(0xffD9D9D9)),
@@ -101,28 +102,25 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     return Stack(children: <Widget>[
       Scaffold(
         appBar: PreferredSize(
-            preferredSize: Size.fromHeight(80), // here the desired height
+            preferredSize: const Size.fromHeight(80), // here the desired height
             child: AppBar(
-              backgroundColor: Color(0xff2F8F9D),
+              backgroundColor: const Color(0xff2F8F9D),
               centerTitle: true,
               title: Padding(
-                  padding: EdgeInsets.only(top: 40),
-                  child: Text(
-                      isUpdate ? 'Actualizar Tratamiento' : 'Tratamiento',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold))),
+                  padding: const EdgeInsets.only(top: 40),
+                  child: Text(isUpdate ? 'Actualizar Tratamiento' : 'Consulta',
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold))),
               elevation: 0,
               leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
                   discardChangesAndGoBack();
                 },
               ),
             )),
         body: Stack(children: <Widget>[
-          Container(
+          SizedBox(
               width: double.maxFinite,
               height: double.maxFinite,
               child: FittedBox(
@@ -132,44 +130,36 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           Scaffold(
               backgroundColor: Colors.transparent,
               body: LayoutBuilder(
-                builder:
-                    (BuildContext context, BoxConstraints viewportConstraints) {
-                  return Container(
-                    width: double.infinity,
+                builder: (BuildContext context, BoxConstraints viewportConstraints) {
+                  return SizedBox(
                     child: SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: viewportConstraints.maxHeight,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            SizedBox(
-                              height: 10,
-                            ),
-                            FutureBuilder(
-                              future: futureUser,
-                              builder: (context, AsyncSnapshot snapshot) {
-                                //patientUser = user.User.fromSnapshot(snapshot.data);
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  return getScreenType();
-                                }
-                                return CircularProgressIndicator();
-                              },
-                            ),
-                          ],
-                        ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          FutureBuilder(
+                            future: futureUser,
+                            builder: (context, AsyncSnapshot snapshot) {
+                              //patientUser = user.User.fromSnapshot(snapshot.data);
+                              if (snapshot.connectionState == ConnectionState.done) {
+                                return getScreenType();
+                              }
+                              return const CircularProgressIndicator();
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   );
                 },
               ))
         ]),
-        bottomNavigationBar: _buildBottomBar(),
+        // bottomNavigationBar: _buildBottomBar(),
         //TODO : REVIEW THIS
-        floatingActionButton: keyboardIsOpened
+        /* floatingActionButton: keyboardIsOpened
             ? null
             : GestureDetector(
                 child: Container(
@@ -183,13 +173,14 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                   });
                 },
               ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked, */
       )
     ]);
   }
 
   Widget _buildBottomBar() {
     return Container(
+      margin: const EdgeInsets.only(bottom: 20),
       child: Material(
         elevation: 0.0,
         color: Colors.white,
@@ -222,501 +213,364 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
 
   getScreenType() {
     if (patientUser == null) {
-      return CircularProgressIndicator();
+      return const CircularProgressIndicator();
     }
     return getCurrentTreatment();
   }
 
   getCurrentTreatment() {
     return SizedBox(
-      width: 400,
-      height: 580,
       child: Padding(
         padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
-                Widget>[
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text(
-                      'Completa las casillas',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff2F8F9D),
-                      ),
-                    )
-                  ]),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 50,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: const <Widget>[
+                  Text(
+                    'Completa las casillas',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff2F8F9D),
+                    ),
+                  )
+                ]),
+                const SizedBox(
+                  height: 10,
                 ),
-                width: double.infinity,
-                height: 520,
-                child: SingleChildScrollView(
-                    child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: 200,
-                        ),
-                        child: Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-                                Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                  ),
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                      child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            minHeight: 200,
+                          ),
+                          child: Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Container(
+                                            padding: const EdgeInsets.only(
+                                                top: 5, left: 15, right: 15, bottom: 5),
+                                            child: const Text(
+                                              "ID Tratamiento",
+                                              style: TextStyle(
+                                                  color: Color(0xff999999),
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 14),
+                                            )),
+                                        Container(
+                                            padding: const EdgeInsets.only(
+                                                top: 5, left: 20, right: 20, bottom: 5),
+                                            decoration: BoxDecoration(
+                                                color: const Color(0xff2F8F9D),
+                                                border: Border.all(
+                                                    width: 1, color: const Color(0xff2F8F9D)),
+                                                borderRadius: BorderRadius.circular(5),
+                                                shape: BoxShape.rectangle),
+                                            child: const Text(
+                                              "#T00003",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 14),
+                                            ))
+                                      ]),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: const [
+                                      Text("Fecha de inicio",
+                                          style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  SizedBox(
+                                      height: startDateError ? 55 : 35,
+                                      child: TextFormField(
+                                        validator: (value) {
+                                          if (value == null || value == '') {
+                                            setState(() {
+                                              startDateError = true;
+                                            });
+                                            return "Complete el campo";
+                                          }
+                                          setState(() {
+                                            startDateError = false;
+                                          });
+                                          return null;
+                                        },
+                                        readOnly: true,
+                                        controller: TextEditingController(text: startDateValue),
+                                        onTap: () {
+                                          selectStartDate(context);
+                                        },
+                                        style: const TextStyle(fontSize: 14),
+                                        decoration: InputDecoration(
+                                            filled: true,
+                                            prefixIcon: IconButton(
+                                              padding: const EdgeInsets.only(bottom: 5),
+                                              onPressed: () {},
+                                              icon: const Icon(Icons.calendar_today_outlined,
+                                                  color: Color(
+                                                      0xff999999)), // myIcon is a 48px-wide widget.
+                                            ),
+                                            hintText: '18 - Jul 2022  15:00',
+                                            hintStyle: const TextStyle(
+                                                fontSize: 14, color: Color(0xff999999)),
+                                            contentPadding: EdgeInsets.zero,
+                                            fillColor: Colors.white,
+                                            enabledBorder: staticComponents.middleInputBorder,
+                                            border: staticComponents.middleInputBorder,
+                                            focusedBorder: staticComponents.middleInputBorder),
+                                      )),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: const [
+                                      Text("Duración",
+                                          style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      Container(
-                                          padding: EdgeInsets.only(
-                                              top: 5,
-                                              left: 15,
-                                              right: 15,
-                                              bottom: 5),
-                                          child: Text(
-                                            "ID Tratamiento",
-                                            style: TextStyle(
-                                                color: Color(0xff999999),
-                                                fontWeight: FontWeight.normal,
-                                                fontSize: 14),
-                                          )),
-                                      Container(
-                                          padding: EdgeInsets.only(
-                                              top: 5,
-                                              left: 20,
-                                              right: 20,
-                                              bottom: 5),
-                                          decoration: BoxDecoration(
-                                              color: const Color(0xff2F8F9D),
-                                              border: Border.all(
-                                                  width: 1,
-                                                  color:
-                                                      const Color(0xff2F8F9D)),
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              shape: BoxShape.rectangle),
-                                          child: Text(
-                                            "#T00003",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.normal,
-                                                fontSize: 14),
-                                          ))
-                                    ]),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Fecha de inicio",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xff999999)))
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                SizedBox(
-                                    height: startDateError ? 55 : 35,
-                                    child: TextFormField(
-                                      validator: (value) {
-                                        if (value == null || value == '') {
-                                          setState(() {
-                                            startDateError = true;
-                                          });
-                                          return "Complete el campo";
-                                        }
-                                        setState(() {
-                                          startDateError = false;
-                                        });
-                                      },
-                                      readOnly: true,
-                                      controller: TextEditingController(
-                                          text: startDateValue),
-                                      onTap: () {
-                                        selectStartDate(context);
-                                      },
-                                      style: TextStyle(fontSize: 14),
-                                      decoration: InputDecoration(
-                                          filled: true,
-                                          prefixIcon: IconButton(
-                                            padding: EdgeInsets.only(bottom: 5),
-                                            onPressed: () {},
-                                            icon: const Icon(
-                                                Icons.calendar_today_outlined,
-                                                color: Color(
-                                                    0xff999999)), // myIcon is a 48px-wide widget.
-                                          ),
-                                          hintText: '18 - Jul 2022  15:00',
-                                          hintStyle: const TextStyle(
-                                              fontSize: 14,
-                                              color: Color(0xff999999)),
-                                          contentPadding: EdgeInsets.zero,
-                                          fillColor: Colors.white,
-                                          enabledBorder: staticComponents
-                                              .middleInputBorder,
-                                          border: staticComponents
-                                              .middleInputBorder,
-                                          focusedBorder: staticComponents
-                                              .middleInputBorder),
-                                    )),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Fecha de fin",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xff999999)))
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                SizedBox(
-                                    height: endDateError ? 55 : 35,
-                                    child: TextFormField(
-                                      validator: (value) {
-                                        if (value == null || value == '') {
-                                          setState(() {
-                                            endDateError = true;
-                                          });
-                                          return "Complete el campo";
-                                        }
-                                        setState(() {
-                                          endDateError = false;
-                                        });
-                                      },
-                                      readOnly: true,
-                                      controller: TextEditingController(
-                                          text: endDateValue),
-                                      onTap: () {
-                                        selectEndDate(context);
-                                      },
-                                      style: TextStyle(fontSize: 14),
-                                      decoration: InputDecoration(
-                                          filled: true,
-                                          prefixIcon: IconButton(
-                                            padding: EdgeInsets.only(bottom: 5),
-                                            onPressed: () {},
-                                            icon: const Icon(
-                                                Icons.calendar_today_outlined,
-                                                color: Color(
-                                                    0xff999999)), // myIcon is a 48px-wide widget.
-                                          ),
-                                          hintText: '18 - Jul 2022  15:00',
-                                          hintStyle: const TextStyle(
-                                              fontSize: 14,
-                                              color: Color(0xff999999)),
-                                          contentPadding: EdgeInsets.zero,
-                                          fillColor: Colors.white,
-                                          enabledBorder: staticComponents
-                                              .middleInputBorder,
-                                          border: staticComponents
-                                              .middleInputBorder,
-                                          focusedBorder: staticComponents
-                                              .middleInputBorder),
-                                    )),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Duración",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xff999999)))
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    new Flexible(
+                                      Flexible(
+                                          child: SizedBox(
+                                              height: 35,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                      color: durationTypeError
+                                                          ? Colors.red
+                                                          : const Color(0xFF999999),
+                                                      width: 1),
+                                                  borderRadius: const BorderRadius.all(
+                                                      Radius.circular(
+                                                          10) //         <--- border radius here
+                                                      ),
+                                                ),
+                                                child: SizedBox(
+                                                  width: 150,
+                                                  child: DropdownButtonHideUnderline(
+                                                    child: ButtonTheme(
+                                                      alignedDropdown: true,
+                                                      child: DropdownButton<String>(
+                                                        hint: Text(
+                                                          durationValue ?? 'Cantidad',
+                                                          style: const TextStyle(
+                                                              fontSize: 14,
+                                                              color: Color(0xFF999999)),
+                                                        ),
+                                                        dropdownColor: Colors.white,
+                                                        value: durationValue,
+                                                        icon: null,
+                                                        onChanged: (newValue) {
+                                                          setState(() {
+                                                            durationValue = newValue.toString();
+                                                          });
+                                                        },
+                                                        items: [
+                                                          '5',
+                                                          '10',
+                                                          '15',
+                                                          '20',
+                                                          '25',
+                                                          '30',
+                                                          '35',
+                                                          '40',
+                                                          '45',
+                                                          '50',
+                                                          '55',
+                                                          '60'
+                                                        ].map((String item) {
+                                                          return DropdownMenuItem(
+                                                            value: item,
+                                                            child: Text(
+                                                              item,
+                                                              style: const TextStyle(fontSize: 14),
+                                                            ),
+                                                          );
+                                                        }).toList(),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ))),
+                                      /* Flexible(
+                                        child: SizedBox(
+                                            height: durationError ? 55 : 35,
+                                            width: 111,
+                                            child: TextFormField(
+                                              validator: (value) {
+                                                if (value == null || value == '') {
+                                                  setState(() {
+                                                    durationError = true;
+                                                  });
+                                                  return "Complete el campo";
+                                                }
+                                                setState(() {
+                                                  durationError = false;
+                                                });
+                                                return null;
+                                              },
+                                              controller:
+                                                  TextEditingController(text: durationValue),
+                                              onChanged: (value) {
+                                                durationValue = value;
+                                              },
+                                              style: const TextStyle(fontSize: 14),
+                                              decoration:
+                                                  staticComponents.getMiddleInputDecoration('15'),
+                                            )),
+                                      ), */
+                                      const SizedBox(width: 5),
+                                      Flexible(
+                                          child: SizedBox(
+                                              height: 35,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                      color: durationTypeError
+                                                          ? Colors.red
+                                                          : const Color(0xFF999999),
+                                                      width: 1),
+                                                  borderRadius: const BorderRadius.all(
+                                                      Radius.circular(
+                                                          10) //         <--- border radius here
+                                                      ),
+                                                ),
+                                                child: SizedBox(
+                                                  width: 150,
+                                                  child: DropdownButtonHideUnderline(
+                                                    child: ButtonTheme(
+                                                      alignedDropdown: true,
+                                                      child: DropdownButton<String>(
+                                                        hint: const Text(
+                                                          'Seleccionar',
+                                                          style: TextStyle(
+                                                              fontSize: 14,
+                                                              color: Color(0xFF999999)),
+                                                        ),
+                                                        dropdownColor: Colors.white,
+                                                        value: durationTypeValue,
+                                                        icon: const Padding(
+                                                          padding:
+                                                              EdgeInsetsDirectional.only(end: 5.0),
+                                                          child: Icon(Icons.keyboard_arrow_down,
+                                                              color: Color(
+                                                                  0xff999999)), // myIcon is a 48px-wide widget.
+                                                        ),
+                                                        onChanged: (newValue) {
+                                                          setState(() {
+                                                            durationTypeValue = newValue.toString();
+                                                          });
+                                                        },
+                                                        items:
+                                                            ['Horas', 'Minutos'].map((String item) {
+                                                          return DropdownMenuItem(
+                                                            value: item,
+                                                            child: Text(
+                                                              item,
+                                                              style: const TextStyle(fontSize: 14),
+                                                            ),
+                                                          );
+                                                        }).toList(),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              )))
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: const [
+                                      Text("Fecha de la proxima consulta",
+                                          style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Opacity(
+                                    opacity: validInitDateTime == null ? 0.5 : 1,
+                                    child: IgnorePointer(
+                                      ignoring: validInitDateTime == null,
                                       child: SizedBox(
-                                          height: durationError ? 55 : 35,
-                                          width: 111,
+                                          height: startDateError ? 55 : 35,
                                           child: TextFormField(
                                             validator: (value) {
-                                              if (value == null ||
-                                                  value == '') {
+                                              if (value == null || value == '') {
                                                 setState(() {
-                                                  durationError = true;
+                                                  endDateError = true;
                                                 });
                                                 return "Complete el campo";
                                               }
                                               setState(() {
-                                                durationError = false;
+                                                endDateError = false;
                                               });
+                                              return null;
                                             },
-                                            controller: TextEditingController(
-                                                text: durationValue),
-                                            onChanged: (value) {
-                                              durationValue = value;
+                                            readOnly: true,
+                                            controller: TextEditingController(text: endDateValue),
+                                            onTap: () {
+                                              selectEndDate(context);
                                             },
-                                            style:
-                                                const TextStyle(fontSize: 14),
-                                            decoration: staticComponents
-                                                .getMiddleInputDecoration('15'),
+                                            style: const TextStyle(fontSize: 14),
+                                            decoration: InputDecoration(
+                                                filled: true,
+                                                prefixIcon: IconButton(
+                                                  padding: const EdgeInsets.only(bottom: 5),
+                                                  onPressed: () {},
+                                                  icon: const Icon(Icons.calendar_today_outlined,
+                                                      color: Color(
+                                                          0xff999999)), // myIcon is a 48px-wide widget.
+                                                ),
+                                                hintText: '18 - Jul 2022  15:00',
+                                                hintStyle: const TextStyle(
+                                                    fontSize: 14, color: Color(0xff999999)),
+                                                contentPadding: EdgeInsets.zero,
+                                                fillColor: Colors.white,
+                                                enabledBorder: staticComponents.middleInputBorder,
+                                                border: staticComponents.middleInputBorder,
+                                                focusedBorder: staticComponents.middleInputBorder),
                                           )),
                                     ),
-                                    Flexible(
-                                        child: SizedBox(
-                                            height: 35,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color: durationTypeError
-                                                        ? Colors.red
-                                                        : Color(0xFF999999),
-                                                    width: 1),
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(
-                                                        10) //         <--- border radius here
-                                                    ),
-                                              ),
-                                              child: Container(
-                                                width: 150,
-                                                child:
-                                                    DropdownButtonHideUnderline(
-                                                  child: ButtonTheme(
-                                                    alignedDropdown: true,
-                                                    child:
-                                                        DropdownButton<String>(
-                                                      hint: Text(
-                                                        'Seleccionar',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color: Color(
-                                                                0xFF999999)),
-                                                      ),
-                                                      dropdownColor:
-                                                          Colors.white,
-                                                      value: durationTypeValue,
-                                                      icon: Padding(
-                                                        padding:
-                                                            const EdgeInsetsDirectional
-                                                                    .only(
-                                                                end: 12.0),
-                                                        child: Icon(
-                                                            Icons
-                                                                .keyboard_arrow_down,
-                                                            color: Color(
-                                                                0xff999999)), // myIcon is a 48px-wide widget.
-                                                      ),
-                                                      onChanged: (newValue) {
-                                                        setState(() {
-                                                          durationTypeValue =
-                                                              newValue
-                                                                  .toString();
-                                                        });
-                                                      },
-                                                      items: durationsList
-                                                          .map((String item) {
-                                                        return DropdownMenuItem(
-                                                          value: item,
-                                                          child: Text(
-                                                            item,
-                                                            style: TextStyle(
-                                                                fontSize: 14),
-                                                          ),
-                                                        );
-                                                      }).toList(),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            )))
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Estado",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xff999999)))
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: stateError
-                                            ? Colors.red
-                                            : Color(0xFF999999),
-                                        width: 1),
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(
-                                            10) //         <--- border radius here
-                                        ),
                                   ),
-                                  child: Container(
-                                    height: 35,
-                                    width: double.infinity,
-                                    child: DropdownButtonHideUnderline(
-                                      child: ButtonTheme(
-                                        alignedDropdown: true,
-                                        child: DropdownButton<String>(
-                                          hint: Text(
-                                            'Seleccionar',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                color: Color(0xFF999999)),
-                                          ),
-                                          dropdownColor: Colors.white,
-                                          value: stateValue,
-                                          icon: Padding(
-                                            padding: const EdgeInsetsDirectional
-                                                .only(end: 12.0),
-                                            child: Icon(
-                                                Icons.keyboard_arrow_down,
-                                                color: Color(
-                                                    0xff999999)), // myIcon is a 48px-wide widget.
-                                          ),
-                                          onChanged: (newValue) {
-                                            setState(() {
-                                              stateValue = newValue.toString();
-                                            });
-                                          },
-                                          items: statesList.map((String item) {
-                                            return DropdownMenuItem(
-                                              value: item,
-                                              child: Text(
-                                                item,
-                                                style: TextStyle(fontSize: 14),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ),
-                                    ),
+                                  const SizedBox(
+                                    height: 10,
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Descripción",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xff999999)))
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                TextFormField(
-                                    validator: (value) {
-                                      if (value == null || value == '') {
-                                        setState(() {
-                                          descriptionError = true;
-                                        });
-                                        return "Complete el campo";
-                                      }
-                                      setState(() {
-                                        descriptionError = false;
-                                      });
-                                    },
-                                    minLines: 1,
-                                    maxLines: 10,
-                                    controller: TextEditingController(
-                                        text: descriptionValue),
-                                    onChanged: (value) {
-                                      descriptionValue = value;
-                                    },
-                                    style: const TextStyle(fontSize: 14),
-                                    decoration: InputDecoration(
-                                      contentPadding:
-                                          EdgeInsets.symmetric(vertical: 20),
-                                      prefixIcon: Icon(Icons.circle,
-                                          color: Color(0xff999999)),
-                                      suffixIcon: IconButton(
-                                          onPressed: () {},
-                                          icon: Icon(Icons.delete,
-                                              color: Color(0xff999999))),
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      hintText:
-                                          "Glucosa 110ml/g\nActividad física: 1hora",
-                                      hintStyle: const TextStyle(
-                                          fontSize: 14,
-                                          color: Color(0xFF999999)),
-                                      focusedBorder: borderWhite,
-                                      border: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                    )
-                                    // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+                                  getAddPrescriptionCards(),
+                                  getTreatmentButtons()
+                                ],
+                              )))),
+                ),
+              ])
 
-                                    ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                GestureDetector(
-                                    onTap: () {
-                                      Feedback.forTap(context);
-                                      setState(() {
-                                        showAddPrescriptionCards =
-                                            !showAddPrescriptionCards;
-                                      });
-                                    },
-                                    child: TextField(
-                                        minLines: 1,
-                                        maxLines: 10,
-                                        enabled: false,
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xFF999999)),
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(
-                                              vertical: 10),
-                                          prefixIcon: Icon(Icons.circle,
-                                              color: Colors.white),
-                                          filled: true,
-                                          fillColor: Color(0xffD9D9D9),
-                                          hintText:
-                                              "Agregar una nueva\n prescripción",
-                                          hintStyle: const TextStyle(
-                                              fontSize: 14,
-                                              color: Color(0xFF999999)),
-                                          focusedBorder: borderGray,
-                                          border: borderGray,
-                                          enabledBorder: borderGray,
-                                        )
-                                        // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
-
-                                        )),
-                                const SizedBox(
-                                  height: 30,
-                                ),
-                                getAddPrescriptionCards(),
-                                getTreatmentButtons()
-                              ],
-                            )))),
-              ),
-            ])
-
-            //SizedBox
-          ],
+              //SizedBox
+            ],
+          ),
         ), //Column
       ), //Padding
     );
@@ -728,28 +582,25 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
         goToAddPrescription(0);
       },
       child: Card(
-          color: Color(0xffF1F1F1),
-          margin: EdgeInsets.only(top: 10, bottom: 10),
+          color: const Color(0xffF1F1F1),
+          margin: const EdgeInsets.only(top: 10, bottom: 10),
           child: ClipPath(
             clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3))),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))),
             child: Container(
                 height: 75,
-                decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                decoration: const BoxDecoration(
+                    border: Border(left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
                 child: Column(
                   children: [
                     Padding(
-                        padding:
-                            const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        padding: const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
+                            children: const <Widget>[
                               Text(
                                 "Medicación",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xff2F8F9D),
@@ -757,44 +608,39 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                               )
                             ])),
                     Padding(
-                        padding:
-                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Flexible(
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        medicationCardLabel == null
-                                            ? "Haga click para agregar una preescripción de glucosa"
-                                            : medicationCardLabel!,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                      )
-                                    ]),
-                              ),
-                              Padding(
-                                  padding: const EdgeInsets.only(right: 5),
-                                  child: Container(
-                                      width: 24,
-                                      height: 24,
-                                      child: Icon(Icons.chevron_right,
-                                          color: Color(0xff2F8F9D))))
-                            ]))
+                      padding: const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Flexible(
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      medicationCardLabel == null
+                                          ? "Haga click para agregar una preescripción de medicación"
+                                          : medicationCardLabel!,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.normal,
+                                        color: Color(0xff67757F),
+                                      ),
+                                    )
+                                  ]),
+                            ),
+                            const Padding(
+                                padding: EdgeInsets.only(right: 5),
+                                child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: Icon(Icons.chevron_right, color: Color(0xff2F8F9D))))
+                          ]),
+                    )
                     //SizedBox
                   ],
                 )),
           )),
-    );
-    return SizedBox(
-      height: 0,
     );
   }
 
@@ -804,25 +650,25 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
         goToAddPrescription(1);
       },
       child: Card(
-          color: Color(0xffF1F1F1),
-          margin: EdgeInsets.only(top: 10, bottom: 10),
+          color: const Color(0xffF1F1F1),
+          margin: const EdgeInsets.only(top: 10, bottom: 10),
           child: ClipPath(
+            clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))),
             child: Container(
                 height: 75,
-                decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                decoration: const BoxDecoration(
+                    border: Border(left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
                 child: Column(
                   children: [
                     Padding(
-                        padding:
-                            const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        padding: const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
+                            children: const <Widget>[
                               Text(
                                 "Alimentación",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xff2F8F9D),
@@ -830,16 +676,14 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                               )
                             ])),
                     Padding(
-                        padding:
-                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                        padding: const EdgeInsets.only(left: 25, top: 7, bottom: 7),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Flexible(
                                 child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
                                         nutritionCardLabel == null
@@ -853,52 +697,48 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                       )
                                     ]),
                               ),
-                              Padding(
-                                  padding: const EdgeInsets.only(right: 5),
-                                  child: Container(
+                              const Padding(
+                                  padding: EdgeInsets.only(right: 5),
+                                  child: SizedBox(
                                       width: 24,
                                       height: 24,
-                                      child: Icon(Icons.chevron_right,
-                                          color: Color(0xff2F8F9D))))
+                                      child: Icon(Icons.chevron_right, color: Color(0xff2F8F9D))))
                             ]))
                     //SizedBox
                   ],
                 )),
-            clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3))),
           )),
     );
-    return SizedBox(
+    return const SizedBox(
       height: 0,
     );
   }
 
-  getOtherTreatmentCard() {
+  getExamnsTreatmentCard() {
     return InkWell(
       onTap: () {
         goToAddPrescription(3);
       },
       child: Card(
-          color: Color(0xffF1F1F1),
-          margin: EdgeInsets.only(top: 10, bottom: 10),
+          color: const Color(0xffF1F1F1),
+          margin: const EdgeInsets.only(top: 10, bottom: 10),
           child: ClipPath(
+            clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))),
             child: Container(
                 height: 75,
-                decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                decoration: const BoxDecoration(
+                    border: Border(left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
                 child: Column(
                   children: [
                     Padding(
-                        padding:
-                            const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        padding: const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
+                            children: const <Widget>[
                               Text(
-                                "Otros",
-                                style: const TextStyle(
+                                "Exámenes",
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xff2F8F9D),
@@ -906,20 +746,18 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                               )
                             ])),
                     Padding(
-                        padding:
-                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                        padding: const EdgeInsets.only(left: 25, top: 7, bottom: 7),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Flexible(
                                 child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
                                         othersCardLabel == null
-                                            ? "Haga click para agregar una preescripción de otro tipo"
+                                            ? "Haga click para una preescripción de Exámen"
                                             : othersCardLabel!,
                                         style: const TextStyle(
                                           fontSize: 12,
@@ -929,23 +767,19 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                       )
                                     ]),
                               ),
-                              Padding(
-                                  padding: const EdgeInsets.only(right: 5),
-                                  child: Container(
+                              const Padding(
+                                  padding: EdgeInsets.only(right: 5),
+                                  child: SizedBox(
                                       width: 24,
                                       height: 24,
-                                      child: Icon(Icons.chevron_right,
-                                          color: Color(0xff2F8F9D))))
+                                      child: Icon(Icons.chevron_right, color: Color(0xff2F8F9D))))
                             ]))
                     //SizedBox
                   ],
                 )),
-            clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3))),
           )),
     );
-    return SizedBox(
+    return const SizedBox(
       height: 0,
     );
   }
@@ -956,25 +790,25 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
         goToAddPrescription(2);
       },
       child: Card(
-          color: Color(0xffF1F1F1),
-          margin: EdgeInsets.only(top: 10, bottom: 10),
+          color: const Color(0xffF1F1F1),
+          margin: const EdgeInsets.only(top: 10, bottom: 10),
           child: ClipPath(
+            clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))),
             child: Container(
                 height: 75,
-                decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                decoration: const BoxDecoration(
+                    border: Border(left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
                 child: Column(
                   children: [
                     Padding(
-                        padding:
-                            const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        padding: const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
+                            children: const <Widget>[
                               Text(
                                 "Actividad Física",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xff2F8F9D),
@@ -982,16 +816,14 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                               )
                             ])),
                     Padding(
-                        padding:
-                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                        padding: const EdgeInsets.only(left: 25, top: 7, bottom: 7),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Flexible(
                                 child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
                                         activityCardLabel == null
@@ -1005,70 +837,61 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                       )
                                     ]),
                               ),
-                              Padding(
-                                  padding: const EdgeInsets.only(right: 5),
-                                  child: Container(
+                              const Padding(
+                                  padding: EdgeInsets.only(right: 5),
+                                  child: SizedBox(
                                       width: 24,
                                       height: 24,
-                                      child: Icon(Icons.chevron_right,
-                                          color: Color(0xff2F8F9D))))
+                                      child: Icon(Icons.chevron_right, color: Color(0xff2F8F9D))))
                             ]))
                     //SizedBox
                   ],
                 )),
-            clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3))),
           )),
     );
-    return SizedBox(
+    return const SizedBox(
       height: 0,
     );
   }
 
   getTreatmentButtons() {
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          const SizedBox(
-            height: 17,
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
+      const SizedBox(
+        height: 17,
+      ),
+      FlatButton(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        color: const Color(0xff2F8F9D),
+        textColor: Colors.white,
+        onPressed: validateAndSave,
+        child: const Text(
+          'Guardar',
+          style: TextStyle(
+            fontSize: 16,
           ),
-          FlatButton(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            color: const Color(0xff2F8F9D),
-            textColor: Colors.white,
-            onPressed: validateAndSave,
-            child: const Text(
-              'Guardar',
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
+        ),
+      ),
+      FlatButton(
+        shape: RoundedRectangleBorder(
+            side: const BorderSide(color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
+            borderRadius: BorderRadius.circular(30)),
+        textColor: const Color(0xff9D9CB5),
+        onPressed: () {
+          discardChangesAndGoBack();
+        },
+        child: const Text(
+          'Cancelar',
+          style: TextStyle(
+            fontSize: 16,
           ),
-          FlatButton(
-            shape: RoundedRectangleBorder(
-                side: const BorderSide(
-                    color: Color(0xff9D9CB5),
-                    width: 1,
-                    style: BorderStyle.solid),
-                borderRadius: BorderRadius.circular(30)),
-            textColor: const Color(0xff9D9CB5),
-            onPressed: () {
-              discardChangesAndGoBack();
-            },
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-        ]);
+        ),
+      ),
+      const SizedBox(
+        height: 10,
+      ),
+    ]);
   }
 
   void startPatientVinculation() {}
@@ -1078,10 +901,10 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   void validateAndSave() {
     final FormState? form = _formKey.currentState;
     bool durationValid = isNotEmtpy(durationTypeValue);
-    bool stateValid = isNotEmtpy(stateValue);
-    bool isValidDropdowns = durationValid && stateValid;
+    //bool stateValid = isNotEmtpy(stateValue);
+    bool isValidDropdowns = durationValid; //&& stateValid;
     durationTypeError = !durationValid;
-    stateError = !stateValid;
+    //stateError = !stateValid;
     if ((form?.validate() ?? false) && isValidDropdowns) {
       saveIdDatabase();
     }
@@ -1090,17 +913,15 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   Future<void> selectEndDate(BuildContext context) async {
     final DateTime? d = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900, 1, 1),
+      initialDate: validInitDateTime!,
+      firstDate: validInitDateTime!,
       lastDate: DateTime(21001, 1, 1),
     );
 
-    final TimeOfDay? time =
-        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    final TimeOfDay? time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (d != null && time != null) {
       setState(() {
-        endDateValue = DateFormat('dd - MMM yyyy ').format(d) +
-            '${time.hour}:${time.minute}';
+        endDateValue = '${DateFormat('dd - MMM yyyy ').format(d)}${time.hour}:${time.minute}';
       });
     }
   }
@@ -1113,12 +934,14 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       lastDate: DateTime(21001, 1, 1),
     );
 
-    final TimeOfDay? time =
-        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    setState(() {
+      validInitDateTime = d;
+    });
+
+    final TimeOfDay? time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (d != null && time != null) {
       setState(() {
-        startDateValue = DateFormat('dd - MMM yyyy ').format(d) +
-            '${time.hour}:${time.minute}';
+        startDateValue = '${DateFormat('dd - MMM yyyy ').format(d)}${time.hour}:${time.minute}';
       });
     }
   }
@@ -1133,22 +956,15 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       TREATMENT_END_DATE_KEY: endDateValue!,
       TREATMENT_DURATION_NUMBER_KEY: durationValue!,
       TREATMENT_DURATION_TYPE_KEY: durationTypeValue!,
-      TREATMENT_DESCRIPTION_KEY: descriptionValue!,
-      TREATMENT_STATE_KEY: stateValue!
+      // TREATMENT_DESCRIPTION_KEY: descriptionValue!,
+      // TREATMENT_STATE_KEY: stateValue!
     };
     if (isUpdate || hasPendingTreatment) {
       final String? treatmentToUpdate =
           isUpdate ? patientUser?.currentTreatment : pendingTreatmentId;
-      db
-          .collection(TREATMENTS_KEY)
-          .doc(treatmentToUpdate)
-          .set(newTreatment)
-          .then((value) => {
-                if (isUpdate)
-                  {goBackScreen()}
-                else
-                  {savePendingTreatmentAndGoBack(pendingTreatmentId!)}
-              });
+      db.collection(TREATMENTS_KEY).doc(treatmentToUpdate).set(newTreatment).then((value) => {
+            if (isUpdate) {goBackScreen()} else {savePendingTreatmentAndGoBack(pendingTreatmentId!)}
+          });
     } else {
       db
           .collection(TREATMENTS_KEY)
@@ -1162,8 +978,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (BuildContext context) =>
-                PatientDetailScreen(patientUser!.userId!)));
+            builder: (BuildContext context) => PatientDetailScreen(patientUser!.userId!)));
   }
 
   void goToAddPrescription(int currentIndex) {
@@ -1175,8 +990,13 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
         MEDICO_ID_KEY: medicoId!,
       }).then((treatment) => savePendingTreatment(treatment, currentIndex));
     } else {
-      var currentTreatmentId =
-          patientUser?.currentTreatment ?? pendingTreatmentId;
+      String? currentTreatmentId;
+      if (patientUser?.currentTreatment == null || patientUser!.currentTreatment!.isEmpty) {
+        currentTreatmentId = pendingTreatmentId;
+      } else {
+        currentTreatmentId = patientUser?.currentTreatment;
+      }
+      //var currentTreatmentId = patientUser?.currentTreatment ?? pendingTreatmentId;
       navigateWithResult(currentTreatmentId, currentIndex);
     }
   }
@@ -1191,36 +1011,27 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   }
 
   getAddPrescriptionCards() {
-    if (showAddPrescriptionCards) {
-      return Column(
-        children: [
-          Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Text(
-                  "Prescripción",
-                  style: TextStyle(
-                      color: Color(0xff2F8F9D),
-                      fontWeight: FontWeight.normal,
-                      fontSize: 14),
-                )
-              ]),
-          const SizedBox(
-            height: 10,
-          ),
-          getMedicationTreatmentCard(),
-          getNutritionTreatmentCard(),
-          getActivityTreatmentCard(),
-          getOtherTreatmentCard(),
-        ],
-      );
-    } else {
-      return staticComponents.emptyBox;
-    }
+    return Column(
+      children: [
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: const <Widget>[
+          Text(
+            "Prescripción",
+            style: TextStyle(color: Color(0xff2F8F9D), fontWeight: FontWeight.normal, fontSize: 14),
+          )
+        ]),
+        const SizedBox(
+          height: 10,
+        ),
+        getMedicationTreatmentCard(),
+        getNutritionTreatmentCard(),
+        getActivityTreatmentCard(),
+        getExamnsTreatmentCard(),
+      ],
+    );
   }
 
-  savePendingTreatment(
-      DocumentReference<Map<String, dynamic>> treatment, int currentIndex) {
+  //Cczun85DPGtFITsn0rjH
+  savePendingTreatment(DocumentReference<Map<String, dynamic>> treatment, int currentIndex) {
     hasPendingTreatment = true;
     pendingTreatmentId = treatment.id;
     navigateWithResult(pendingTreatmentId, currentIndex);
@@ -1256,19 +1067,14 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   void discardChangesAndGoBack() {
     if (hasPendingTreatment) {
       deletePendingAndRealPrescriptions(
-          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY,
-          MEDICATION_PRESCRIPTION_COLLECTION_KEY);
+          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY, MEDICATION_PRESCRIPTION_COLLECTION_KEY);
       deletePendingAndRealPrescriptions(
-          PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY,
-          ACTIVITY_PRESCRIPTION_COLLECTION_KEY);
+          PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY, ACTIVITY_PRESCRIPTION_COLLECTION_KEY);
       deletePendingAndRealPrescriptions(
-          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY,
-          NUTRITION_PRESCRIPTION_COLLECTION_KEY);
+          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, NUTRITION_PRESCRIPTION_COLLECTION_KEY);
       deletePendingAndRealPrescriptions(
-          PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY,
-          OTHERS_PRESCRIPTION_COLLECTION_KEY);
+          PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY, OTHERS_PRESCRIPTION_COLLECTION_KEY);
       final db = FirebaseFirestore.instance;
-      db.collection(ROUTINES_COLLECTION_KEY).doc(pendingTreatmentId).delete();
       db
           .collection(TREATMENTS_KEY)
           .doc(pendingTreatmentId)
@@ -1283,22 +1089,18 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     final db = FirebaseFirestore.instance;
     db
         .collection(collectionId)
-        .where(PENDING_PRESCRIPTIONS_TREATMENT_KEY,
-            isEqualTo: pendingTreatmentId)
+        .where(PENDING_PRESCRIPTIONS_TREATMENT_KEY, isEqualTo: pendingTreatmentId)
         .get()
         .then((value) => {
-              for (int i = 0; i < value.docs.length; i++)
-                {value.docs[i].reference.delete()}
+              for (int i = 0; i < value.docs.length; i++) {value.docs[i].reference.delete()}
             });
   }
 
-  void deletePendingAndRealPrescriptions(
-      String collectionPendingId, String collectionId) {
+  void deletePendingAndRealPrescriptions(String collectionPendingId, String collectionId) {
     final db = FirebaseFirestore.instance;
     db
         .collection(collectionPendingId)
-        .where(PENDING_PRESCRIPTIONS_TREATMENT_KEY,
-            isEqualTo: pendingTreatmentId)
+        .where(PENDING_PRESCRIPTIONS_TREATMENT_KEY, isEqualTo: pendingTreatmentId)
         .get()
         .then((value) => {
               for (int i = 0; i < value.docs.length; i++)
@@ -1309,12 +1111,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   savePendingTreatmentAndGoBack(String treatId) {
     final db = FirebaseFirestore.instance;
     try {
-      db.collection(ROUTINES_COLLECTION_KEY).doc(treatId).set({});
-      deletePendingPrescriptions(
-          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY);
       deletePendingPrescriptions(PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY);
-      deletePendingPrescriptions(
-          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY);
       deletePendingPrescriptions(PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY);
     } catch (ex) {}
     db.collection(USERS_COLLECTION_KEY).doc(patientUser?.userId).update({
@@ -1322,13 +1121,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     }).then((value) => goBackScreen());
   }
 
-  deleteRealPrescriptions(
-      QueryDocumentSnapshot<Map<String, dynamic>> doc, String collectionId) {
+  deleteRealPrescriptions(QueryDocumentSnapshot<Map<String, dynamic>> doc, String collectionId) {
     final db = FirebaseFirestore.instance;
-    db
-        .collection(collectionId)
-        .doc(doc.data()[PENDING_PRESCRIPTIONS_ID_KEY])
-        .delete();
+    db.collection(collectionId).doc(doc.data()[PENDING_PRESCRIPTIONS_ID_KEY]).delete();
     doc.reference.delete();
   }
 }

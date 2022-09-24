@@ -55,12 +55,12 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     HomeScreen.screenHeight = MediaQuery.of(context).size.height;
     publicShrinkHome = shrinkOffset;
     return Container(
-      color: Color(0xff2F8F9D),
-      padding: EdgeInsets.only(top: 20),
+      color: const Color(0xff2F8F9D),
+      padding: const EdgeInsets.only(top: 20),
       child: Stack(
         children: [
           Align(
-              alignment: Alignment(
+              alignment: const Alignment(
                   //little padding
                   0,
                   100),
@@ -77,14 +77,14 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                                   currentUser?.type ??
                                   "Nombre"
                               : "Nombre",
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold))),
                   //apply padding to all four sides
                   Text(
                     getTextSubtitleHeader(),
-                    style: TextStyle(fontSize: 10, color: Colors.white),
+                    style: const TextStyle(fontSize: 10, color: Colors.white),
                   ),
                   getButtonVinculation(context, shrinkOffset, _maxExtent)
                 ],
@@ -138,7 +138,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     Navigator.pushReplacement<void, void>(
       context,
       MaterialPageRoute<void>(
-        builder: (BuildContext context) => LoginScreen(),
+        builder: (BuildContext context) => const LoginScreen(),
       ),
     );
   }
@@ -276,17 +276,17 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
           children: [
             Wrap(alignment: WrapAlignment.center, children: [
               AlertDialog(
-                  title: Column(children: [
-                    const SizedBox(
+                  title: Column(children: const [
+                    SizedBox(
                       height: 20,
                     ),
                     Text("Cerrar sesión")
                   ]),
-                  titleTextStyle: TextStyle(
+                  titleTextStyle: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: Color(0xff67757F)),
-                  shape: RoundedRectangleBorder(
+                  shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   content: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -393,13 +393,13 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
               child: Container(
                   decoration: BoxDecoration(
                     color: const Color(0xff7c94b6),
-                    image: DecorationImage(
+                    image: const DecorationImage(
                       image: NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
                       fit: BoxFit.cover,
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                    borderRadius: const BorderRadius.all(Radius.circular(50.0)),
                     border: Border.all(
-                      color: Color(0xff47B4AC),
+                      color: const Color(0xff47B4AC),
                       width: 4.0,
                     ),
                   ),
@@ -463,7 +463,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ];
           },
           body: Stack(children: <Widget>[
-            Container(
+            SizedBox(
                 width: double.maxFinite,
                 height: double.maxFinite,
                 child: FittedBox(
@@ -475,7 +475,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 body: LayoutBuilder(
                   builder: (BuildContext context,
                       BoxConstraints viewportConstraints) {
-                    return Container(
+                    return SizedBox(
                       width: double.infinity,
                       child: SingleChildScrollView(
                         child: ConstrainedBox(
@@ -504,9 +504,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 },
                               ),
                               Row(
-                                children: [_getFABDial()],
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.end,
+                                children: [_getFABDial()],
                               )
                             ],
                           ),
@@ -521,7 +521,7 @@ class _HomeScreenState extends State<HomeScreen> {
         floatingActionButton: /* _getEmptyFABDial() */
             GestureDetector(
           child: Container(
-            padding: EdgeInsets.only(top: 40),
+            padding: const EdgeInsets.only(top: 40),
             child: SvgPicture.asset(
               notifier.value
                   ? 'assets/images/tab_close_selected.svg'
@@ -542,7 +542,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _getFABDial() {
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
-      animatedIconTheme: IconThemeData(size: 22),
+      animatedIconTheme: const IconThemeData(size: 22),
       backgroundColor: Colors.transparent,
       visible: false,
       curve: Curves.bounceIn,
@@ -556,12 +556,12 @@ class _HomeScreenState extends State<HomeScreen> {
       spacing: 200,
       children: [
         SpeedDialChild(
-            child: Icon(Icons.list, color: Colors.white),
-            backgroundColor: Color(0xFF2F8F9D),
+            child: const Icon(Icons.list, color: Colors.white),
+            backgroundColor: const Color(0xFF2F8F9D),
             onTap: () {
               goToAllRoutines();
             },
-            labelWidget: Text(
+            labelWidget: const Text(
               "Todas mis Rutinas",
               style: TextStyle(
                   fontWeight: FontWeight.w500,
@@ -569,12 +569,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 16.0),
             )),
         SpeedDialChild(
-            child: Icon(Icons.playlist_add_check_outlined, color: Colors.white),
-            backgroundColor: Color(0xFF2F8F9D),
+            child: const Icon(Icons.playlist_add_check_outlined,
+                color: Colors.white),
+            backgroundColor: const Color(0xFF2F8F9D),
             onTap: () {
               goToSurvey();
             },
-            labelWidget: Text(
+            labelWidget: const Text(
               "Encuestas",
               style: TextStyle(
                   fontWeight: FontWeight.w500,
@@ -582,12 +583,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 16.0),
             )),
         SpeedDialChild(
-            child: Icon(Icons.water_drop, color: Colors.white),
-            backgroundColor: Color(0xFF2F8F9D),
+            child: const Icon(Icons.water_drop, color: Colors.white),
+            backgroundColor: const Color(0xFF2F8F9D),
             onTap: () {
               goToMyRoutine();
             },
-            labelWidget: Text(
+            labelWidget: const Text(
               "Mi rutina",
               style: TextStyle(
                   fontWeight: FontWeight.w500,
@@ -672,7 +673,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[]),
+                children: const <Widget>[]),
             const SizedBox(
               height: 20,
             ),
@@ -865,18 +866,18 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Wrap(alignment: WrapAlignment.center, children: [
               AlertDialog(
-                  title: Column(children: [
-                    const SizedBox(
+                  title: Column(children: const [
+                    SizedBox(
                       height: 20,
                     ),
                     Text("Notificación de\n Vinculación",
                         textAlign: TextAlign.center)
                   ]),
-                  titleTextStyle: TextStyle(
+                  titleTextStyle: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Color(0xff67757F)),
-                  shape: RoundedRectangleBorder(
+                  shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   content: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -888,7 +889,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                           'El médico ${pendingVinculation.namePending}\n desea vincular su cuenta\n con usted',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: Color(0xff999999))),

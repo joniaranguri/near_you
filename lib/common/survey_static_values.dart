@@ -1,6 +1,45 @@
 class StaticSurvey {
   static List<SurveyData> surveyStaticList = [
     SurveyData(
+        "1. ¿Deja de controlar su tratamiento si a veces se siente mejor/peor después de seguir las indicaciones de su médico?",
+        [
+          "Nunca / raramente",
+          "De vez en cuando",
+          "A veces",
+          "Usualmente- casi siempre",
+          "Todo el tiempo – siempre"
+        ]),
+    SurveyData(
+        "2. ¿Cuándo siente que sus síntomas están bajo control, ¿Deja de seguir su tratamiento?", [
+      "Nunca / raramente",
+      "De vez en cuando",
+      "A veces",
+      "Usualmente- casi siempre",
+      "Todo el tiempo – siempre"
+    ]),
+    SurveyData("3. ¿Alguna vez se ha sentido/ha presionado por apegarse a su tratamiento? ", [
+      "Nunca / raramente",
+      "De vez en cuando",
+      "A veces",
+      "Usualmente- casi siempre",
+      "Todo el tiempo – siempre"
+    ]),
+    SurveyData(
+        "4. ¿Con qué frecuencia tiene dificultad para acordarse de seguir su tratamiento? ", [
+      "Nunca / raramente",
+      "De vez en cuando",
+      "A veces",
+      "Usualmente- casi siempre",
+      "Todo el tiempo – siempre"
+    ]),
+    SurveyData("5. ¿Ha fumado usted cigarrillo en los últimos días?", [
+      "Nunca / raramente",
+      "De vez en cuando",
+      "A veces",
+      "Usualmente- casi siempre",
+      "Todo el tiempo – siempre"
+    ]),
+    /*  SurveyData(
         "1. ¿Conoce la razón por la que tiene que seguir su tratamiento?",
         ["Nunca", "Pocas veces", "Algunas veces", "Mayormente", "Totalmente"]),
     SurveyData(
@@ -33,7 +72,7 @@ class StaticSurvey {
         "11. ¿Alguna vez ha seguido parcialmente su tratamiento y dejó de realizar actividades que no considera importantes?",
         ["Totalmente", "Mayormente", "Algunas veces", "Rara vez", "Nunca"]),
     SurveyData("12. ¿Ha fumado usted cigarrillo en los últimos días?",
-        ["Totalmente", "Mayormente", "Algunas veces", "Rara vez", "Nunca"])
+        ["Totalmente", "Mayormente", "Algunas veces", "Rara vez", "Nunca"]) */
   ];
 }
 
