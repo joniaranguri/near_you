@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/screens/login_screen.dart';
 import 'package:near_you/screens/my_profile_screen.dart';
@@ -8,16 +9,12 @@ import 'package:near_you/screens/routine_detail_screen.dart.dart';
 import 'package:near_you/screens/routine_screen.dart';
 import 'package:near_you/screens/survey_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:near_you/widgets/static_components.dart';
 
 import '../Constants.dart';
 import '../common/static_common_functions.dart';
 import '../model/pending_vinculation.dart';
 import '../model/user.dart' as user;
 import '../widgets/dialogs.dart';
-import '../widgets/grouped_bar_chart.dart';
 import '../widgets/patient_detail.dart';
 import '../widgets/treatments_list.dart';
 
@@ -36,8 +33,12 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   static double publicShrinkHome = 0;
   user.User? currentUser;
 
+  Function initAllData;
+
   MySliverHeaderDelegate(
-      {required this.onActionTap, required this.currentUser});
+      {required this.onActionTap,
+      required this.currentUser,
+      required this.initAllData});
 
   @override
   Widget build(
@@ -80,51 +81,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                   getButtonVinculation(context, shrinkOffset, _maxExtent)
                 ],
               )),
-          Align(
-              alignment: Alignment(
-                  //little padding
-                  shrinkOffset / _maxExtent,
-                  0),
-              child: Padding(
-                  padding: EdgeInsets.only(
-                      left: 30,
-                      top: (shrinkOffset / _maxExtent) * 35,
-                      right: 30,
-                      bottom: 20),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  MyProfileScreen(currentUser)));
-                    },
-                    child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xff7c94b6),
-                          image: DecorationImage(
-                            image:
-                                NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
-                            fit: BoxFit.cover,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                          border: Border.all(
-                            color: Color(0xff47B4AC),
-                            width: 4.0,
-                          ),
-                        ),
-                        child: Image.asset(
-                          'assets/images/person_default.png',
-                          height: 50,
-                        )),
-                  ))
-              /*SvgPicture.asset(
-              'assets/images/tab_plus_selected.svg',
-              height: 70,
-            )*/
-              ),
-
-          // here provide actions
+          getImageUser(context, shrinkOffset, _maxExtent),
           Positioned(
             top: 0,
             left: 0,
@@ -136,6 +93,20 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                 ),
                 onPressed: () {
                   showLogoutModal(context);
+                }),
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            height: 80,
+            child: IconButton(
+                padding: const EdgeInsets.only(right: 25, top: 30, bottom: 25),
+                constraints: const BoxConstraints(),
+                icon: SvgPicture.asset(
+                  'assets/images/refresh_icon.svg',
+                ),
+                onPressed: () {
+                  initAllData();
                 }),
           ),
         ],
@@ -169,7 +140,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     double maxExtent,
   ) {
-    if (shrinkOffset > (maxExtent * 0.2)) {
+    if (shrinkOffset > (maxExtent * 0.1)) {
       return SizedBox.shrink();
     } else {
       return FlatButton(
@@ -352,56 +323,66 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
       },
     );
   }
+
+  getImageUser(BuildContext context, double shrinkOffset, double maxExtent) {
+    if (shrinkOffset > (maxExtent * 0.1)) {
+      return const SizedBox.shrink();
+    }
+    return Align(
+        alignment: Alignment(
+            //little padding
+            shrinkOffset / _maxExtent,
+            0),
+        child: Padding(
+            padding: EdgeInsets.only(
+                left: 30,
+                top: (shrinkOffset / _maxExtent) * 35,
+                right: 30,
+                bottom: 20),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            MyProfileScreen(currentUser)));
+              },
+              child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xff7c94b6),
+                    image: DecorationImage(
+                      image: NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                    border: Border.all(
+                      color: Color(0xff47B4AC),
+                      width: 4.0,
+                    ),
+                  ),
+                  child: Image.asset(
+                    'assets/images/person_default.png',
+                    height: 50,
+                  )),
+            ))
+        /*SvgPicture.asset(
+              'assets/images/tab_plus_selected.svg',
+              height: 70,
+            )*/
+        );
+  }
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   // bool isUserPatient = false;
   user.User? currentUser;
-  late final Future<DocumentSnapshot> futureUser;
+  Future<DocumentSnapshot>? futureUser;
   late ValueNotifier<bool> notifier = ValueNotifier(false);
   List<PendingVinculation> pendingVinculationList = <PendingVinculation>[];
 
   @override
   void initState() {
-    futureUser = getUserById(FirebaseAuth.instance.currentUser!.uid);
-    futureUser.then((value) => {
-          setState(() {
-            currentUser = user.User.fromSnapshot(value);
-            notifier = ValueNotifier(false);
-            getPendingVinculations().then((pendingResult) => {
-                  setState(() {
-                    if (pendingResult.isEmpty) {
-                      return;
-                    }
-                    pendingVinculationList = pendingResult;
-                    if (currentUser!.isPatiente()) {
-                      showNotificationPendingVinculation(
-                          pendingVinculationList[0]);
-                    }
-                  })
-                });
-
-            getRefusedVinculations().then((refusedList) => {
-                  setState(() {
-                    for (int i = 0; i < refusedList.length; i++) {
-                      deleteVinculation(refusedList[i].databaseId!);
-                    }
-                  })
-                });
-
-            getAcceptedVinculations().then((acceptedList) => {
-                  setState(() {
-                    if (acceptedList.isEmpty) {
-                      return;
-                    }
-                    if (currentUser!.isPatiente()) {
-                      dialogSuccessDoctorAccepts(context);
-                      deleteVinculation(acceptedList.first.databaseId!);
-                    }
-                  })
-                });
-          })
-        });
+    initAllData();
     super.initState();
   }
 
@@ -421,7 +402,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     onActionTap: () {
                       debugPrint("on Tap");
                     },
-                    currentUser: currentUser),
+                    currentUser: currentUser,
+                    initAllData: () {
+                      initAllData();
+                    }),
               ),
             ];
           },
@@ -460,7 +444,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ConnectionState.done) {
                                     return getScreenType();
                                   }
-                                  return CircularProgressIndicator();
+                                  return Padding(
+                                      padding: EdgeInsets.only(
+                                          top: HomeScreen.screenHeight * 0.3),
+                                      child: CircularProgressIndicator());
                                 },
                               ),
                               Row(
@@ -519,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(Icons.list, color: Colors.white),
             backgroundColor: Color(0xFF2F8F9D),
             onTap: () {
-             goToAllRoutines();
+              goToAllRoutines();
             },
             labelWidget: Text(
               "Todas mis Rutinas",
@@ -569,6 +556,13 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 0,
           onTap: (index) {
             _currentIndex = index;
+            if (index == 1) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          MyProfileScreen(currentUser)));
+            }
           },
           backgroundColor: Colors.transparent,
           currentIndex: _currentIndex,
@@ -604,7 +598,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getScreenType() {
     if (currentUser == null) {
-      return CircularProgressIndicator();
+      return Padding(
+          padding: EdgeInsets.only(top: HomeScreen.screenHeight * 0.3),
+          child: CircularProgressIndicator());
     } else if (currentUser!.isPatiente()) {
       return PatientDetail.forPatientView(currentUser);
     } else {
@@ -956,10 +952,51 @@ class _HomeScreenState extends State<HomeScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              RoutineScreen(currentUser!.currentTreatment!),
+          builder: (context) => RoutineScreen(currentUser!.currentTreatment!),
         ),
       );
     }
+  }
+
+  void initAllData() {
+    futureUser = getUserById(FirebaseAuth.instance.currentUser!.uid);
+    futureUser?.then((value) => {
+          setState(() {
+            currentUser = user.User.fromSnapshot(value);
+            notifier = ValueNotifier(false);
+            getPendingVinculations().then((pendingResult) => {
+                  setState(() {
+                    if (pendingResult.isEmpty) {
+                      return;
+                    }
+                    pendingVinculationList = pendingResult;
+                    if (currentUser!.isPatiente()) {
+                      showNotificationPendingVinculation(
+                          pendingVinculationList[0]);
+                    }
+                  })
+                });
+
+            getRefusedVinculations().then((refusedList) => {
+                  setState(() {
+                    for (int i = 0; i < refusedList.length; i++) {
+                      deleteVinculation(refusedList[i].databaseId!);
+                    }
+                  })
+                });
+
+            getAcceptedVinculations().then((acceptedList) => {
+                  setState(() {
+                    if (acceptedList.isEmpty) {
+                      return;
+                    }
+                    if (currentUser!.isPatiente()) {
+                      dialogSuccessDoctorAccepts(context);
+                      deleteVinculation(acceptedList.first.databaseId!);
+                    }
+                  })
+                });
+          })
+        });
   }
 }
