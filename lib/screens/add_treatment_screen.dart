@@ -514,26 +514,26 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                     height: 10,
                                   ),
                                   Opacity(
-                                    opacity: startDateValue == null ? 0.5 : 1,
+                                    opacity: validInitDateTime == null ? 0.5 : 1,
                                     child: IgnorePointer(
-                                      ignoring: startDateValue == null,
+                                      ignoring: validInitDateTime == null,
                                       child: SizedBox(
                                           height: startDateError ? 55 : 35,
                                           child: TextFormField(
                                             validator: (value) {
                                               if (value == null || value == '') {
                                                 setState(() {
-                                                  startDateError = true;
+                                                  endDateError = true;
                                                 });
                                                 return "Complete el campo";
                                               }
                                               setState(() {
-                                                startDateError = false;
+                                                endDateError = false;
                                               });
                                               return null;
                                             },
                                             readOnly: true,
-                                            controller: TextEditingController(text: startDateValue),
+                                            controller: TextEditingController(text: endDateValue),
                                             onTap: () {
                                               selectEndDate(context);
                                             },
@@ -608,34 +608,35 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                               )
                             ])),
                     Padding(
-                        padding: const EdgeInsets.only(left: 25, top: 7, bottom: 7),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Flexible(
-                                child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        medicationCardLabel == null
-                                            ? "Haga click para agregar una preescripción de medicación"
-                                            : medicationCardLabel!,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(0xff67757F),
-                                        ),
-                                      )
-                                    ]),
-                              ),
-                              const Padding(
-                                  padding: EdgeInsets.only(right: 5),
-                                  child: SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: Icon(Icons.chevron_right, color: Color(0xff2F8F9D))))
-                            ]))
+                      padding: const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Flexible(
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      medicationCardLabel == null
+                                          ? "Haga click para agregar una preescripción de medicación"
+                                          : medicationCardLabel!,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.normal,
+                                        color: Color(0xff67757F),
+                                      ),
+                                    )
+                                  ]),
+                            ),
+                            const Padding(
+                                padding: EdgeInsets.only(right: 5),
+                                child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: Icon(Icons.chevron_right, color: Color(0xff2F8F9D))))
+                          ]),
+                    )
                     //SizedBox
                   ],
                 )),
@@ -713,7 +714,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     );
   }
 
-  getExamnsCard() {
+  getExamnsTreatmentCard() {
     return InkWell(
       onTap: () {
         goToAddPrescription(3);
@@ -756,7 +757,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                     children: <Widget>[
                                       Text(
                                         othersCardLabel == null
-                                            ? "Haga click para una preescripción de otro Exámenes"
+                                            ? "Haga click para una preescripción de Exámen"
                                             : othersCardLabel!,
                                         style: const TextStyle(
                                           fontSize: 12,
@@ -933,7 +934,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       lastDate: DateTime(21001, 1, 1),
     );
 
-    validInitDateTime = d;
+    setState(() {
+      validInitDateTime = d;
+    });
 
     final TimeOfDay? time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (d != null && time != null) {
@@ -1022,7 +1025,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
         getMedicationTreatmentCard(),
         getNutritionTreatmentCard(),
         getActivityTreatmentCard(),
-        getExamnsCard(),
+        getExamnsTreatmentCard(),
       ],
     );
   }

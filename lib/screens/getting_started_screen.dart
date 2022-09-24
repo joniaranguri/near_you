@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../model/slide.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import '../widgets/slide_dots.dart';
+import '../widgets/slide_item.dart';
 
 class GettingStartedScreen extends StatefulWidget {
   static const routeName = '/getting_started';
@@ -39,10 +43,33 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  const TreatmentAdherenceDesign(),
-                  const SizedBox(
-                    height: 32,
-                  ),
+                  SlideItem(0),
+                /*  PageView.builder(
+                      scrollDirection: Axis.horizontal,
+                      controller: _pageController,
+                      onPageChanged: _onPageChanged,
+                      itemCount: slideList.length,
+                      itemBuilder: (ctx, i) => SlideItem(i),
+                    ),
+                    Stack(
+                      alignment: AlignmentDirectional.topStart,
+                      children: <Widget>[
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 35),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              for(int i = 0; i<slideList.length; i++)
+                                if( i == _currentPage )
+                                  SlideDots(true)
+                                else
+                                  SlideDots(false)
+                            ],
+                          ),
+                        )
+                      ],
+                    ), */
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
@@ -152,10 +179,10 @@ class TreatmentAdherenceDesign extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 315, width: 273, child: Image.asset('assets/images/logo.png')),
+        SizedBox(height: 200, width: 273, child: SvgPicture.asset('assets/images/logo.svg')),
         SizedBox(
           width: 300,
-          height: 70,
+          height: 60,
           child: Center(
             child: RichText(
               textAlign: TextAlign.center,

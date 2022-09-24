@@ -49,11 +49,11 @@ class PatientDetailState extends State<PatientDetail> {
   late final Future<List<String>> medicationFuture;
   late final Future<List<String>> activityFuture;
   late final Future<List<String>> nutritionFuture;
-  late final Future<List<String>> othersFuture;
+  late final Future<List<String>> examnFuture;
   int medicationCounter = 0;
   int activityCounter = 0;
   int nutritionCounter = 0;
-  int othersCounter = 0;
+  int examnCounter = 0;
 
   String? durationTypeValue;
   String? durationValue;
@@ -64,7 +64,7 @@ class PatientDetailState extends State<PatientDetail> {
   List<String> medicationsList = <String>[];
   List<String> nutritionList = <String>[];
   List<String> activitiesList = <String>[];
-  List<String> othersList = <String>[];
+  List<String> examnList = <String>[];
 
   PatientDetailState(this.detailedUser, this.isDoctorView);
 
@@ -105,7 +105,7 @@ class PatientDetailState extends State<PatientDetail> {
     activityFuture = getActivityPrescriptions(detailedUser!.currentTreatment!);
     nutritionFuture =
         getNutritionPrescriptions(detailedUser!.currentTreatment!);
-    othersFuture = getOthersPrescriptions(detailedUser!.currentTreatment!);
+    examnFuture = getExamnPrescriptions(detailedUser!.currentTreatment!);
     currentTreatmentFuture.then((value) => {
           setState(() {
             currentTreatment = value;
@@ -147,12 +147,12 @@ class PatientDetailState extends State<PatientDetail> {
             }
         });
 
-    othersFuture.then((value) => {
+    examnFuture.then((value) => {
           if (mounted)
             {
               setState(() {
-                othersList = value;
-                if (value.isNotEmpty) othersCounter = 1;
+                examnList = value;
+                if (value.isNotEmpty) examnCounter = 1;
               })
             }
         });
@@ -882,7 +882,7 @@ class PatientDetailState extends State<PatientDetail> {
                     medicationCounter +
                                 activityCounter +
                                 nutritionCounter +
-                                othersCounter >
+                                examnCounter >
                             0
                         ? Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -915,7 +915,7 @@ class PatientDetailState extends State<PatientDetail> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            "Prescripción ${medicationCounter + activityCounter + nutritionCounter + othersCounter}/4",
+                            "Prescripción ${medicationCounter + activityCounter + nutritionCounter + examnCounter}/4",
                             style: TextStyle(
                                 fontSize: 15,
                                 color: Color(0xff2F8F9D),
@@ -925,7 +925,8 @@ class PatientDetailState extends State<PatientDetail> {
                     getMedicationTreatmentCard(),
                     getNutritionTreatmentCard(),
                     getActivityTreatmentCard(),
-                    getOtherTreatmentCard(),
+                    getExamnTreatmentCard(),
+                    //getOtherTreatmentCard(),
                     getTreatmentButtons()
                   ],
                 ))),
@@ -1167,7 +1168,120 @@ class PatientDetailState extends State<PatientDetail> {
     );*/
   }
 
-  getOtherTreatmentCard() {
+   getExamnTreatmentCard() {
+    return FutureBuilder(
+      future: examnFuture,
+      builder: (context, AsyncSnapshot snapshot) {
+        //patientUser = user.User.fromSnapshot(snapshot.data);
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (examnList.isEmpty) {
+            return staticComponents.emptyBox;
+          }
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VisualizePrescriptionScreen(
+                        detailedUser!.currentTreatment!, 3),
+                  ));
+            },
+            child: Card(
+                color: Color(0xffF1F1F1),
+                margin: EdgeInsets.only(top: 10, bottom: 10),
+                child: ClipPath(
+                  child: Container(
+                      height: 75,
+                      decoration: BoxDecoration(
+                          border: Border(
+                              left: BorderSide(
+                                  color: Color(0xff2F8F9D), width: 5))),
+                      child: Column(
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12, top: 5, right: 12),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      "Exámenes",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2F8F9D),
+                                      ),
+                                    )
+                                  ])),
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 25, top: 7, bottom: 7),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Flexible(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            SizedBox(
+                                                height: 40,
+                                                child: ListView.builder(
+                                                    padding: EdgeInsets.zero,
+                                                    shrinkWrap: true,
+                                                    physics:
+                                                        const NeverScrollableScrollPhysics(),
+                                                    itemCount:
+                                                        examnList.length > 3
+                                                            ? 3
+                                                            : examnList.length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return Text(
+                                                        examnList[index],
+                                                        style: const TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color:
+                                                              Color(0xff67757F),
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      );
+                                                    }))
+                                          ]),
+                                    ),
+                                    Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 5),
+                                        child: Container(
+                                            width: 24,
+                                            height: 24,
+                                            child: Icon(Icons.chevron_right,
+                                                color: Color(0xff2F8F9D))))
+                                  ]))
+                          //SizedBox
+                        ],
+                      )),
+                  clipper: ShapeBorderClipper(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3))),
+                )),
+          );
+        }
+        return CircularProgressIndicator();
+      },
+    );
+/*    return SizedBox(
+      height: 0,
+    );*/
+  }
+
+  /* getOtherTreatmentCard() {
     return FutureBuilder(
       future: othersFuture,
       builder: (context, AsyncSnapshot snapshot) {
@@ -1278,7 +1392,7 @@ class PatientDetailState extends State<PatientDetail> {
 /*    return SizedBox(
       height: 0,
     );*/
-  }
+  } */
 
   getActivityTreatmentCard() {
     return FutureBuilder(
@@ -1710,6 +1824,21 @@ class PatientDetailState extends State<PatientDetail> {
         .get();
     for (int i = 0; i < snapshot.docs.length; i++) {
       String currentValue = snapshot.docs[i][NUTRITION_NAME_KEY];
+      result.add(currentValue);
+    }
+    return result;
+  }
+
+   Future<List<String>> getExamnPrescriptions(
+      String currentTreatmentId) async {
+    List<String> result = <String>[];
+    final db = FirebaseFirestore.instance;
+    var snapshot = await db
+        .collection(EXAMN_PRESCRIPTION_COLLECTION_KEY)
+        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
+        .get();
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      String currentValue = snapshot.docs[i][EXAMN_NAME_KEY];
       result.add(currentValue);
     }
     return result;

@@ -47,6 +47,10 @@ const String OTHERS_PERIODICITY_KEY = "periodicity";
 const String OTHERS_DETAIL_KEY = "detail";
 const String OTHERS_RECOMMENDATION_KEY = "recommendation";
 
+const String EXAMN_NAME_KEY = "name";
+const String EXAMN_PERIODICITY_KEY = "duration";
+const String EXAMN_END_DATE_KEY = "endDate";
+
 const String ACTIVITY_NAME_KEY = "name";
 const String ACTIVITY_ACTIVITY_KEY = "activity";
 const String ACTIVITY_PERIODICITY_KEY = "periodicity";
@@ -75,6 +79,8 @@ const String MEDICATION_PRESCRIPTION_COLLECTION_KEY = "medicationPrescriptions";
 const String NUTRITION_PRESCRIPTION_COLLECTION_KEY = "nutritionPrescriptions";
 const String ACTIVITY_PRESCRIPTION_COLLECTION_KEY = "activityPrescriptions";
 const String OTHERS_PRESCRIPTION_COLLECTION_KEY = "othersPrescriptions";
+const String EXAMN_PRESCRIPTION_COLLECTION_KEY = "examnPrescriptions";
+
 
 const String PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY =
     "pendingMedicationPrescriptions";
@@ -84,6 +90,8 @@ const String PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY =
     "pendingActivityPrescriptions";
 const String PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY =
     "pendingOthersPrescriptions";
+    const String PENDING_EXAMN_PRESCRIPTIONS_COLLECTION_KEY =
+    "pendingExamnPrescriptions";
 const String PENDING_PRESCRIPTIONS_TREATMENT_KEY = "pendingTreatmentId";
 const String PENDING_PRESCRIPTIONS_ID_KEY = "pendingPrescriptionId";
 
