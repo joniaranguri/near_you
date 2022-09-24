@@ -42,7 +42,37 @@ class ListViewHome extends State<ListViewHomeLayout> {
         builder: (context, AsyncSnapshot<List<user.User>> snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
-          } else {
+          }
+          if(patients.isEmpty) {
+            return Container(
+              width: double.infinity,
+              height: HomeScreen.screenHeight,
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 40),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'Usted no tiene pacientes\nvinculados',
+                          textAlign: TextAlign.center,
+                          maxLines: 5,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xff999999),
+                            fontFamily: 'Italic',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 100,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                      ])),
+            );
+          }
             return ListView.builder(
                 itemCount: patients.length,
                 padding: EdgeInsets.only(bottom: 60),
@@ -202,7 +232,7 @@ class ListViewHome extends State<ListViewHomeLayout> {
                         )),
                   );
                 });
-          }
+
         });
   }
 
