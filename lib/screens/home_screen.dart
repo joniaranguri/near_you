@@ -1222,9 +1222,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 pendingVinculationList[index]
                                                     .databaseId!);
                                             setState(() {
-                                              pendingVinculationList.removeAt(index);
-                                              notificationsCounter = pendingVinculationList.length;
-
+                                              pendingVinculationList
+                                                  .removeAt(index);
+                                              notificationsCounter =
+                                                  pendingVinculationList.length;
                                             });
                                           },
                                           padding: EdgeInsets.zero,
@@ -1241,8 +1242,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 pendingVinculationList[index]
                                                     .databaseId!);
                                             setState(() {
-                                              pendingVinculationList.removeAt(index);
-                                              notificationsCounter = pendingVinculationList.length;
+                                              pendingVinculationList
+                                                  .removeAt(index);
+                                              notificationsCounter =
+                                                  pendingVinculationList.length;
                                             });
                                           },
                                           icon: Icon(

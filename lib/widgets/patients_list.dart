@@ -12,8 +12,8 @@ import '../screens/home_screen.dart';
 class PatientsListLayout extends StatefulWidget {
   Function updatePatientsCounter;
 
-
   PatientsListLayout(this.updatePatientsCounter);
+
   @override
   PatientListState createState() {
     return new PatientListState(updatePatientsCounter);
@@ -52,7 +52,7 @@ class PatientListState extends State<PatientsListLayout> {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           }
-          if(patients.isEmpty) {
+          if (patients.isEmpty) {
             return Container(
               width: double.infinity,
               height: HomeScreen.screenHeight,
@@ -82,135 +82,135 @@ class PatientListState extends State<PatientsListLayout> {
                       ])),
             );
           }
-            return ListView.builder(
-                itemCount: patients.length,
-                padding: EdgeInsets.only(bottom: 60),
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PatientDetailScreen(patients[index].userId ?? ""),
-                        ),
-                      );
-                    },
-                    child: Card(
+          return ListView.builder(
+              itemCount: patients.length,
+              padding: EdgeInsets.only(bottom: 60),
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            PatientDetailScreen(patients[index].userId ?? ""),
+                      ),
+                    );
+                  },
+                  child: Card(
                       color: Color(0xffF1F1F1),
-                        margin: EdgeInsets.only(top: 10, bottom: 10),
-                        child: ClipPath(
-                          child: Container(
-                              height: 100,
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                      left: BorderSide(
-                                          color: Color(0xff2F8F9D), width: 5))),
-                              child: Column(
-                                children: [
-                                  Padding(
-                                      padding: const EdgeInsets.all( 12),
-                                      child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            Text(
-                                              patients[index].fullName ??
-                                                  "Nombre",
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: Color(0xff2F8F9D),
-                                              ),
+                      margin: EdgeInsets.only(top: 10, bottom: 10),
+                      child: ClipPath(
+                        child: Container(
+                            height: 100,
+                            decoration: BoxDecoration(
+                                border: Border(
+                                    left: BorderSide(
+                                        color: Color(0xff2F8F9D), width: 5))),
+                            child: Column(
+                              children: [
+                                Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            patients[index].fullName ??
+                                                "Nombre",
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xff2F8F9D),
                                             ),
-                                          ])),
-                                  Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 20, right: 20),
-                                      child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: <Widget>[
-                                                  Text(
-                                                    "•  1 Consulta",
-                                                    style: const TextStyle(
-                                                      fontSize: 10,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Color(0xff67757F),
-                                                    ),
+                                          ),
+                                        ])),
+                                Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 20, right: 20),
+                                    child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text(
+                                                  "•  1 Consulta",
+                                                  style: const TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    color: Color(0xff67757F),
                                                   ),
-                                                  Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: <Widget>[
-                                                        Text(
-                                                          "•  Nivel de adherencia: ",
-                                                          style:
-                                                              const TextStyle(
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .normal,
-                                                            color: Color(
-                                                                0xff67757F),
-                                                          ),
+                                                ),
+                                                Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: <Widget>[
+                                                      Text(
+                                                        "•  Nivel de adherencia: ",
+                                                        style: const TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color:
+                                                              Color(0xff67757F),
                                                         ),
-                                                        Text(
-                                                          (patients[index].adherenceLevel ??
-                                                                      0)
-                                                                  .toString() +
-                                                              "%",
-                                                          style: TextStyle(
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color:
-                                                                getAdherenceLevelColor(
-                                                                    index),
-                                                          ),
-                                                        )
-                                                      ]),
-                                                ]),
-                                            Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 25),
-                                                child: InkWell(
-                                                    onTap: () {
-                                                      //TODO: remove pending notifications to user if devinculate
-                                                      showDialogDevinculation(
+                                                      ),
+                                                      Text(
+                                                        (patients[index].adherenceLevel ??
+                                                                    0)
+                                                                .toString() +
+                                                            "%",
+                                                        style: TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color:
+                                                              getAdherenceLevelColor(
+                                                                  index),
+                                                        ),
+                                                      )
+                                                    ]),
+                                              ]),
+                                          Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 25),
+                                              child: InkWell(
+                                                  onTap: () {
+                                                    //TODO: remove pending notifications to user if devinculate
+                                                    showDialogDevinculation(
+                                                        context,
+                                                        patients[index].userId!,
+                                                        false, () {
+                                                      Navigator.pop(context);
+                                                      Navigator.pushReplacement(
                                                           context,
-                                                          patients[index]
-                                                              .userId!,
-                                                          false, () {
-                                                        Navigator.pop(context);
-                                                        Navigator.pushReplacement(context,
-                                                            MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                        width: 24,
-                                                        height: 24,
-                                                        child: SvgPicture.asset(
-                                                            'assets/images/unlink_icon.svg'))))
-                                          ]))
-                                  //SizedBox
-                                ],
-                              )),
-                          clipper: ShapeBorderClipper(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(3))),
-                        )),
-                  );
-                });
-
+                                                          MaterialPageRoute(
+                                                              builder: (BuildContext
+                                                                      context) =>
+                                                                  HomeScreen()));
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                      width: 24,
+                                                      height: 24,
+                                                      child: SvgPicture.asset(
+                                                          'assets/images/unlink_icon.svg'))))
+                                        ]))
+                                //SizedBox
+                              ],
+                            )),
+                        clipper: ShapeBorderClipper(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(3))),
+                      )),
+                );
+              });
         });
   }
 
