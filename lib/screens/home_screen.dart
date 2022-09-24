@@ -246,10 +246,10 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     }
 
     if (currentUser!.isPatiente()) {
-      return currentUser?.illness ?? 'Diabetes Typo 2';
+      return currentUser?.diabetesType ?? 'Diabetes Typo 2';
     }
 
-    return currentUser?.illness ?? '4 pacientes';
+    return currentUser?.diabetesType ?? '4 pacientes';
   }
 
   void showLogoutModal(context) {

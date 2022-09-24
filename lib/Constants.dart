@@ -1,21 +1,22 @@
 const String SHOW_INTRO_SLIDE = "SHOW_INTRO_SLIDE";
 const String SHOW_ROLE_SELECTION = "SHOW_ROLE_SELECTION";
+
 const String EMAIL_KEY = "email";
 const String FULL_NAME_KEY = "fullName";
 const String BIRTH_DAY_KEY = "birthDay";
 const String PHONE_KEY = "phoneNumber";
-const String AGE_KEY = "age";
-const String ADDRESS_KEY = "address";
+
+const String DIABETES_TYPE_KEY = "diabetesType";
 const String MEDICAL_CENTER_VALUE = "medicalCenter";
-const String GENDER_KEY = "gender";
-const String REFERENCE_KEY = "reference";
-const String ALT_PHONE_NUMBER_KEY = "alternativePhone";
+const String MEDICAL_ASSURANCE_KEY = "medicalAssurance";
+const String GENDER_KEY = "sex";
+const String EDUCATIONAL_LEVEL_KEY = "educationalLevel";
+const String CIVIL_STATUS_KEY = "civilStatus";
 const String SMOKING_KEY = "smoking";
-const String ALLERGIES_KEY = "allergies";
+
 const String USERS_COLLECTION_KEY = "users";
 const String PENDING_VINCULATIONS_COLLECTION_KEY = "pendingVinculations";
 const String USER_TYPE = "type";
-const String USER_ILLNESS = "illness";
 const String USER_TYPE_MEDICO = "MEDICO";
 const String USER_TYPE_PACIENTE = "PACIENTE";
 const String TREATMENTS_KEY = "treatments";
@@ -152,3 +153,6 @@ const String DATA_ACTIVIDAD_FISICA_KEY = "ActividadFisica";
 const String DATA_EXAMENES_KEY = "Examenes";
 const String DATA_SUMA_KEY = "Suma";
 const String DATA_ADHERENCIA_KEY = "Adherencia";
+
+const String REGEX_PASSWORD = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[#?!@\$%^&*-]).{7,}\$";
+const String REGEX_EMAIL = "^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+.[a-zA-Z]+";
