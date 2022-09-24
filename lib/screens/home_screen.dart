@@ -16,7 +16,7 @@ import '../model/pending_vinculation.dart';
 import '../model/user.dart' as user;
 import '../widgets/dialogs.dart';
 import '../widgets/patient_detail.dart';
-import '../widgets/treatments_list.dart';
+import '../widgets/patients_list.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -35,10 +35,13 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   Function initAllData;
 
+  int patientsCounter;
+
   MySliverHeaderDelegate(
       {required this.onActionTap,
       required this.currentUser,
-      required this.initAllData});
+      required this.initAllData,
+      required this.patientsCounter});
 
   @override
   Widget build(
@@ -220,7 +223,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
       return currentUser?.diabetesType ?? 'Diabetes Typo 2';
     }
 
-    return currentUser?.diabetesType ?? '4 pacientes';
+    return '$patientsCounter paciente' + (patientsCounter != 1 ? "s" : "");
   }
 
   void showLogoutModal(context) {
@@ -379,6 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<DocumentSnapshot>? futureUser;
   late ValueNotifier<bool> notifier = ValueNotifier(false);
   List<PendingVinculation> pendingVinculationList = <PendingVinculation>[];
+  int patientsCounter = 0;
 
   @override
   void initState() {
@@ -405,7 +409,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     currentUser: currentUser,
                     initAllData: () {
                       initAllData();
-                    }),
+                    },
+                patientsCounter: patientsCounter),
               ),
             ];
           },
@@ -633,7 +638,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   )
                 ]),
-            SizedBox(height: 500, child: ListViewHomeLayout())
+            SizedBox(
+                height: 500, child: PatientsListLayout((int cant) {
+              setState(() {
+                patientsCounter = cant;
+              });
+            }))
             //SizedBox
           ],
         ));

@@ -9,17 +9,25 @@ import '../model/user.dart' as user;
 import '../Constants.dart';
 import '../screens/home_screen.dart';
 
-class ListViewHomeLayout extends StatefulWidget {
+class PatientsListLayout extends StatefulWidget {
+  Function updatePatientsCounter;
+
+
+  PatientsListLayout(this.updatePatientsCounter);
   @override
-  ListViewHome createState() {
-    return new ListViewHome();
+  PatientListState createState() {
+    return new PatientListState(updatePatientsCounter);
   }
 }
 
-class ListViewHome extends State<ListViewHomeLayout> {
+class PatientListState extends State<PatientsListLayout> {
   List<user.User> patients = <user.User>[];
 
   late final Future<List<user.User>> patientsListFuture;
+
+  Function updatePatientsCounter;
+
+  PatientListState(this.updatePatientsCounter);
 
   @override
   void initState() {
@@ -29,6 +37,7 @@ class ListViewHome extends State<ListViewHomeLayout> {
             {
               setState(() {
                 patients = value;
+                updatePatientsCounter(value.length);
               })
             }
         });
@@ -88,6 +97,7 @@ class ListViewHome extends State<ListViewHomeLayout> {
                       );
                     },
                     child: Card(
+                      color: Color(0xffF1F1F1),
                         margin: EdgeInsets.only(top: 10, bottom: 10),
                         child: ClipPath(
                           child: Container(
@@ -99,8 +109,7 @@ class ListViewHome extends State<ListViewHomeLayout> {
                               child: Column(
                                 children: [
                                   Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 12, right: 12),
+                                      padding: const EdgeInsets.all( 12),
                                       child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
@@ -114,24 +123,6 @@ class ListViewHome extends State<ListViewHomeLayout> {
                                                 color: Color(0xff2F8F9D),
                                               ),
                                             ),
-                                            FlatButton(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                              ),
-                                              height: 20,
-                                              color: const Color(0xff999999),
-                                              textColor: Colors.white,
-                                              onPressed: () {
-                                                // _signInWithEmailAndPassword();
-                                              },
-                                              child: Text(
-                                                '#000' + index.toString(),
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            )
                                           ])),
                                   Padding(
                                       padding: const EdgeInsets.only(
@@ -155,20 +146,6 @@ class ListViewHome extends State<ListViewHomeLayout> {
                                                       color: Color(0xff67757F),
                                                     ),
                                                   ),
-                                                  Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 20),
-                                                      child: Text(
-                                                        " •  3Prescripción",
-                                                        style: const TextStyle(
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.normal,
-                                                          color:
-                                                              Color(0xff67757F),
-                                                        ),
-                                                      )),
                                                   Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -238,11 +215,9 @@ class ListViewHome extends State<ListViewHomeLayout> {
 
   getAdherenceLevelColor(int index) {
     var value = 0xff47B4AC;
-    int adherenceLevel = int.parse(patients[index].adherenceLevel ?? "0");
-    if (adherenceLevel <= 33) {
+    int adherenceLevel = int.parse(patients[index].adherenceLevel ?? "85");
+    if (adherenceLevel < 80) {
       value = 0xffF8191E;
-    } else if (adherenceLevel <= 66) {
-      value = 0xffFFCC4D;
     }
     return Color(value);
   }
