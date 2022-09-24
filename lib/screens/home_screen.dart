@@ -556,6 +556,13 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 0,
           onTap: (index) {
             _currentIndex = index;
+            if (index == 1) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          MyProfileScreen(currentUser)));
+            }
           },
           backgroundColor: Colors.transparent,
           currentIndex: _currentIndex,
