@@ -619,7 +619,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                     children: <Widget>[
                                       Text(
                                         medicationCardLabel == null
-                                            ? "Haga click para agregar una preescripción de glucosa"
+                                            ? "Haga click para agregar una preescripción de medicación"
                                             : medicationCardLabel!,
                                         style: const TextStyle(
                                           fontSize: 12,

@@ -60,7 +60,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   final TextEditingController imcTextController = TextEditingController();
 
   bool readOnlyMedication = false;
-  bool isLoading = false;
+  bool isMedicationLoading = false;
+  bool isNutritionLoading = false;
 
   String? medicationStartDateValue;
   String? medicationNameValue;
@@ -75,6 +76,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   String? nutritionNameValue;
   String? nutritionCarboValue;
   String? nutritionCaloriesValue;
+  //String? heightValue;
+  String? imcValue;
+  //String? weightValue;
 
   String? activityNameValue;
   String? activityActivityValue;
@@ -105,11 +109,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   bool stateError = false;
   bool descriptionError = false;
 
-  String? heightValue;
-
-  String? imcValue;
-
-  String? weightValue;
   bool editingMedication = false;
   bool editingExamn = false;
 
@@ -167,11 +166,30 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   get sizedBox10 => const SizedBox(height: 10);
 
   void refreshMedicationPrescription() async {
-    setState(() => isLoading = true);
+    setState(() => isMedicationLoading = true);
     final medications = await getMedicationPrescriptions();
     medicationsList = medications;
     clearMedicationForm();
-    setState(() => isLoading = false);
+    setState(() => isMedicationLoading = false);
+  }
+
+  void refreshNutritionPrescription() async {
+    setState(() => isNutritionLoading = true);
+    final nutritions = await getNutritionPrescriptions();
+    nutritionList = [];
+    nutritionNoPermittedList = [];
+    for (int i = 0; i < nutritions.length; i++) {
+      if (nutritions[i].permitted == YES_KEY) {
+        nutritionList.add(nutritions[i]);
+      } else {
+        nutritionNoPermittedList.add(nutritions[i]);
+      }
+    }
+    editNotPermittedFood = false;
+    editPermittedFood = false;
+    foodPermitted = null;
+    foodNotPermitted = null;
+    setState(() => isNutritionLoading = false);
   }
 
   void clearMedicationForm() {
@@ -183,9 +201,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   @override
   void initState() {
     refreshMedicationPrescription();
+    refreshNutritionPrescription();
     //medicationPrescriptionFuture = getMedicationPrescriptions();
+    //nutritionPrescriptionFuture = getNutritionPrescriptions();
     activityPrescriptionFuture = getActivityPrescriptions();
-    nutritionPrescriptionFuture = getNutritionPrescriptions();
     othersPrescriptionFuture = getOthersPrescriptions();
     /* medicationPrescriptionFuture.then((value) => {
           if (mounted)
@@ -195,7 +214,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
               })
             }
         }); */
-    nutritionPrescriptionFuture.then((value) => {
+    /* nutritionPrescriptionFuture.then((value) => {
           if (mounted)
             {
               setState(() {
@@ -210,7 +229,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 }
               })
             }
-        });
+        }); */
     activityPrescriptionFuture.then((value) => {
           if (mounted)
             {
@@ -611,7 +630,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       ),
                       color: const Color(0xff2F8F9D),
                       textColor: Colors.white,
-                      onPressed: saveMedicationInDatabase,
+                      onPressed: () async {
+                        await saveMedicationInDatabase();
+                        if (mounted) {
+                          Navigator.pop(context, _currentPage);
+                        }
+                      },
                       child: const Text(
                         'Guardar',
                         style: TextStyle(
@@ -668,7 +692,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       ),
                       color: const Color(0xff2F8F9D),
                       textColor: Colors.white,
-                      onPressed: saveNutritionInDatabase,
+                      onPressed: saveEachFoodInDatabase,
                       child: const Text(
                         'Guardar',
                         style: TextStyle(
@@ -768,7 +792,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     return SizedBox(
       width: double.infinity,
       height: 470,
-      child: isLoading
+      child: isMedicationLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: ConstrainedBox(
@@ -881,6 +905,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   Future<List<NutritionPrescription>> getNutritionPrescriptions() async {
     List<NutritionPrescription> resultList = <NutritionPrescription>[];
     final db = FirebaseFirestore.instance;
+    //El databaseId cambia siempre que entramos en la pantalla
     var future = await db
         .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
         .where(TREATMENT_ID_KEY, isEqualTo: currentTreatment?.databaseId)
@@ -1239,11 +1264,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                     child: Flexible(
                                         child: GestureDetector(
                                       behavior: HitTestBehavior.translucent,
-                                      onTap: () {
+                                      onTap: () async {
                                         setState(() {
                                           editingMedication = false;
                                         });
-                                        saveMedicationInDatabase(dontGoBack: true);
+                                        await saveMedicationInDatabase();
+                                        refreshMedicationPrescription();
                                       },
                                       child: Container(
                                         decoration: const BoxDecoration(
@@ -1740,427 +1766,539 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             ));
   }
 
+  final formKey = GlobalKey<FormState>();
+  final weightController = TextEditingController();
+  final heightController = TextEditingController();
+
   Widget getAlimentationView() {
-    return FutureBuilder(
-        future: nutritionPrescriptionFuture,
-        builder: (context, AsyncSnapshot<List<NutritionPrescription>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Container(
-              width: double.infinity,
-              height: 470,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                  child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minHeight: 200,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text("Peso", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                            ],
-                          ),
-                          sizedBox10,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Flexible(
-                                child: SizedBox(
-                                    height: durationError ? 55 : 35,
-                                    width: 111,
-                                    child: TextFormField(
-                                      validator: (value) {
-                                        if (value == null || value == '') {
-                                          setState(() {
-                                            durationError = true;
-                                          });
-                                          return "Complete el campo";
-                                        }
-                                        setState(() {
-                                          durationError = false;
-                                        });
-                                        return null;
-                                      },
-                                      //controller: TextEditingController(text: weightValue),
-                                      onChanged: (value) {
-                                        weightValue = value;
-                                      },
-                                      style: const TextStyle(fontSize: 14),
-                                      decoration: staticComponents.getMiddleInputDecoration('56'),
-                                      keyboardType: TextInputType.number,
-                                      onFieldSubmitted: _calculateIMC,
-                                      //inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                      //keyboardType: TextInputType.number,
-                                    )),
-                              ),
-                              const Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Text(
-                                    'Kg',
-                                    style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                                  ))
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text("Estatura",
-                                  style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                            ],
-                          ),
-                          sizedBox10,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Flexible(
-                                child: SizedBox(
-                                  height: durationError ? 55 : 35,
-                                  width: 111,
+    return Container(
+      width: double.infinity,
+      height: 470,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: isNutritionLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 200,
+                  ),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text("Peso", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                          ],
+                        ),
+                        sizedBox10,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Flexible(
+                              child: SizedBox(
+                                  width: 150,
                                   child: TextFormField(
                                     validator: (value) {
                                       if (value == null || value == '') {
-                                        setState(() {
-                                          durationError = true;
-                                        });
                                         return "Complete el campo";
                                       }
-                                      double height = double.parse(value);
-                                      if (height > 2.5 || height < 0.30) {
-                                        setState(() {
-                                          durationError = true;
-                                        });
-                                        return "Solo se admiten estaturas entre 0.30 y 2.5m";
-                                      }
-                                      setState(() {
-                                        durationError = false;
-                                      });
+
                                       return null;
                                     },
-                                    //controller: TextEditingController(text: heightValue),
-                                    onChanged: (value) {
-                                      heightValue = value;
-                                    },
-                                    onFieldSubmitted: _calculateIMC,
+                                    controller: weightController,
+
                                     style: const TextStyle(fontSize: 14),
-                                    decoration: staticComponents.getMiddleInputDecoration('1.65'),
+                                    decoration: staticComponents.getMiddleInputDecoration('56'),
                                     keyboardType: TextInputType.number,
+                                    onFieldSubmitted: _calculateIMC,
                                     //inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                  ),
+                                    //keyboardType: TextInputType.number,
+                                  )),
+                            ),
+                            const Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Text(
+                                  'Kg',
+                                  style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                ))
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text("Estatura",
+                                style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                          ],
+                        ),
+                        sizedBox10,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Flexible(
+                              child: SizedBox(
+                                //height: heightError ? 55 : 35,
+                                width: 180,
+                                child: TextFormField(
+                                  validator: (value) {
+                                    if (value == null || value == '') {
+                                      return "Complete el campo";
+                                    }
+                                    double height = double.parse(value);
+                                    if (height > 2.5 || height < 0.30) {
+                                      return "Valido solo entre 0.30 y 2.5";
+                                    }
+
+                                    return null;
+                                  },
+                                  controller: heightController,
+                                  /*  onChanged: (value) {
+                                    heightValue = value;
+                                  }, */
+                                  onFieldSubmitted: _calculateIMC,
+                                  style: const TextStyle(fontSize: 14),
+                                  decoration: staticComponents.getMiddleInputDecoration('1.65'),
+                                  keyboardType: TextInputType.number,
+                                  //inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                 ),
                               ),
-                              const Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Text(
-                                    'm',
-                                    style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                                  ))
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: const [
-                              Text("IMC ",
-                                  style: TextStyle(fontSize: 14, color: Color(0xff999999))),
-                              Icon(Icons.info, size: 18, color: Color(0xff999999))
-                            ],
-                          ),
-                          sizedBox10,
-                          SizedBox(
-                              height: durationError ? 55 : 35,
-                              child: TextFormField(
-                                enabled: false,
-                                controller: imcTextController,
-                                /* validator: (value) {
-                                  if (value == null || value == '') {
+                            ),
+                            const Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Text(
+                                  'm',
+                                  style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                ))
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: const [
+                            Text("IMC ", style: TextStyle(fontSize: 14, color: Color(0xff999999))),
+                            Icon(Icons.info, size: 18, color: Color(0xff999999))
+                          ],
+                        ),
+                        sizedBox10,
+                        SizedBox(
+                            height: 35,
+                            child: TextFormField(
+                              enabled: false,
+                              controller: imcTextController,
+                              /* validator: (value) {
+                                    if (value == null || value == '') {
+                                      setState(() {
+                                        durationError = true;
+                                      });
+                                      return "Complete el campo";
+                                    }
                                     setState(() {
-                                      durationError = true;
+                                      durationError = false;
                                     });
-                                    return "Complete el campo";
-                                  }
-                                  setState(() {
-                                    durationError = false;
-                                  });
-                                  return null;
-                                }, */
-                                //controller: TextEditingController(text: imcValue),
-                                /* onChanged: (value) {
-                                  imcValue = value;
-                                }, */
-                                style: const TextStyle(fontSize: 14),
-                                decoration: InputDecoration(
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                                    filled: true,
-                                    fillColor: const Color(0xffD9D9D9),
-                                    hintText: '17.5',
-                                    hintStyle:
-                                        const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                                    enabledBorder: StaticComponents().middleInputBorder,
-                                    border: StaticComponents().middleInputBorder,
-                                    focusedBorder: StaticComponents().middleInputBorder),
-                              )),
-                          sizedBox10,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: const [
-                              Text("Alimentos permitidos ",
-                                  style: TextStyle(fontSize: 14, color: Color(0xff999999))),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            width: 250,
-                            height: 64,
-                            decoration: const BoxDecoration(
-                              color: Color(0xffD9D9D9),
-                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                                    return null;
+                                  }, */
+                              //controller: TextEditingController(text: imcValue),
+                              /* onChanged: (value) {
+                                    imcValue = value;
+                                  }, */
+                              style: const TextStyle(fontSize: 14),
+                              decoration: InputDecoration(
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                                  filled: true,
+                                  fillColor: const Color(0xffD9D9D9),
+                                  hintText: '17.5',
+                                  hintStyle:
+                                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                  enabledBorder: StaticComponents().middleInputBorder,
+                                  border: StaticComponents().middleInputBorder,
+                                  focusedBorder: StaticComponents().middleInputBorder),
+                            )),
+                        sizedBox10,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: const [
+                            Text("Alimentos permitidos ",
+                                style: TextStyle(fontSize: 14, color: Color(0xff999999))),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        getPermittedFoodView(),
+                        const SizedBox(height: 10),
+
+                        //sizedBox10,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: const [
+                            Text("Alimentos no permitidos ",
+                                style: TextStyle(fontSize: 14, color: Color(0xff999999))),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        getNotPermittedFoodView(),
+                        const SizedBox(height: 10),
+
+                        /*   Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: const [
+                                Text("Alimentación ",
+                                    style: TextStyle(fontSize: 14, color: Color(0xff999999))),
+                                Icon(Icons.info, size: 18, color: Color(0xff999999))
+                              ],
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  SizedBox(
-                                    height: 40,
-                                    width: 185,
-                                    child: TextFormField(
-                                        controller:
-                                            TextEditingController(text: medicationNameValue),
-                                        onChanged: (value) {
-                                          medicationNameValue = value;
-                                        },
-                                        style: const TextStyle(fontSize: 14),
-                                        decoration:
-                                            staticComponents.getMiddleInputDecoration('Frutas')),
-                                  ),
-                                  Flexible(
-                                      child: GestureDetector(
-                                    behavior: HitTestBehavior.translucent,
-                                    onTap: () {
-                                      setState(() {
-                                        editingMedication = false;
-                                      });
-                                    },
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.all(Radius.circular(15))),
-                                      height: 30,
-                                      width: 30,
-                                      child: const Icon(Icons.check, color: Color(0xff999999)),
-                                    ),
-                                  ))
-                                ],
-                              ),
-                            ),
-                          ),
-                          sizedBox10,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: const [
-                              Text("Alimentos no permitidos ",
-                                  style: TextStyle(fontSize: 14, color: Color(0xff999999))),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            width: 250,
-                            height: 64,
-                            decoration: const BoxDecoration(
-                              color: Color(0xffD9D9D9),
-                              borderRadius: BorderRadius.all(Radius.circular(5)),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  SizedBox(
-                                    height: 40,
-                                    width: 185,
-                                    child: TextFormField(
-                                        controller:
-                                            TextEditingController(text: medicationNameValue),
-                                        onChanged: (value) {
-                                          medicationNameValue = value;
-                                        },
-                                        style: const TextStyle(fontSize: 14),
-                                        decoration:
-                                            staticComponents.getMiddleInputDecoration('Dulces')),
-                                  ),
-                                  Flexible(
-                                      child: GestureDetector(
-                                    behavior: HitTestBehavior.translucent,
-                                    onTap: () {
-                                      setState(() {
-                                        editingMedication = false;
-                                      });
-                                    },
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.all(Radius.circular(15))),
-                                      height: 30,
-                                      width: 30,
-                                      child: const Icon(Icons.check, color: Color(0xff999999)),
-                                    ),
-                                  ))
-                                ],
-                              ),
-                            ),
-                          ),
-                          /*   Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: const [
-                              Text("Alimentación ",
-                                  style: TextStyle(fontSize: 14, color: Color(0xff999999))),
-                              Icon(Icons.info, size: 18, color: Color(0xff999999))
-                            ],
-                          ),
-                          sizedBox10, */
-                          /* SizedBox(
-                              child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: nutritionList.length,
-                                  itemBuilder: (context, index) {
-                                    return Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        SizedBox(
-                                            height: 35,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 40),
-                                              onPressed: () {},
-                                              icon: const Icon(Icons.keyboard_arrow_down,
-                                                  size: 30,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            )),
-                                        SizedBox(
-                                            height: 35,
-                                            width: 150,
-                                            child: Text(nutritionList[index].name ?? "Alimento",
-                                                textAlign: TextAlign.left,
-                                                style: const TextStyle(
-                                                    fontSize: 14, color: Color(0xff999999)))),
-                                        const SizedBox(height: 10),
-                                        SizedBox(
-                                            height: 35,
-                                            width: 14,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 14),
-                                              onPressed: () {
-                                                editFood(index, true);
-                                              },
-                                              icon: const Icon(Icons.edit,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            )),
-                                        SizedBox(
-                                            height: 35,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 30),
-                                              onPressed: () {
-                                                deleteNutritionPermitted(index, true);
-                                              },
-                                              icon: const Icon(Icons.delete,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            ))
-                                      ],
-                                    );
-                                  })), */
-                          /* getButtonAddFoodOrList(),
-                          sizedBox10,
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: const [
-                              Text("Alimentos no permitidos",
-                                  style: TextStyle(fontSize: 14, color: Color(0xff999999))),
-                            ],
-                          ), */
-                          //sizedBox10,
-                          /*  SizedBox(
-                              child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: nutritionNoPermittedList.length,
-                                  itemBuilder: (context, index) {
-                                    return Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        SizedBox(
-                                            height: 35,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 40),
-                                              onPressed: () {},
-                                              icon: const Icon(Icons.keyboard_arrow_down,
-                                                  size: 30,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            )),
-                                        SizedBox(
-                                            height: 35,
-                                            width: 150,
-                                            child: Text(
-                                                nutritionNoPermittedList[index].name ?? "Actividad",
-                                                textAlign: TextAlign.left,
-                                                style: const TextStyle(
-                                                    fontSize: 14, color: Color(0xff999999)))),
-                                        const SizedBox(height: 10),
-                                        SizedBox(
-                                            height: 35,
-                                            width: 14,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 14),
-                                              onPressed: () {
-                                                editFood(index, false);
-                                              },
-                                              icon: const Icon(Icons.edit,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            )),
-                                        SizedBox(
-                                            height: 35,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 30),
-                                              onPressed: () {
-                                                deleteNutritionPermitted(index, false);
-                                              },
-                                              icon: const Icon(Icons.delete,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            ))
-                                      ],
-                                    );
-                                  })), */
-                          //getButtonAddFoodOrListProhibited(),
-                          const SizedBox(
-                            height: 32,
-                          ),
-                          getAlimentationButtons()
-                        ],
-                      ))),
-            );
-          }
-          return const SizedBox();
-        });
+                            sizedBox10, */
+
+                        /* getButtonAddFoodOrList(),
+                            sizedBox10,
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: const [
+                                Text("Alimentos no permitidos",
+                                    style: TextStyle(fontSize: 14, color: Color(0xff999999))),
+                              ],
+                            ), */
+                        //sizedBox10,
+
+                        //getButtonAddFoodOrListProhibited(),
+                        const SizedBox(
+                          height: 32,
+                        ),
+                        getAlimentationButtons()
+                      ],
+                    ),
+                  ))),
+    );
+  }
+
+  int currentPermitedFoodIndex = 0;
+  bool readOnlyPermittedFood = false;
+
+  Widget getPermittedFoodView() {
+    return Column(
+      children: [
+        ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: 100,
+            ),
+            //height: nutritionList.isNotEmpty ? 100 : null,
+            child: Scrollbar(
+              child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  // physics: const NeverScrollableScrollPhysics(),
+                  itemCount: nutritionList.length,
+                  itemBuilder: (context, index) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(
+                            height: 35,
+                            child: IconButton(
+                              padding: const EdgeInsets.only(bottom: 40),
+                              onPressed: () {
+                                /* setState(() {
+                                  readOnlyPermittedFood = !readOnlyPermittedFood;
+                                }); */
+                              },
+                              icon: const Icon(Icons.keyboard_arrow_down,
+                                  size: 30,
+                                  color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                            )),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                            height: 35,
+                            child: Text(nutritionList[index].name ?? "Alimento",
+                                textAlign: TextAlign.left,
+                                style: const TextStyle(fontSize: 14, color: Color(0xff999999)))),
+                        const Spacer(),
+                        SizedBox(
+                            height: 35,
+                            width: 14,
+                            child: IconButton(
+                              padding: const EdgeInsets.only(bottom: 14),
+                              onPressed: () {
+                                //editFood(index, true);
+                                setState(() {
+                                  editPermittedFood = true;
+                                  addNewPermittedfood = false;
+                                });
+                                currentPermitedFoodIndex = index;
+                                foodPermitted = nutritionList[index].name;
+                              },
+                              icon: const Icon(Icons.edit,
+                                  color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                            )),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                            height: 35,
+                            child: IconButton(
+                              padding: const EdgeInsets.only(bottom: 30),
+                              onPressed: () {
+                                deleteNutritionPermitted(index, true);
+                              },
+                              icon: const Icon(Icons.delete,
+                                  color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                            ))
+                      ],
+                    );
+                  }),
+            )),
+        switchAddNutritionButtonOrForm(),
+      ],
+    );
+  }
+
+  bool editPermittedFood = false;
+  bool addNewPermittedfood = false;
+  String? foodPermitted;
+
+  switchAddNutritionButtonOrForm() {
+    return editPermittedFood || addNewPermittedfood
+        ? Container(
+            width: 250,
+            height: 64,
+            decoration: const BoxDecoration(
+              color: Color(0xffD9D9D9),
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    height: 40,
+                    width: 185,
+                    child: TextFormField(
+                        controller: TextEditingController(text: foodPermitted),
+                        onChanged: (value) {
+                          foodPermitted = value;
+                        },
+                        style: const TextStyle(fontSize: 14),
+                        decoration: staticComponents.getMiddleInputDecoration('Frutas')),
+                  ),
+                  Flexible(
+                      child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () async {
+                      if (!formKey.currentState!.validate() || foodPermitted == null) return;
+                      if (editPermittedFood) {
+                        await updateFoodInDatabase(foodPermitted, true, currentPermitedFoodIndex);
+                      } else {
+                        await saveFoodInDatabase(foodPermitted, true);
+                      }
+                      editPermittedFood = false;
+                      addNewPermittedfood = false;
+                      refreshNutritionPrescription();
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(
+                          color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(15))),
+                      height: 30,
+                      width: 30,
+                      child: const Icon(Icons.check, color: Color(0xff999999)),
+                    ),
+                  ))
+                ],
+              ),
+            ),
+          )
+        : GestureDetector(
+            onTap: () {
+              setState(() {
+                editPermittedFood = false;
+                addNewPermittedfood = true;
+              });
+            },
+            child: TextField(
+                minLines: 1,
+                maxLines: 10,
+                enabled: false,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  prefixIcon: const Icon(Icons.circle, color: Colors.white),
+                  filled: true,
+                  fillColor: const Color(0xffD9D9D9),
+                  hintText: "Agregar alimento",
+                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  focusedBorder: borderGray,
+                  border: borderGray,
+                  enabledBorder: borderGray,
+                )
+                // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+
+                ),
+          );
+  }
+
+  int currentNotPermitedFoodIndex = 0;
+  bool readOnlyNotPermittedFood = false;
+
+  Widget getNotPermittedFoodView() {
+    return Column(
+      children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxHeight: 100,
+          ),
+          child: Scrollbar(
+            child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: nutritionNoPermittedList.length,
+                itemBuilder: (context, index) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(
+                          height: 35,
+                          child: IconButton(
+                            padding: const EdgeInsets.only(bottom: 40),
+                            onPressed: () {},
+                            icon: const Icon(Icons.keyboard_arrow_down,
+                                size: 30,
+                                color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                          )),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                          height: 35,
+                          child: Text(nutritionNoPermittedList[index].name ?? "Actividad",
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(fontSize: 14, color: Color(0xff999999)))),
+                      const Spacer(),
+                      SizedBox(
+                          height: 35,
+                          width: 14,
+                          child: IconButton(
+                            padding: const EdgeInsets.only(bottom: 14),
+                            onPressed: () {
+                              //editFood(index, false);
+                              setState(() {
+                                editNotPermittedFood = true;
+                                addNewNotPermittedfood = false;
+                              });
+                              currentNotPermitedFoodIndex = index;
+                              foodPermitted = nutritionNoPermittedList[index].name;
+                            },
+                            icon: const Icon(Icons.edit,
+                                color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                          )),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                          height: 35,
+                          child: IconButton(
+                            padding: const EdgeInsets.only(bottom: 30),
+                            onPressed: () {
+                              deleteNutritionPermitted(index, false);
+                            },
+                            icon: const Icon(Icons.delete,
+                                color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                          ))
+                    ],
+                  );
+                }),
+          ),
+        ),
+        switchAddNotPermittedNutritionButtonOrForm(),
+      ],
+    );
+  }
+
+  bool editNotPermittedFood = false;
+  bool addNewNotPermittedfood = false;
+  String? foodNotPermitted;
+
+  switchAddNotPermittedNutritionButtonOrForm() {
+    return editNotPermittedFood || addNewNotPermittedfood
+        ? Container(
+            width: 250,
+            height: 64,
+            decoration: const BoxDecoration(
+              color: Color(0xffD9D9D9),
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    height: 40,
+                    width: 185,
+                    child: TextFormField(
+                        controller: TextEditingController(text: foodNotPermitted),
+                        onChanged: (value) {
+                          foodNotPermitted = value;
+                        },
+                        style: const TextStyle(fontSize: 14),
+                        decoration: staticComponents.getMiddleInputDecoration('Dulces')),
+                  ),
+                  Flexible(
+                      child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () async {
+                      if (!formKey.currentState!.validate() || foodNotPermitted == null) return;
+                      if (editNotPermittedFood) {
+                        await updateFoodInDatabase(
+                            foodNotPermitted, false, currentNotPermitedFoodIndex);
+                      } else {
+                        await saveFoodInDatabase(foodNotPermitted, false);
+                      }
+                      editNotPermittedFood = false;
+                      addNewNotPermittedfood = false;
+                      refreshNutritionPrescription();
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(
+                          color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(15))),
+                      height: 30,
+                      width: 30,
+                      child: const Icon(Icons.check, color: Color(0xff999999)),
+                    ),
+                  ))
+                ],
+              ),
+            ),
+          )
+        : GestureDetector(
+            onTap: () {
+              setState(() {
+                editNotPermittedFood = false;
+                addNewNotPermittedfood = true;
+              });
+            },
+            child: TextField(
+                minLines: 1,
+                maxLines: 10,
+                enabled: false,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  prefixIcon: const Icon(Icons.circle, color: Colors.white),
+                  filled: true,
+                  fillColor: const Color(0xffD9D9D9),
+                  hintText: "Agregar alimento",
+                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  focusedBorder: borderGray,
+                  border: borderGray,
+                  enabledBorder: borderGray,
+                )
+                // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+
+                ));
   }
 
   getPhisicalActivityView() {
@@ -2547,7 +2685,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         });
   }
 
-  getButtonAddFoodOrList() {
+  /* getButtonAddFoodOrList() {
     return !editingPermittedFood
         ? GestureDetector(
             onTap: () {
@@ -2679,9 +2817,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     decoration: staticComponents.getMiddleInputDecoration('80 Kcal'),
                   )),
             ]));
-  }
+  } */
 
-  getButtonAddFoodOrListProhibited() {
+  /*  getButtonAddFoodOrListProhibited() {
     return editingPermittedFood
         ? GestureDetector(
             onTap: () {
@@ -2813,7 +2951,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     decoration: staticComponents.getMiddleInputDecoration('80 Kcal'),
                   )),
             ]));
-  }
+  } */
 
   getButtonAddRoutineOrList() {
     return !editingPermittedActivity
@@ -3601,7 +3739,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         : const SizedBox(height: 0);
   }
 
-  saveOtherInDatabase() {
+  Future<void> saveOtherInDatabase() async {
     final db = FirebaseFirestore.instance;
     final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
     final data = <String, String>{
@@ -3612,9 +3750,13 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       OTHERS_DETAIL_KEY: othersDetailValue ?? "",
       OTHERS_RECOMMENDATION_KEY: othersRecommendationValue ?? ""
     };
-    db.collection(OTHERS_PRESCRIPTION_COLLECTION_KEY).add(data).then((value) =>
-        saveInPendingListAndGoBack(
-            PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId));
+
+    var value = await db.collection(OTHERS_PRESCRIPTION_COLLECTION_KEY).add(data);
+    saveInPendingList(
+        PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId);
+
+    /* then((value) => saveInPendingListAndGoBack(
+        PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId)); */
   }
 
   saveActivityInDatabase() {
@@ -3646,12 +3788,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
           .then((value) => Navigator.pop(context, _currentPage));
     } else {
       db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).add(data).then((value) =>
-          saveInPendingListAndGoBack(
+          saveInPendingList(
               PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId));
     }
   }
 
-  saveMedicationInDatabase({bool dontGoBack = false}) {
+  Future<void> saveMedicationInDatabase() async {
     final db = FirebaseFirestore.instance;
     final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
     final data = <String, String>{
@@ -3667,48 +3809,105 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       MEDICATION_RECOMMENDATION_KEY: medicationRecommendationValue ?? ""
     };
     if (updateMedication >= 0) {
-      db
+      await db
           .collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY)
           .doc(medicationsList[updateMedication].databaseId)
-          .update(data)
-          .then((value) => Navigator.pop(context, _currentPage));
+          .update(data);
+      //.then((value) => Navigator.pop(context, _currentPage));
     } else {
-      db.collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY).add(data).then((value) =>
-          saveInPendingListAndGoBack(
+      final response = await db.collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY).add(data);
+      await saveInPendingList(
+          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY, response.id, currentTreatmentDatabaseId);
+      /* .then((value) =>
+          saveInPendingList(
               PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId,
-              dontGoBack: dontGoBack));
+              dontGoBack: dontGoBack)); */
     }
   }
 
-  saveNutritionInDatabase() {
+  /*  Future<void> saveNutritionInDatabase(String? foodName, bool isPermitted) async {
     final db = FirebaseFirestore.instance;
     final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
     final data = <String, String>{
       TREATMENT_ID_KEY: currentTreatmentDatabaseId,
-      NUTRITION_NAME_KEY: nutritionNameValue ?? "",
-      NUTRITION_CARBOHYDRATES_KEY: nutritionCarboValue ?? "",
-      NUTRITION_MAX_CALORIES_KEY: nutritionCaloriesValue ?? "",
-      PERMITTED_KEY: editingPermittedFood ? YES_KEY : NO_KEY
+      NUTRITION_NAME_KEY: foodName ?? "",
+      //NUTRITION_CARBOHYDRATES_KEY: nutritionCarboValue ?? "",
+      //NUTRITION_MAX_CALORIES_KEY: nutritionCaloriesValue ?? "",
+      NUTRITION_HEIGHT_KEY: heightValue ?? "",
+      NUTRITION_WEIGHT_KEY: weightValue ?? "",
+      NUTRITION_IMC_KEY: imcTextController.text,
+      PERMITTED_KEY: isPermitted ? YES_KEY : NO_KEY,
     };
-
     if (updatePermittedFood >= 0 || updateNoPermittedFood >= 0) {
       String? databaseId;
       if (updatePermittedFood >= 0) {
+        //Ver cual de la lista hay que modificar.
         databaseId = nutritionList[updatePermittedFood].databaseId;
       } else {
         databaseId = nutritionNoPermittedList[updateNoPermittedFood].databaseId;
       }
-
-      db
-          .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
-          .doc(databaseId)
-          .update(data)
-          .then((value) => Navigator.pop(context, _currentPage));
+      await db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(databaseId).update(data);
+      //.then((value) => Navigator.pop(context, _currentPage));
     } else {
-      db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).add(data).then((value) =>
+      await db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).add(data);
+      /* .then((value) =>
           saveInPendingListAndGoBack(PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, value.id,
-              currentTreatmentDatabaseId));
+              currentTreatmentDatabaseId)); */
     }
+  } */
+
+  void saveEachFoodInDatabase() async {
+    if (foodPermitted != null) {
+      await saveFoodInDatabase(foodPermitted, true);
+    }
+    if (foodNotPermitted != null) {
+      await saveFoodInDatabase(foodNotPermitted, false);
+    }
+    if (mounted) {
+      Navigator.pop(context, _currentPage);
+    }
+  }
+
+  //databaseID = FoW5LrG3K132gAYKEdeS
+  Future<void> saveFoodInDatabase(String? foodName, bool isPermitted) async {
+    final String treatmentId = currentTreatment!.databaseId!;
+
+    final db = FirebaseFirestore.instance;
+    final data = makeFoodStructure(foodName, isPermitted, treatmentId);
+    var response = await db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).add(data);
+    await saveInPendingList(
+        PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, response.id, treatmentId);
+  }
+
+  Future<void> updateFoodInDatabase(String? foodName, bool isPermitted, int index) async {
+    //final String treatmentId = currentTreatment!.databaseId!;
+    String? databaseid;
+    if (isPermitted) {
+      databaseid = nutritionList[index].databaseId;
+    } else {
+      databaseid = nutritionNoPermittedList[index].databaseId;
+    }
+    //isPermitted ? nutritionNoPermittedList[index].databaseId : nutritionList[index].databaseId;
+    final db = FirebaseFirestore.instance;
+    final data = {
+      NUTRITION_NAME_KEY: foodName ?? "",
+      NUTRITION_HEIGHT_KEY: heightController.text,
+      NUTRITION_WEIGHT_KEY: weightController.text,
+      NUTRITION_IMC_KEY: imcTextController.text,
+    };
+    await db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(databaseid).update(data);
+  }
+  //krxDLN2L3HBFlQHw9adS
+
+  Map<String, String> makeFoodStructure(String? foodName, bool isPermitted, String treatmentId) {
+    return {
+      TREATMENT_ID_KEY: treatmentId,
+      NUTRITION_NAME_KEY: foodName ?? "",
+      NUTRITION_HEIGHT_KEY: heightController.text,
+      NUTRITION_WEIGHT_KEY: weightController.text,
+      NUTRITION_IMC_KEY: imcTextController.text,
+      PERMITTED_KEY: isPermitted ? YES_KEY : NO_KEY,
+    };
   }
 
   getButtonOrOthersList() {
@@ -3954,15 +4153,17 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             ]));
   }
 
-  saveInPendingListAndGoBack(String idKey, String prescriptionId, String currentTreatmentDatabaseId,
-      {bool dontGoBack = false}) {
+  Future<void> saveInPendingList(
+      String idKey, String prescriptionId, String currentTreatmentDatabaseId,
+      {bool dontGoBack = false}) async {
     final db = FirebaseFirestore.instance;
     final data = <String, String>{
       PENDING_PRESCRIPTIONS_ID_KEY: prescriptionId,
       PENDING_PRESCRIPTIONS_TREATMENT_KEY: currentTreatmentDatabaseId,
     };
-    db.collection(idKey).add(data).then((value) =>
-        dontGoBack ? refreshMedicationPrescription() : Navigator.pop(context, _currentPage));
+    await db.collection(idKey).add(data);
+    /* .then((value) =>
+        dontGoBack ? refreshMedicationPrescription() : Navigator.pop(context, _currentPage)); */
   }
 
   Future<void> selectStartDate(BuildContext context) async {
@@ -4129,9 +4330,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   void _calculateIMC(String value) {
-    double height = double.parse(heightValue ?? '0.0');
-    double weight = double.parse(weightValue ?? '0.0');
-    if (heightValue != null && weightValue != null) {
+    double height = double.parse(heightController.text.isEmpty ? '0.0' : heightController.text);
+    double weight = double.parse(weightController.text.isEmpty ? '0.0' : weightController.text);
+    if (height != 0.0 && weight != 0.0) {
       imcTextController.text = (weight / (pow(height, 2))).toString();
     }
   }

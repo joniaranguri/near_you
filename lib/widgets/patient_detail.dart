@@ -855,7 +855,7 @@ class PatientDetailState extends State<PatientDetail> {
                     const SizedBox(
                       height: 10,
                     ), */
-                    Row(
+                    /* Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("Descripción 1/1",
@@ -865,8 +865,8 @@ class PatientDetailState extends State<PatientDetail> {
                     ),
                     const SizedBox(
                       height: 5,
-                    ),
-                    TextField(
+                    ), */
+                    /* TextField(
                       minLines: 1,
                       maxLines: 10,
                       readOnly: true,
@@ -875,10 +875,10 @@ class PatientDetailState extends State<PatientDetail> {
                           fontSize: 14, color: Color(0xFF999999)),
                       decoration: staticComponents.getLittleInputDecoration(
                           'Tratamiento de de la diabetes\n con 6 meses de pre...'),
-                    ),
-                    const SizedBox(
+                    ), */
+                   /*  const SizedBox(
                       height: 30,
-                    ),
+                    ), */
                     medicationCounter +
                                 activityCounter +
                                 nutritionCounter +

@@ -67,6 +67,9 @@ const String MEDICATION_RECOMMENDATION_KEY = "recomendation";
 const String NUTRITION_NAME_KEY = "name";
 const String NUTRITION_CARBOHYDRATES_KEY = "carbohydrates";
 const String NUTRITION_MAX_CALORIES_KEY = "maxCalories";
+const String NUTRITION_HEIGHT_KEY = "height";
+const String NUTRITION_WEIGHT_KEY = "weight";
+const String NUTRITION_IMC_KEY = "imc";
 
 const String MEDICATION_PRESCRIPTION_COLLECTION_KEY = "medicationPrescriptions";
 const String NUTRITION_PRESCRIPTION_COLLECTION_KEY = "nutritionPrescriptions";
