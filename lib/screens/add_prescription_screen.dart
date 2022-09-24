@@ -119,7 +119,7 @@ class _AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
                 },
               ))
         ]),
-        bottomNavigationBar: _buildBottomBar(),
+       /*  bottomNavigationBar: _buildBottomBar(),
         //TODO : REVIEW THIS
         floatingActionButton: keyboardIsOpened
             ? null
@@ -135,7 +135,7 @@ class _AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
                   });
                 },
               ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked, */
       )
     ]);
   }
