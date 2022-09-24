@@ -30,12 +30,16 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   final GlobalKey<FormState> signUpFormKeySecondScreen = GlobalKey<FormState>();
 
   static StaticComponents staticComponents = StaticComponents();
-  bool secondScreen = false;
+  bool secondScreen = !false;
   String emailValue = "";
   String passwordValue = "";
   String fullNameValue = "";
   String phoneNumberValue = "";
   String? genderValue;
+  String? diabetesValue;
+  String? medicalAssuranceValue;
+  String? educationalLevelValue;
+  String? civilStatusValue;
   String? smokeValue;
   String addressValue = "";
   String medicalCenterValue = "";
@@ -165,9 +169,11 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                       },
                       validator: (value) {
                         if (value == null || value == '') {
-                          return "Complete el campo";
+                          return "Campo requerido";
                         }
-                        if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+.[a-zA-Z]+").hasMatch(value)){
+                        if (!RegExp(
+                                r"^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+.[a-zA-Z]+")
+                            .hasMatch(value)) {
                           return "Formato de email inválido";
                         }
                       },
@@ -183,13 +189,13 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                       },
                       validator: (value) {
                         if (value == null || value == '') {
-                          return "Complete el campo";
+                          return "Campo requerido";
                         }
-                        if(!RegExp(REGEX_PASSWORD).hasMatch(value)){
+                        if (!RegExp(REGEX_PASSWORD).hasMatch(value)) {
                           return "La contraseña debe cumplir: Mayúscula, minuscula, caracter extraño y mayor a 6 dígitos";
                         }
                       },
-                     // obscureText: true,
+                      // obscureText: true,
                       style: TextStyle(fontSize: 14),
                       decoration:
                           staticComponents.getInputDecoration('Contraseña'),
@@ -202,7 +208,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                       },
                       validator: (value) {
                         if (value == null || value == '') {
-                          return "Complete el campo";
+                          return "Campo requerido";
                         }
                       },
                       style: TextStyle(fontSize: 14),
@@ -218,7 +224,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                       },
                       validator: (value) {
                         if (value == null || value == '') {
-                          return "Complete el campo";
+                          return "Campo requerido";
                         }
                       },
                       style: TextStyle(fontSize: 14),
@@ -226,11 +232,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                         filled: true,
                         suffixIcon: Padding(
                           padding: const EdgeInsetsDirectional.only(end: 12.0),
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.calendar_today,
-                                color: Color(0xffCECECE)),
-                          ), // myIcon is a 48px-wide widget.
+                          child: const Icon(Icons.calendar_today,
+                              color: Color(0xffCECECE)),
                         ),
                         fillColor: Colors.white,
                         hintText: 'Fecha de nacimiento',
@@ -266,7 +269,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             color: const Color(0xff3BACB6),
                             textColor: Colors.white,
                             onPressed: () {
-                             validateAndGoToSecondScreen();
+                              validateAndGoToSecondScreen();
                             },
                             child: const Text(
                               'Siguiente',
@@ -426,14 +429,52 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                       SizedBox(
                         height: 20,
                       ),
-                      TextField(
-                        controller: TextEditingController(text: addressValue),
-                        onChanged: (value) {
-                          addressValue = value;
-                        },
-                        style: TextStyle(fontSize: 14),
-                        decoration:
-                            staticComponents.getInputDecoration('Dirección'),
+                      Container(
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(color: Color(0xffCECECE), width: 1),
+                          borderRadius: BorderRadius.all(Radius.circular(
+                                  10) //         <--- border radius here
+                              ),
+                        ),
+                        child: Container(
+                            width: double.infinity,
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: DropdownButtonFormField<String>(
+                                value: diabetesValue,
+                                icon: Padding(
+                                  padding:
+                                      const EdgeInsetsDirectional.only(end: 7),
+                                  child: Icon(Icons.keyboard_arrow_down,
+                                      color: Color(
+                                          0xffCECECE)), // myIcon is a 48px-wide widget.
+                                ),
+                                decoration:
+                                    InputDecoration.collapsed(hintText: ''),
+                                hint: Text(
+                                  'Tipo de diabetes',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xffCECECE)),
+                                ),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    diabetesValue = newValue.toString();
+                                  });
+                                },
+                                validator: (value) =>
+                                    value == null ? 'Campo requerido' : null,
+                                items: diabetesTypesList
+                                    .map<DropdownMenuItem<String>>(
+                                        (String item) {
+                                  return DropdownMenuItem(
+                                    value: item,
+                                    child:
+                                        SizedBox(height: 20, child: Text(item)),
+                                  );
+                                }).toList(),
+                              ),
+                            )),
                       ),
                       SizeBox12,
                       TextField(
@@ -456,31 +497,33 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                               ),
                         ),
                         child: Container(
-                          width: double.infinity,
-                          child: DropdownButtonHideUnderline(
-                            child: ButtonTheme(
-                              alignedDropdown: true,
-                              child: DropdownButton<String>(
-                                hint: Text(
-                                  'Sexo',
-                                  style: TextStyle(
-                                      fontSize: 14, color: Color(0xffCECECE)),
-                                ),
-                                dropdownColor: Colors.white,
-                                value: genderValue,
+                            width: double.infinity,
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: DropdownButtonFormField<String>(
+                                value: medicalAssuranceValue,
                                 icon: Padding(
-                                  padding: const EdgeInsetsDirectional.only(
-                                      end: 12.0),
+                                  padding:
+                                      const EdgeInsetsDirectional.only(end: 7),
                                   child: Icon(Icons.keyboard_arrow_down,
                                       color: Color(
                                           0xffCECECE)), // myIcon is a 48px-wide widget.
                                 ),
+                                decoration:
+                                    InputDecoration.collapsed(hintText: ''),
+                                hint: Text(
+                                  'Seguro médico',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xffCECECE)),
+                                ),
                                 onChanged: (newValue) {
                                   setState(() {
-                                    genderValue = newValue.toString();
+                                    medicalAssuranceValue = newValue.toString();
                                   });
                                 },
-                                items: genderList.map((String item) {
+                                items: medicalAssuranceList
+                                    .map<DropdownMenuItem<String>>(
+                                        (String item) {
                                   return DropdownMenuItem(
                                     value: item,
                                     child:
@@ -488,86 +531,197 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                   );
                                 }).toList(),
                               ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizeBox12,
-                      TextField(
-                        controller: TextEditingController(text: referenceValue),
-                        onChanged: (value) {
-                          referenceValue = value;
-                        },
-                        style: TextStyle(fontSize: 14),
-                        decoration:
-                            staticComponents.getInputDecoration('Referencia'),
-                      ),
-                      SizeBox12,
-                      TextField(
-                        controller: TextEditingController(text: altPhoneValue),
-                        onChanged: (value) {
-                          altPhoneValue = value;
-                        },
-                        style: TextStyle(fontSize: 14),
-                        decoration: staticComponents
-                            .getInputDecoration('Teléfono alternativo'),
+                            )),
                       ),
                       SizeBox12,
                       Container(
-                          decoration: BoxDecoration(
-                            border:
-                                Border.all(color: Color(0xffCECECE), width: 1),
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                    10) //         <--- border radius here
-                                ),
-                          ),
-                          child: Container(
-                            width: double.infinity,
-                            child: DropdownButtonHideUnderline(
-                              child: ButtonTheme(
-                                alignedDropdown: true,
-                                child: DropdownButton<String>(
-                                  hint: Text(
-                                    'Tabaquismo',
-                                    style: TextStyle(
-                                        fontSize: 14, color: Color(0xffCECECE)),
-                                  ),
-                                  dropdownColor: Colors.white,
-                                  value: smokeValue,
-                                  icon: Padding(
-                                    padding: const EdgeInsetsDirectional.only(
-                                        end: 12.0),
-                                    child: Icon(Icons.keyboard_arrow_down,
-                                        color: Color(
-                                            0xffCECECE)), // myIcon is a 48px-wide widget.
-                                  ),
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      smokeValue = newValue.toString();
-                                    });
-                                  },
-                                  items: smokeList.map((String item) {
-                                    return DropdownMenuItem(
-                                      value: item,
-                                      child: SizedBox(
-                                          height: 20, child: Text(item)),
-                                    );
-                                  }).toList(),
-                                ),
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(color: Color(0xffCECECE), width: 1),
+                          borderRadius: BorderRadius.all(Radius.circular(
+                                  10) //         <--- border radius here
                               ),
-                            ),
-                          )),
+                        ),
+                        child: Container(
+                            width: double.infinity,
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: DropdownButtonFormField<String>(
+                                value: genderValue,
+                                icon: Padding(
+                                  padding:
+                                      const EdgeInsetsDirectional.only(end: 7),
+                                  child: Icon(Icons.keyboard_arrow_down,
+                                      color: Color(
+                                          0xffCECECE)), // myIcon is a 48px-wide widget.
+                                ),
+                                decoration:
+                                    InputDecoration.collapsed(hintText: ''),
+                                hint: Text(
+                                  'Sexo',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xffCECECE)),
+                                ),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    genderValue = newValue.toString();
+                                  });
+                                },
+                                validator: (value) =>
+                                    value == null ? 'Campo requerido' : null,
+                                items: genderList.map<DropdownMenuItem<String>>(
+                                    (String item) {
+                                  return DropdownMenuItem(
+                                    value: item,
+                                    child:
+                                        SizedBox(height: 20, child: Text(item)),
+                                  );
+                                }).toList(),
+                              ),
+                            )),
+                      ),
                       SizeBox12,
-                      TextField(
-                        controller: TextEditingController(text: allergiesValue),
-                        onChanged: (value) {
-                          allergiesValue = value;
-                        },
-                        minLines: 1,
-                        maxLines: 10,
-                        style: TextStyle(fontSize: 14),
-                        decoration:
-                            staticComponents.getInputDecoration('Alergias\n'),
+                      Container(
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(color: Color(0xffCECECE), width: 1),
+                          borderRadius: BorderRadius.all(Radius.circular(
+                                  10) //         <--- border radius here
+                              ),
+                        ),
+                        child: Container(
+                            width: double.infinity,
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: DropdownButtonFormField<String>(
+                                value: educationalLevelValue,
+                                icon: Padding(
+                                  padding:
+                                      const EdgeInsetsDirectional.only(end: 7),
+                                  child: Icon(Icons.keyboard_arrow_down,
+                                      color: Color(
+                                          0xffCECECE)), // myIcon is a 48px-wide widget.
+                                ),
+                                decoration:
+                                    InputDecoration.collapsed(hintText: ''),
+                                hint: Text(
+                                  'Nivel Educacional',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xffCECECE)),
+                                ),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    educationalLevelValue = newValue.toString();
+                                  });
+                                },
+                                validator: (value) =>
+                                    value == null ? 'Campo requerido' : null,
+                                items: educationalLevelList
+                                    .map<DropdownMenuItem<String>>(
+                                        (String item) {
+                                  return DropdownMenuItem(
+                                    value: item,
+                                    child:
+                                        SizedBox(height: 20, child: Text(item)),
+                                  );
+                                }).toList(),
+                              ),
+                            )),
+                      ),
+                      SizeBox12,
+                      Container(
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(color: Color(0xffCECECE), width: 1),
+                          borderRadius: BorderRadius.all(Radius.circular(
+                                  10) //         <--- border radius here
+                              ),
+                        ),
+                        child: Container(
+                            width: double.infinity,
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: DropdownButtonFormField<String>(
+                                value: civilStatusValue,
+                                icon: Padding(
+                                  padding:
+                                      const EdgeInsetsDirectional.only(end: 7),
+                                  child: Icon(Icons.keyboard_arrow_down,
+                                      color: Color(
+                                          0xffCECECE)), // myIcon is a 48px-wide widget.
+                                ),
+                                decoration:
+                                    InputDecoration.collapsed(hintText: ''),
+                                hint: Text(
+                                  'Estado Civil',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xffCECECE)),
+                                ),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    civilStatusValue = newValue.toString();
+                                  });
+                                },
+                                validator: (value) =>
+                                    value == null ? 'Campo requerido' : null,
+                                items: civilStatusList
+                                    .map<DropdownMenuItem<String>>(
+                                        (String item) {
+                                  return DropdownMenuItem(
+                                    value: item,
+                                    child:
+                                        SizedBox(height: 20, child: Text(item)),
+                                  );
+                                }).toList(),
+                              ),
+                            )),
+                      ),
+                      SizeBox12,
+                      Container(
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(color: Color(0xffCECECE), width: 1),
+                          borderRadius: BorderRadius.all(Radius.circular(
+                                  10) //         <--- border radius here
+                              ),
+                        ),
+                        child: Container(
+                            width: double.infinity,
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: DropdownButtonFormField<String>(
+                                value: smokeValue,
+                                icon: Padding(
+                                  padding:
+                                      const EdgeInsetsDirectional.only(end: 7),
+                                  child: Icon(Icons.keyboard_arrow_down,
+                                      color: Color(
+                                          0xffCECECE)), // myIcon is a 48px-wide widget.
+                                ),
+                                decoration:
+                                    InputDecoration.collapsed(hintText: ''),
+                                hint: Text(
+                                  'Tabaquismo',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xffCECECE)),
+                                ),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    smokeValue = newValue.toString();
+                                  });
+                                },
+                                validator: (value) =>
+                                    value == null ? 'Campo requerido' : null,
+                                items: smokeList.map<DropdownMenuItem<String>>(
+                                    (String item) {
+                                  return DropdownMenuItem(
+                                    value: item,
+                                    child:
+                                        SizedBox(height: 20, child: Text(item)),
+                                  );
+                                }).toList(),
+                              ),
+                            )),
                       ),
                       SizeBox12,
                       Column(
@@ -584,11 +738,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                               color: const Color(0xff3BACB6),
                               textColor: Colors.white,
                               onPressed: () {
-                                if (isFormValid()) {
-                                  registerUser();
-                                } else {
-                                  showMessageIncompleteRequired();
-                                }
+                                validateAndRegister();
                               },
                               child: const Text(
                                 'Registrar',
@@ -677,13 +827,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     );
   }
 
-  bool isFormValid() {
-    return (emailValue != "" &&
-        passwordValue != "" &&
-        emailValue.contains("@") &&
-        passwordValue.length >= 6);
-  }
-
   registerUser() async {
     _auth
         .createUserWithEmailAndPassword(
@@ -700,79 +843,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     });
   }
 
-  void showMessageIncompleteRequired() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          //Center Row contents horizontally,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Wrap(alignment: WrapAlignment.center, children: [
-              AlertDialog(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  content: Column(
-                    children: [
-                      const SizedBox(
-                        height: 80,
-                      ),
-                      SvgPicture.asset(
-                        'assets/images/warning_icon.svg',
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Text('¡Error!',
-                          style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff67757F))),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Text('Complete al menos \nemail y contraseña!',
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff67757F))),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            const SizedBox(
-                              height: 17,
-                            ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.all(15),
-                              color: const Color(0xff3BACB6),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text(
-                                'Aceptar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            )
-                          ])
-                    ],
-                  ))
-            ])
-          ],
-        );
-      },
-    );
-  }
-
   void saveUserDataInDatabase() {
     final db = FirebaseFirestore.instance;
     String? newUserId = FirebaseAuth.instance.currentUser?.uid;
@@ -782,14 +852,13 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       FULL_NAME_KEY: fullNameValue,
       BIRTH_DAY_KEY: _selectedDate,
       PHONE_KEY: phoneNumberValue,
-     // AGE_KEY: ageValue,
-      ADDRESS_KEY: addressValue,
+      DIABETES_TYPE_KEY: diabetesValue.toString(),
       MEDICAL_CENTER_VALUE: medicalCenterValue,
+      MEDICAL_ASSURANCE_KEY: medicalAssuranceValue.toString(),
       GENDER_KEY: genderValue.toString(),
-      REFERENCE_KEY: referenceValue,
-      ALT_PHONE_NUMBER_KEY: altPhoneValue,
+      EDUCATIONAL_LEVEL_KEY: educationalLevelValue.toString(),
+      CIVIL_STATUS_KEY: civilStatusValue.toString(),
       SMOKING_KEY: smokeValue.toString(),
-      ALLERGIES_KEY: allergiesValue,
       PATIENT_CURRENT_TREATMENT_KEY: EMPTY_STRING_VALUE,
     };
     db
@@ -805,6 +874,13 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       setState(() {
         secondScreen = true;
       });
+    }
+  }
+
+  void validateAndRegister() {
+    final FormState? form = signUpFormKeySecondScreen.currentState;
+    if (form?.validate() ?? false) {
+      registerUser();
     }
   }
 }

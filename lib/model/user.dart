@@ -3,8 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Constants.dart';
 
 class User {
-  String? civilStatus;      //TODO: Add this in signup
-  String? educationalLevel;      //TODO: Add this in signup
+  String? civilStatus;
+  String? educationalLevel;
+  String? medicalAssurance;
 
   User(
       {required this.fullName,
@@ -12,16 +13,14 @@ class User {
       required this.userId,
       required this.birthDay,
       required this.phone,
-      required this.address,
-      required this.age,
       required this.type,
-      required this.allergies,
       required this.smoking,
-      required this.alternativePhone,
-      required this.reference,
       required this.gender,
       required this.medicalCenter,
-      required this.illness,
+      required this.diabetesType,
+      required this.medicalAssurance,
+      required this.educationalLevel,
+      required this.civilStatus,
       required this.currentTreatment,
       required this.attachedPatients,
       required this.adherenceLevel,
@@ -53,7 +52,7 @@ class User {
   String? allergies;
 
   String? type;
-  String? illness;
+  String? diabetesType;
   String? currentTreatment;
 
   factory User.fromSnapshot(snapshot) {
@@ -64,21 +63,18 @@ class User {
         userId: realData[USER_ID_KEY],
         birthDay: realData[BIRTH_DAY_KEY],
         phone: realData[PHONE_KEY],
-        age: realData[AGE_KEY],
-        address: realData[ADDRESS_KEY],
         medicalCenter: realData[MEDICAL_CENTER_VALUE],
         gender: realData[GENDER_KEY],
-        reference: realData[REFERENCE_KEY],
-        alternativePhone: realData[ALT_PHONE_NUMBER_KEY],
         smoking: realData[SMOKING_KEY],
-        allergies: realData[ALLERGIES_KEY],
         type: realData[USER_TYPE],
-        illness: realData[USER_ILLNESS],
+        diabetesType: realData[DIABETES_TYPE_KEY],
+        medicalAssurance: realData[MEDICAL_ASSURANCE_KEY],
+        educationalLevel: realData[EDUCATIONAL_LEVEL_KEY],
+        civilStatus: realData[CIVIL_STATUS_KEY],
         currentTreatment: realData[PATIENT_CURRENT_TREATMENT_KEY],
         attachedPatients: realData[ATTACHED_PATIENTS],
         adherenceLevel: realData[ADHERENCE_LEVEL_KEY],
-        medicoId: realData[MEDICO_ID_KEY]
-    );
+        medicoId: realData[MEDICO_ID_KEY]);
   }
 
   bool isPatiente() {
