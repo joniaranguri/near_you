@@ -38,6 +38,7 @@ dependencies:
   firebase_auth: ^3.7.0
   cloud_firestore: ^3.4.6
   calendar_timeline: ^1.0.5
+  age_calculator: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -103,6 +104,7 @@ flutter:
     - assets/images/no_routine_icon.svg
     - assets/images/logo.svg
     - assets/images/logo.png
+    - assets/images/refresh_icon.svg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -26,6 +26,7 @@ class StaticComponents {
       contentPadding: const EdgeInsets.all(15),
       enabledBorder: inputBorder,
       border: inputBorder,
+      errorMaxLines: 3
     );
   }
 

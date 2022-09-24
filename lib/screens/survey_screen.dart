@@ -389,8 +389,11 @@ class _SurveyScreenState extends State<SurveyScreen> {
     final data = <String, String>{};
     for (int i = 0; i < surveyResults.length; i++) {
       int number = i + 1;
-      data.putIfAbsent("Pregunta$number".toString(), () => surveyResults[i]!);
+      data.putIfAbsent("Pregunta$number", () => surveyResults[i]!);
     }
+    data.addAll({
+      SURVEY_TIMESTAMP_KEY: DateTime.now().millisecondsSinceEpoch.toString()
+    });
     db
         .collection(USERS_COLLECTION_KEY)
         .doc(FirebaseAuth.instance.currentUser?.uid)

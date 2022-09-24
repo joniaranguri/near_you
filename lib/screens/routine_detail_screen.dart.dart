@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
-import 'package:near_you/common/survey_static_values.dart';
+import 'package:age_calculator/age_calculator.dart';
+import 'package:near_you/common/static_common_functions.dart';
+import '../model/user.dart' as user;
 import 'package:intl/intl.dart';
 
 import '../Constants.dart';
@@ -1077,46 +1080,69 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     int medicationCompleted = 0;
     int activityCompleted = 0;
     int nutritionCompleted = 0;
+    int nutritionNotPermittedCompleted = 0;
     int othersCompleted = 0;
+    int nutritionValue = 0;
+    int nutritionNPValue = 0;
+    int examsValue = 0;
     final data = <String, Object>{};
     for (var element in medicationsList) {
       medicationCompleted += element.state ?? 0;
-      if (element.name != null) {
+      if (isNotEmtpy(element.name)) {
+        // TODO validate not empty prescriptions names
         data.addAll({element.name!: element.state ?? 0});
       }
     }
     for (var element in activitiesList) {
       activityCompleted += element.state ?? 0;
-      if (element.name != null) {
+      if (isNotEmtpy(element.name)) {
         data.addAll({element.name!: element.state ?? 0});
       }
     }
     for (var element in nutritionList) {
-      if (element.state != null) nutritionCompleted++;
-      if (element.name != null) {
+      if (element.state != null) {
+        nutritionCompleted++;
+        nutritionValue += element.state!; //NO is 0, Yes is 1
+      }
+      if (isNotEmtpy(element.name)) {
         data.addAll({element.name!: element.state ?? 0});
       }
     }
     for (var element in nutritionNoPermittedList) {
-      if (element.state != null) nutritionCompleted++;
-      if (element.name != null) {
+      if (element.state != null) {
+        nutritionNotPermittedCompleted++;
+        nutritionNPValue += element.state!; //NO is 0, Yes is 1
+      }
+      if (isNotEmtpy(element.name)) {
         data.addAll({element.name!: element.state ?? 0});
       }
     }
     for (var element in othersList) {
-      if (element.state != null) othersCompleted++;
-      if (element.name != null) {
+      if (element.state != null) {
+        othersCompleted++;
+        examsValue += element.state!; //NO is 0, Yes is 1
+      }
+      if (isNotEmtpy(element.name)) {
         data.addAll({element.name!: element.state ?? 0});
       }
     }
     int currentCompleted = medicationCompleted +
         nutritionCompleted +
+        nutritionNotPermittedCompleted +
         othersCompleted +
         activityCompleted;
     percentageProgress = currentCompleted / total;
     data.addAll({ROUTINE_TOTAL_PERCENTAGE_KEY: percentageProgress});
-    saveResultsInDatabase(data, medicationCompleted, nutritionCompleted,
-        activityCompleted, othersCompleted);
+    saveResultsInDatabase(
+        data,
+        medicationCompleted,
+        nutritionCompleted,
+        nutritionNotPermittedCompleted,
+        activityCompleted,
+        othersCompleted,
+        nutritionValue,
+        nutritionNPValue,
+        examsValue);
   }
 
   Widget getNutritionsLists() {
@@ -1154,8 +1180,12 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       Map<String, Object> data,
       int medicationCompleted,
       int nutritionCompleted,
+      int nutritionNotPermittedCompleted,
       int activityCompleted,
-      int othersCompleted) async {
+      int othersCompleted,
+      int nutritionValue,
+      int nutritionNPValue,
+      int examsValue) async {
     final db = FirebaseFirestore.instance;
     String todayFormattedDate =
         DateFormat('dd-MMM-yyyy').format(DateTime.now());
@@ -1164,23 +1194,40 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     final int nutritionsListSize =
         nutritionList.length + nutritionNoPermittedList.length;
     final int examsListSize = othersList.length;
-    data.addAll({
-      ROUTINE_MEDICATION_PERCENTAGE_KEY:
-          medicationListSize > 0 ? medicationCompleted / medicationListSize : 0,
-      ROUTINE_ACTIVITY_PERCENTAGE_KEY:
-          activitiesListSize > 0 ? activityCompleted / activitiesListSize : 0,
-      ROUTINE_NUTRITION_PERCENTAGE_KEY:
-          nutritionsListSize > 0 ? nutritionCompleted / nutritionsListSize : 0,
-      ROUTINE_EXAMS_PERCENTAGE_KEY:
-          examsListSize > 0 ? othersCompleted / examsListSize : 0,
+
+    double medicationPercentage =
+        medicationListSize > 0 ? medicationCompleted / medicationListSize : 0;
+    double activitiesPercentage =
+        activitiesListSize > 0 ? activityCompleted / activitiesListSize : 0;
+    double nutritionPercentage = nutritionsListSize > 0
+        ? (nutritionCompleted + nutritionNotPermittedCompleted) /
+            nutritionsListSize
+        : 0;
+    double examsPercentage =
+        examsListSize > 0 ? othersCompleted / examsListSize : 0;
+    final Map<String, Object> routineData = {
+      ROUTINE_MEDICATION_PERCENTAGE_KEY: medicationPercentage,
+      ROUTINE_ACTIVITY_PERCENTAGE_KEY: activitiesPercentage,
+      ROUTINE_NUTRITION_PERCENTAGE_KEY: nutritionPercentage,
+      ROUTINE_EXAMS_PERCENTAGE_KEY: examsPercentage,
       ROUTINE_HOUR_COMPLETED_KEY: DateFormat('hh:mm').format(DateTime.now())
-    });
+    };
+    data.addAll(routineData);
     db
         .collection(ROUTINES_COLLECTION_KEY)
-        .doc(currentTreatmentId) // TODO: add currentTreatmentId when created
+        .doc(currentTreatmentId)
         .collection(ROUTINES_RESULTS_KEY)
         .doc(todayFormattedDate)
         .set(data);
+    saveDataCollection(
+        medicationPercentage,
+        activitiesPercentage,
+        nutritionPercentage,
+        examsPercentage,
+        todayFormattedDate,
+        nutritionValue,
+        nutritionNPValue,
+        examsValue);
   }
 
   int getTotalPrescriptionsSize() {
@@ -1189,5 +1236,141 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         nutritionList.length +
         nutritionNoPermittedList.length +
         othersList.length;
+  }
+
+  getDataValue(double percentage) {
+    if (percentage >= 80) {
+      return 0;
+    }
+    if (percentage >= 50) {
+      return 1;
+    }
+    if (percentage >= 25) {
+      return 2;
+    }
+    if (percentage >= 10) {
+      return 3;
+    }
+    return 4;
+  }
+
+  Future<void> saveDataCollection(
+      double medicationPercentage,
+      double activitiesPercentage,
+      double nutritionPercentage,
+      double examsPercentage,
+      String todayFormattedDate,
+      int nutritionValue,
+      int nutritionNPValue,
+      int examsValue) async {
+    final db = FirebaseFirestore.instance;
+
+    var userReference = db
+        .collection(USERS_COLLECTION_KEY)
+        .doc(FirebaseAuth.instance.currentUser?.uid);
+    final lastSurveySnapshot = await userReference
+        .collection(
+            SURVEY_COLLECTION_KEY) //TODO: REFACTOR THIS! THE SURVEY LIST CAN GROW A LOT
+        .orderBy(SURVEY_TIMESTAMP_KEY, descending: true)
+        .limit(1)
+        .get();
+    var surveyDataDocs = lastSurveySnapshot.docs;
+    var surveyData = surveyDataDocs.isEmpty
+        ? {
+            DATA_PREGUNTA1_KEY: "0",
+            DATA_PREGUNTA2_KEY: "0",
+            DATA_PREGUNTA3_KEY: "0",
+            DATA_PREGUNTA4_KEY: "0",
+            DATA_PREGUNTA5_KEY: "0",
+            DATA_PREGUNTA6_KEY: "0",
+          }
+        : surveyDataDocs.first.data();
+
+    // Get Userdata
+    final userSnapshot = await userReference.get();
+    final user.User userData = user.User.fromSnapshot(userSnapshot);
+    String? birthday = userData.birthDay;
+    // Get Aggregated data
+    int medicationData = getDataValue(medicationPercentage * 100);
+    int nutritionData = getNutritionData(nutritionValue, nutritionNPValue);
+    int activityData = getDataValue(activitiesPercentage * 100);
+    int examsData = getExamsData(examsValue);
+    int smokingData = userData.smoking == "Fumo" ? 4 : 0;
+    int a1 = int.parse(surveyData[DATA_PREGUNTA1_KEY]);
+    int a2 = int.parse(surveyData[DATA_PREGUNTA2_KEY]);
+    int a3 = int.parse(surveyData[DATA_PREGUNTA3_KEY]);
+    int a4 = int.parse(surveyData[DATA_PREGUNTA4_KEY]);
+    int a5 = int.parse(surveyData[DATA_PREGUNTA5_KEY]);
+    int a6 = int.parse(surveyData[DATA_PREGUNTA6_KEY]);
+    int sumData = smokingData +
+        a1 +
+        a2 +
+        a3 +
+        a4 +
+        a5 +
+        a6 +
+        medicationData +
+        nutritionData +
+        activityData +
+        examsData;
+    double adherenceData = 1 - (sumData / 36);
+    Map<String, dynamic> dataToAdd = {
+      DATA_EDAD_KEY: isNotEmtpy(birthday)
+          ? AgeCalculator.age(DateFormat.yMMMMd("en_US").parse(birthday!)).years
+          : 0, //TODO: Review format of birthday
+      DATA_SEXO_KEY: userData.gender,
+      DATA_ESTADO_CIVIL_KEY: userData.civilStatus,
+      DATA_NIVEL_EDUCACIONAL_KEY: userData.educationalLevel,
+      DATA_FUMA_KEY: smokingData,
+      DATA_PREGUNTA1_KEY: a1,
+      DATA_PREGUNTA2_KEY: a2,
+      DATA_PREGUNTA3_KEY: a3,
+      DATA_PREGUNTA4_KEY: a4,
+      DATA_PREGUNTA5_KEY: a5,
+      DATA_PREGUNTA6_KEY: a6,
+      DATA_MEDICACION_KEY: medicationData,
+      DATA_ALIMENTACION_KEY: nutritionData,
+      DATA_ACTIVIDAD_FISICA_KEY: activityData,
+      DATA_EXAMENES_KEY: examsData,
+      DATA_SUMA_KEY: sumData,
+      DATA_ADHERENCIA_KEY: adherenceData
+    };
+
+    db
+        .collection(DATA_COLLECTION_KEY)
+        .doc("$currentTreatmentId-$todayFormattedDate")
+        .set(dataToAdd);
+  }
+
+  getNutritionData(int nutritionValue, int nutritionNPValue) {
+    int nutritionTotal = nutritionList.length - nutritionValue;
+    double nutritionPercentage =
+        nutritionList.isNotEmpty ? nutritionTotal / nutritionList.length : 0;
+    int nutritionDataValue =
+        getNutritionOrExamDataValue(nutritionPercentage * 100);
+    int nutritionNotPermitteDataValue = getNutritionOrExamDataValue(
+        (nutritionNoPermittedList.isNotEmpty
+                ? nutritionNPValue / nutritionNoPermittedList.length
+                : 0) *
+            100);
+    int finalValue = nutritionDataValue + nutritionNotPermitteDataValue;
+    return finalValue ~/ 2;
+  }
+
+  getExamsData(int examsValue) {
+    int examsTotal = othersList.length - examsValue;
+    double examsPercentage =
+        othersList.isNotEmpty ? examsTotal / othersList.length : 0;
+    return getNutritionOrExamDataValue(examsPercentage * 100);
+  }
+
+  int getNutritionOrExamDataValue(double nutritionPercentage) {
+    if (nutritionPercentage >= 80) {
+      return 2;
+    }
+    if (nutritionPercentage >= 50) {
+      return 1;
+    }
+    return 0;
   }
 }
