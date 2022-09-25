@@ -380,73 +380,115 @@ class PatientDetailState extends State<PatientDetail> {
                               ),
                             )
                           ]),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              height: 20,
-                              color: const Color(0xff3BACB6),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                // _signInWithEmailAndPassword();
-                              },
-                              child: const Text(
-                                'Diario',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                side: const BorderSide(
-                                    color: Color(0xff3BACB6),
-                                    width: 1,
-                                    style: BorderStyle.solid),
-                              ),
-                              height: 20,
-                              color:
-                                  true ? Colors.white : const Color(0xff3BACB6),
-                              textColor:
+                      Container(
+                          margin: EdgeInsets.symmetric(vertical: 20.0),
+                          height: 20,
+                          child: new ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: <Widget>[
+                              Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 5),
+                                  child: FlatButton(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    height: 20,
+                                    color: const Color(0xff3BACB6),
+                                    textColor: Colors.white,
+                                    onPressed: () {
+                                      // _signInWithEmailAndPassword();
+                                    },
+                                    child: const Text(
+                                      'Diario',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  )),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: FlatButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    side: const BorderSide(
+                                        color: Color(0xff3BACB6),
+                                        width: 1,
+                                        style: BorderStyle.solid),
+                                  ),
+                                  height: 20,
+                                  color: true
+                                      ? Colors.white
+                                      : const Color(0xff3BACB6),
+                                  textColor:
                                   true ? Color(0xff999999) : Colors.white,
-                              onPressed: () {
-                                // _signInWithEmailAndPassword();
-                              },
-                              child: const Text(
-                                'Semanal',
-                                style: TextStyle(
-                                  fontSize: 12,
+                                  onPressed: () {
+                                    // _signInWithEmailAndPassword();
+                                  },
+                                  child: const Text(
+                                    'Semanal',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                            FlatButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                side: const BorderSide(
-                                    color: Color(0xff3BACB6),
-                                    width: 1,
-                                    style: BorderStyle.solid),
-                              ),
-                              height: 20,
-                              color:
-                                  true ? Colors.white : const Color(0xff3BACB6),
-                              textColor:
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: FlatButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    side: const BorderSide(
+                                        color: Color(0xff3BACB6),
+                                        width: 1,
+                                        style: BorderStyle.solid),
+                                  ),
+                                  height: 20,
+                                  color: true
+                                      ? Colors.white
+                                      : const Color(0xff3BACB6),
+                                  textColor:
                                   true ? Color(0xff999999) : Colors.white,
-                              onPressed: () {
-                                // _signInWithEmailAndPassword();
-                              },
-                              child: const Text(
-                                'Mensual',
-                                style: TextStyle(
-                                  fontSize: 12,
+                                  onPressed: () {
+                                    // _signInWithEmailAndPassword();
+                                  },
+                                  child: const Text(
+                                    'Mensual',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            )
-                          ]),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: FlatButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    side: const BorderSide(
+                                        color: Color(0xff3BACB6),
+                                        width: 1,
+                                        style: BorderStyle.solid),
+                                  ),
+                                  height: 20,
+                                  color: true
+                                      ? Colors.white
+                                      : const Color(0xff3BACB6),
+                                  textColor:
+                                  true ? Color(0xff999999) : Colors.white,
+                                  onPressed: () {
+                                    // _signInWithEmailAndPassword();
+                                  },
+                                  child: const Text(
+                                    'Anual',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                            ],
+                          )),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: const <Widget>[
@@ -1128,7 +1170,7 @@ class PatientDetailState extends State<PatientDetail> {
                     const SizedBox(
                       height: 10,
                     ),
-                   /*  Row(
+                    /*  Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("Estado",
@@ -1173,7 +1215,7 @@ class PatientDetailState extends State<PatientDetail> {
                       decoration: staticComponents.getLittleInputDecoration(
                           'Tratamiento de de la diabetes\n con 6 meses de pre...'),
                     ), */
-                   /*  const SizedBox(
+                    /*  const SizedBox(
                       height: 30,
                     ), */
                     medicationCounter +
@@ -1465,7 +1507,7 @@ class PatientDetailState extends State<PatientDetail> {
     );*/
   }
 
-   getExamnTreatmentCard() {
+  getExamnTreatmentCard() {
     return FutureBuilder(
       future: examnFuture,
       builder: (context, AsyncSnapshot snapshot) {
@@ -2126,8 +2168,7 @@ class PatientDetailState extends State<PatientDetail> {
     return result;
   }
 
-   Future<List<String>> getExamnPrescriptions(
-      String currentTreatmentId) async {
+  Future<List<String>> getExamnPrescriptions(String currentTreatmentId) async {
     List<String> result = <String>[];
     final db = FirebaseFirestore.instance;
     var snapshot = await db
