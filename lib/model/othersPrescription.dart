@@ -52,11 +52,11 @@ class ExamnPrescription {
   String? periodicity;
 
   ExamnPrescription({
-    required this.databaseId,
-    required this.treatmentId,
-    required this.name,
-    required this.periodicity,
-    required this.endDate,
+     this.databaseId,
+     this.treatmentId,
+     this.name,
+     this.periodicity,
+     this.endDate,
   });
 
   factory ExamnPrescription.empty() {

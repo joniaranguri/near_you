@@ -13,15 +13,15 @@ class ActivityPrescription {
   String? permitted;
 
   ActivityPrescription(
-      {required this.databaseId,
-      required this.treatmentId,
-      required this.name,
-      required this.activity,
-      required this.timeNumber,
-      required this.timeType,
-      required this.periodicity,
-      required this.calories,
-      required this.permitted});
+      {this.databaseId,
+      this.treatmentId,
+      this.name,
+      this.activity,
+      this.timeNumber,
+      this.timeType,
+      this.periodicity,
+      this.calories,
+      this.permitted});
 
   factory ActivityPrescription.empty() {
     return ActivityPrescription(

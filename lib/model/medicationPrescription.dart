@@ -16,21 +16,21 @@ class MedicationPrescription {
   String? durationType;
 
   MedicationPrescription(
-      {required this.databaseId,
-        required this.treatmentId,
-      required this.name,
-      required this.startDate,
-      required this.durationNumber,
-      required this.durationType,
-      required this.pastilleType,
-      required this.dose,
-      required this.quantity,
-      required this.periodicity,
-      required this.recomendation});
+      {this.databaseId,
+      this.treatmentId,
+      this.name,
+      this.startDate,
+      this.durationNumber,
+      this.durationType,
+      this.pastilleType,
+      this.dose,
+      this.quantity,
+      this.periodicity,
+      this.recomendation});
 
   factory MedicationPrescription.empty() {
     return MedicationPrescription(
-      databaseId: "",
+        databaseId: "",
         treatmentId: "",
         name: "",
         startDate: "",

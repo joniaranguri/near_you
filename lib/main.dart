@@ -1,3 +1,4 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ Future<void> main() async {
   bool showIntroSlide = !pref.containsKey(SHOW_INTRO_SLIDE);
   pref.setString(SHOW_INTRO_SLIDE, SHOW_INTRO_SLIDE);
   runApp(MyApp(showIntroSlide));
+  //runApp(DevicePreview(builder: (_) => MyApp(showIntroSlide)));
 }
 
 class MyApp extends StatelessWidget {
@@ -32,7 +34,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
-      home: getHome(this.showIntro),
+      home: getHome(showIntro),
+      
       routes: {
         HomeScreen.routeName: (ctx) => HomeScreen(),
         GettingStartedScreen.routeName: (ctx) => GettingStartedScreen(),
