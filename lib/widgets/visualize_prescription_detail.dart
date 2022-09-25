@@ -49,13 +49,13 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
   late final Future<List<MedicationPrescription>> medicationPrescriptionFuture;
   late final Future<List<NutritionPrescription>> nutritionPrescriptionFuture;
   late final Future<List<ActivityPrescription>> activityPrescriptionFuture;
-  late final Future<List<OthersPrescription>> othersPrescriptionFuture;
+  late final Future<List<ExamnPrescription>> examnPrescriptionFuture;
   List<MedicationPrescription> medicationsList = <MedicationPrescription>[];
   List<NutritionPrescription> nutritionList = <NutritionPrescription>[];
   List<ActivityPrescription> activitiesList = <ActivityPrescription>[];
   List<NutritionPrescription> nutritionNoPermittedList = <NutritionPrescription>[];
   List<ActivityPrescription> activitiesNoPermittedList = <ActivityPrescription>[];
-  List<OthersPrescription> othersList = <OthersPrescription>[];
+  List<ExamnPrescription> examnList = <ExamnPrescription>[];
 
   String? medicationStartDateValue;
   String? medicationNameValue;
@@ -164,7 +164,7 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
     medicationPrescriptionFuture = getMedicationPrescriptions();
     activityPrescriptionFuture = getActivityPrescriptions();
     nutritionPrescriptionFuture = getNutritionPrescriptions();
-    othersPrescriptionFuture = getOthersPrescriptions();
+    examnPrescriptionFuture = getExamnPrescriptions();
     medicationPrescriptionFuture.then((value) => {
           if (mounted)
             {
@@ -173,22 +173,32 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
               })
             }
         });
-    nutritionPrescriptionFuture.then((value) => {
-          if (mounted)
-            {
-              setState(() {
-                nutritionList = [];
-                nutritionNoPermittedList = [];
-                for (int i = 0; i < value.length; i++) {
-                  if (value[i].permitted == YES_KEY) {
-                    nutritionList.add(value[i]);
-                  } else {
-                    nutritionNoPermittedList.add(value[i]);
-                  }
-                }
-              })
+    nutritionPrescriptionFuture.then((value) {
+      if (mounted) {
+        setState(() {
+          nutritionList = [];
+          nutritionNoPermittedList = [];
+          for (int i = 0; i < value.length; i++) {
+            if (value[i].permitted == YES_KEY) {
+              nutritionList.add(value[i]);
+            } else {
+              nutritionNoPermittedList.add(value[i]);
             }
+          }
         });
+
+        if (nutritionList.isNotEmpty) {
+          weightController.text = nutritionList[0].weight.toString();
+          heightController.text = nutritionList[0].height.toString();
+          imcController.text = nutritionList[0].imc.toString();
+        }
+        if (nutritionNoPermittedList.isNotEmpty) {
+          weightController.text = nutritionNoPermittedList[0].weight.toString();
+          heightController.text = nutritionNoPermittedList[0].height.toString();
+          imcController.text = nutritionNoPermittedList[0].imc.toString();
+        }
+      }
+    });
     activityPrescriptionFuture.then((value) => {
           if (mounted)
             {
@@ -197,11 +207,11 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
               })
             }
         });
-    othersPrescriptionFuture.then((value) => {
+    examnPrescriptionFuture.then((value) => {
           if (mounted)
             {
               setState(() {
-                othersList = value;
+                examnList = value;
               })
             }
         });
@@ -253,8 +263,8 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
         childView = getPhisicalActivityView();
         break;
       default:
-        title = "Otros";
-        childView = getOthersView();
+        title = "Exámenes";
+        childView = getExamnView();
     }
     return getPrescriptionPage(i, title, childView);
   }
@@ -567,27 +577,16 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
               width: double.infinity,
               height: 470,
               padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: SingleChildScrollView(
-                  child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minHeight: 200,
-                      ),
-                      child: Column(
-                        children: [
-                          sizedBox10,
-                          SizedBox(
-                              child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: medicationsList.length,
-                                  itemBuilder: (context, index) {
-                                    return VizualizeMedicationPrescriptionItem(
-                                      medication: medicationsList[index],
-                                    );
-                                  })),
-                        ],
-                      ))),
+              child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: medicationsList.length,
+                  itemBuilder: (context, index) {
+                    return VizualizeMedicationPrescriptionItem(
+                      medication: medicationsList[index],
+                    );
+                  }),
             );
           }
           return const SizedBox(
@@ -631,6 +630,19 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
         .get();
     for (var element in future.docs) {
       resultList.add(NutritionPrescription.fromSnapshot(element));
+    }
+    return resultList;
+  }
+
+  Future<List<ExamnPrescription>> getExamnPrescriptions() async {
+    List<ExamnPrescription> resultList = <ExamnPrescription>[];
+    final db = FirebaseFirestore.instance;
+    var future = await db
+        .collection(EXAMN_PRESCRIPTION_COLLECTION_KEY)
+        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatment?.databaseId)
+        .get();
+    for (var element in future.docs) {
+      resultList.add(ExamnPrescription.fromSnapshot(element));
     }
     return resultList;
   }
@@ -856,6 +868,10 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
     return staticComponents.emptyBox;
   }
 
+  final weightController = TextEditingController();
+  final heightController = TextEditingController();
+  final imcController = TextEditingController();
+
   Widget getAlimentationView() {
     return FutureBuilder(
         future: nutritionPrescriptionFuture,
@@ -883,17 +899,25 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              Flexible(
-                                child: SizedBox(
-                                    height: 35,
-                                    width: 111,
-                                    child: TextFormField(
-                                      controller: TextEditingController(text: weightValue),
-                                      style: const TextStyle(fontSize: 14),
-                                      decoration:
-                                          staticComponents.getMiddleInputDecorationDisabled(),
-                                    )),
-                              ),
+                              Expanded(
+                                  child: TextFormField(
+                                enabled: false,
+                                controller: weightController,
+                                decoration: InputDecoration(
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                  filled: true,
+                                  isDense: true,
+                                  fillColor: Colors.white,
+                                  hintText: '1.2',
+                                  hintStyle:
+                                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                  enabledBorder: StaticComponents().middleInputBorder,
+                                  border: StaticComponents().middleInputBorder,
+                                  focusedBorder: StaticComponents().middleInputBorder,
+                                ),
+                                keyboardType: TextInputType.number,
+                              )),
                               const Padding(
                                   padding: EdgeInsets.all(10),
                                   child: Text(
@@ -917,14 +941,27 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
                             children: <Widget>[
                               Flexible(
                                 child: SizedBox(
-                                    height: 35,
-                                    width: 111,
-                                    child: TextFormField(
-                                      controller: TextEditingController(text: heightValue),
-                                      style: const TextStyle(fontSize: 14),
-                                      decoration:
-                                          staticComponents.getMiddleInputDecorationDisabled(),
-                                    )),
+                                  child: TextFormField(
+                                    controller: heightController,
+                                    enabled: false,
+                                    style: const TextStyle(fontSize: 14),
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                      filled: true,
+                                      isDense: true,
+                                      fillColor: Colors.white,
+                                      hintText: '1.65',
+                                      hintStyle:
+                                          const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                      enabledBorder: StaticComponents().middleInputBorder,
+                                      border: StaticComponents().middleInputBorder,
+                                      focusedBorder: StaticComponents().middleInputBorder,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    //inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                  ),
+                                ),
                               ),
                               const Padding(
                                   padding: EdgeInsets.all(10),
@@ -948,7 +985,7 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
                           SizedBox(
                               height: 35,
                               child: TextFormField(
-                                controller: TextEditingController(text: imcValue),
+                                controller: imcController,
                                 style: const TextStyle(fontSize: 14),
                                 decoration: staticComponents.getMiddleInputDecorationDisabled(),
                               )),
@@ -963,43 +1000,33 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
                             ],
                           ),
                           sizedBox10,
-                          Container(
-                            decoration: const BoxDecoration(
-                              color: Color(0xffD9D9D9),
-                              borderRadius: BorderRadius.all(Radius.circular(5)),
-                            ),
-                            child: SizedBox(
-                                child: ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    itemCount: nutritionList.length,
-                                    itemBuilder: (context, index) {
-                                      return InkWell(
-                                          onTap: () {
-                                            editFood(index, true);
-                                          },
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: <Widget>[
-                                              const SizedBox(
-                                                height: 35,
-                                                child: Icon(Icons.keyboard_arrow_down,
-                                                    size: 30,
-                                                    color: Color(
-                                                        0xff999999)), // myIcon is a 48px-wide widget.
-                                              ),
-                                              Text(nutritionList[index].name ?? "Alimento",
-                                                  textAlign: TextAlign.left,
-                                                  style: const TextStyle(
-                                                      fontSize: 14, color: Color(0xff999999))),
-                                              const SizedBox(height: 10)
-                                            ],
-                                          ));
-                                    })),
-                          ),
-                          getButtonAddFoodOrList(),
+                          SizedBox(
+                              child: ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: nutritionList.length,
+                                  itemBuilder: (context, index) {
+                                    return Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        const SizedBox(
+                                          height: 35,
+                                          child: Icon(Icons.keyboard_arrow_down,
+                                              size: 30,
+                                              color: Color(
+                                                  0xff999999)), // myIcon is a 48px-wide widget.
+                                        ),
+                                        Text(nutritionList[index].name ?? "Alimento",
+                                            textAlign: TextAlign.left,
+                                            style: const TextStyle(
+                                                fontSize: 14, color: Color(0xff999999))),
+                                        const SizedBox(height: 10)
+                                      ],
+                                    );
+                                  })),
+                          //getButtonAddFoodOrList(),
                           sizedBox10,
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -1010,44 +1037,33 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
                             ],
                           ),
                           sizedBox10,
-                          Container(
-                              decoration: const BoxDecoration(
-                                color: Color(0xffD9D9D9),
-                                borderRadius: BorderRadius.all(Radius.circular(5)),
-                              ),
-                              child: SizedBox(
-                                  child: ListView.builder(
-                                      padding: EdgeInsets.zero,
-                                      shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      itemCount: nutritionNoPermittedList.length,
-                                      itemBuilder: (context, index) {
-                                        return InkWell(
-                                            onTap: () {
-                                              editFood(index, false);
-                                            },
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: <Widget>[
-                                                const SizedBox(
-                                                  height: 35,
-                                                  child: Icon(Icons.keyboard_arrow_down,
-                                                      size: 30,
-                                                      color: Color(
-                                                          0xff999999)), // myIcon is a 48px-wide widget.
-                                                ),
-                                                Text(
-                                                    nutritionNoPermittedList[index].name ??
-                                                        "Actividad",
-                                                    textAlign: TextAlign.left,
-                                                    style: const TextStyle(
-                                                        fontSize: 14, color: Color(0xff999999))),
-                                                const SizedBox(height: 10)
-                                              ],
-                                            ));
-                                      }))),
-                          getButtonAddFoodOrListProhibited(),
+                          SizedBox(
+                              child: ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: nutritionNoPermittedList.length,
+                                  itemBuilder: (context, index) {
+                                    return Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        const SizedBox(
+                                          height: 35,
+                                          child: Icon(Icons.keyboard_arrow_down,
+                                              size: 30,
+                                              color: Color(
+                                                  0xff999999)), // myIcon is a 48px-wide widget.
+                                        ),
+                                        Text(nutritionNoPermittedList[index].name ?? "Actividad",
+                                            textAlign: TextAlign.left,
+                                            style: const TextStyle(
+                                                fontSize: 14, color: Color(0xff999999))),
+                                        const SizedBox(height: 10)
+                                      ],
+                                    );
+                                  })),
+                          //getButtonAddFoodOrListProhibited(),
                         ],
                       ))),
             );
@@ -1070,7 +1086,7 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
               child: ListView.builder(
                   padding: EdgeInsets.zero,
                   shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+                  //physics: const NeverScrollableScrollPhysics(),
                   itemCount: activitiesList.length,
                   itemBuilder: (context, index) {
                     return VizualizeActivityPrescriptionItem(
@@ -1085,69 +1101,25 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
         });
   }
 
-  Widget getOthersView() {
+  Widget getExamnView() {
     return FutureBuilder(
-        future: othersPrescriptionFuture,
-        builder: (context, AsyncSnapshot<List<OthersPrescription>> snapshot) {
+        future: examnPrescriptionFuture,
+        builder: (context, AsyncSnapshot<List<ExamnPrescription>> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Container(
               width: double.infinity,
               height: 470,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                  child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minHeight: 200,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: const [
-                              Text("Insulina ",
-                                  style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                            ],
-                          ),
-                          sizedBox10,
-                          Container(
-                              decoration: const BoxDecoration(
-                                color: Color(0xffD9D9D9),
-                                borderRadius: BorderRadius.all(Radius.circular(5)),
-                              ),
-                              child: SizedBox(
-                                  child: ListView.builder(
-                                      padding: EdgeInsets.zero,
-                                      shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      itemCount: othersList.length,
-                                      itemBuilder: (context, index) {
-                                        return InkWell(
-                                            onTap: () {
-                                              editOthers(index);
-                                            },
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: <Widget>[
-                                                const SizedBox(
-                                                  height: 35,
-                                                  child: Icon(Icons.keyboard_arrow_down,
-                                                      size: 30,
-                                                      color: Color(
-                                                          0xff999999)), // myIcon is a 48px-wide widget.
-                                                ),
-                                                Text(othersList[index].name ?? "Medicacion",
-                                                    textAlign: TextAlign.left,
-                                                    style: const TextStyle(
-                                                        fontSize: 14, color: Color(0xff999999)))
-                                              ],
-                                            ));
-                                      }))),
-                          getButtonOrOthersList(),
-                          const SizedBox(height: 2)
-                        ],
-                      ))),
+              child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  //physics: const NeverScrollableScrollPhysics(),
+                  itemCount: examnList.length,
+                  itemBuilder: (context, index) {
+                    return VizualizeExamnPrescriptionItem(
+                      examn: examnList[index],
+                    );
+                  }),
             );
           }
           return const SizedBox(
@@ -1902,13 +1874,13 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
 
   void editOthers(int index) {
     setState(() {
-      editingOthers = true;
+      /* editingOthers = true;
       updateOthers = index;
-      othersNameValue = othersList[index].name ?? "";
-      othersDurationValue = othersList[index].duration ?? "";
-      othersPeriodicityValue = othersList[index].periodicity ?? "";
-      othersDetailValue = othersList[index].detail ?? "";
-      othersRecommendationValue = othersList[index].recommendation ?? "";
+      othersNameValue = examnList[index].name ?? "";
+      othersDurationValue = examnList[index].duration ?? "";
+      othersPeriodicityValue = examnList[index].periodicity ?? "";
+      othersDetailValue = examnList[index].detail ?? "";
+      othersRecommendationValue = examnList[index].recommendation ?? ""; */
     });
   }
 }
@@ -1983,14 +1955,14 @@ class _VizualizeMedicationPrescriptionItemState extends State<VizualizeMedicatio
                           ),
                         ),
                         const SizedBox(width: 10),
-                        DisableWidget(
+                        /* DisableWidget(
                           isDisable: true,
                           child: CheckButton(
                             onTap: () async {
                               //addOrUpdateMedicationLocally();
                             },
                           ),
-                        )
+                        ) */
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -2126,9 +2098,9 @@ class _VizualizeActivityPrescriptionItem extends State<VizualizeActivityPrescrip
                             ),
                           ),
                           const SizedBox(width: 10),
-                          CheckButton(
+                          /* CheckButton(
                             onTap: () async {},
-                          ),
+                          ), */
                         ],
                       ),
                       const SizedBox(
@@ -2188,6 +2160,126 @@ class _VizualizeActivityPrescriptionItem extends State<VizualizeActivityPrescrip
                 ),
               ),
             )
+        ],
+      ),
+    );
+  }
+}
+
+class VizualizeExamnPrescriptionItem extends StatefulWidget {
+  const VizualizeExamnPrescriptionItem({Key? key, required this.examn}) : super(key: key);
+
+  final ExamnPrescription examn;
+
+  @override
+  State<VizualizeExamnPrescriptionItem> createState() => _VizualizeExamnPrescriptionItem();
+}
+
+class _VizualizeExamnPrescriptionItem extends State<VizualizeExamnPrescriptionItem> {
+  bool showForm = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  setState(() {
+                    showForm = !showForm;
+                  });
+                },
+                child: const SizedBox(
+                  height: 35,
+                  child: Icon(Icons.keyboard_arrow_down,
+                      size: 30, color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                ),
+              ),
+              Text(widget.examn.name ?? "Medicacion",
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(fontSize: 14, color: Color(0xff999999)))
+            ],
+          ),
+          if (showForm)
+            DisableWidget(
+                isDisable: true,
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Color(0xffD9D9D9),
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Expanded(
+                              child: SizedBox(
+                                height: 40,
+                                child: TextFormField(
+                                  controller: TextEditingController(text: widget.examn.name),
+                                  style: const TextStyle(fontSize: 14),
+                                  decoration: StaticComponents()
+                                      .getMiddleInputDecoration('Nombre del Exámen'),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            //CheckButton(onTap: () async {})
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text("Periocidad",
+                                style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          controller: TextEditingController(text: widget.examn.periodicity),
+                          style: const TextStyle(fontSize: 14),
+                          decoration:
+                              StaticComponents().getMiddleInputDecoration('Nombre del Exámen'),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text("Fecha de próximo exámen",
+                                style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          controller: TextEditingController(text: widget.examn.endDate),
+                          style: const TextStyle(fontSize: 14),
+                          decoration:
+                              StaticComponents().getMiddleInputDecoration('Nombre del Exámen'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ))
         ],
       ),
     );

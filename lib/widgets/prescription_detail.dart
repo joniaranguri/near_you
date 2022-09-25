@@ -180,8 +180,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   void refreshNutritionPrescription() async {
     setState(() => isNutritionLoading = true);
     final nutritions = await getNutritionPrescriptions();
-    nutritionList = [];
-    nutritionNoPermittedList = [];
     for (int i = 0; i < nutritions.length; i++) {
       if (nutritions[i].permitted == YES_KEY) {
         nutritionList.add(nutritions[i]);
@@ -189,10 +187,18 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         nutritionNoPermittedList.add(nutritions[i]);
       }
     }
+    if (nutritionList.isNotEmpty) {
+      weightController.text = nutritionList[0].weight.toString();
+      heightController.text = nutritionList[0].height.toString();
+      imcTextController.text = nutritionList[0].imc.toString();
+    }
+    if (nutritionNoPermittedList.isNotEmpty) {
+      weightController.text = nutritionNoPermittedList[0].weight.toString();
+      heightController.text = nutritionNoPermittedList[0].height.toString();
+      imcTextController.text = nutritionNoPermittedList[0].imc.toString();
+    }
     editNotPermittedFood = false;
     editPermittedFood = false;
-    foodPermitted = null;
-    foodNotPermitted = null;
     setState(() => isNutritionLoading = false);
   }
 
@@ -679,7 +685,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             borderRadius: BorderRadius.circular(30)),
                         textColor: const Color(0xff9D9CB5),
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(context, _currentPage);
                         },
                         child: const Text(
                           'Cancelar',
@@ -1417,6 +1423,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 }
                                 return null;
                               },
+                              onChanged: _calculateIMC,
                               controller: weightController,
                               decoration: InputDecoration(
                                 contentPadding:
@@ -1476,6 +1483,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                   /*  onChanged: (value) {
                                     heightValue = value;
                                   }, */
+                                  onChanged: _calculateIMC,
                                   onFieldSubmitted: _calculateIMC,
                                   style: const TextStyle(fontSize: 14),
                                   decoration: InputDecoration(
@@ -1519,22 +1527,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             child: TextFormField(
                               enabled: false,
                               controller: imcTextController,
-                              /* validator: (value) {
-                                    if (value == null || value == '') {
-                                      setState(() {
-                                        durationError = true;
-                                      });
-                                      return "Complete el campo";
-                                    }
-                                    setState(() {
-                                      durationError = false;
-                                    });
-                                    return null;
-                                  }, */
-                              //controller: TextEditingController(text: imcValue),
-                              /* onChanged: (value) {
-                                    imcValue = value;
-                                  }, */
                               style: const TextStyle(fontSize: 14),
                               decoration: InputDecoration(
                                   contentPadding:
@@ -1571,34 +1563,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         const SizedBox(height: 10),
                         getNotPermittedFoodView(),
                         const SizedBox(height: 10),
-
-                        /*   Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: const [
-                                Text("Alimentación ",
-                                    style: TextStyle(fontSize: 14, color: Color(0xff999999))),
-                                Icon(Icons.info, size: 18, color: Color(0xff999999))
-                              ],
-                            ),
-                            sizedBox10, */
-
-                        /* getButtonAddFoodOrList(),
-                            sizedBox10,
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: const [
-                                Text("Alimentos no permitidos",
-                                    style: TextStyle(fontSize: 14, color: Color(0xff999999))),
-                              ],
-                            ), */
-                        //sizedBox10,
-
-                        //getButtonAddFoodOrListProhibited(),
-                        const SizedBox(
-                          height: 32,
-                        ),
+                        const SizedBox(height: 32),
                         getAlimentationButtons()
                       ],
                     ),
@@ -1606,7 +1571,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     );
   }
 
-  int currentPermitedFoodIndex = 0;
   bool readOnlyPermittedFood = false;
 
   Widget getPermittedFoodView() {
@@ -1654,13 +1618,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             child: IconButton(
                               padding: const EdgeInsets.only(bottom: 14),
                               onPressed: () {
-                                //editFood(index, true);
-                                setState(() {
-                                  editPermittedFood = true;
-                                  addNewPermittedfood = false;
-                                });
-                                currentPermitedFoodIndex = index;
-                                foodPermitted = nutritionList[index].name;
+                                showPermittedFoodForm(index);
                               },
                               icon: const Icon(Icons.edit,
                                   color: Color(0xff999999)), // myIcon is a 48px-wide widget.
@@ -1671,7 +1629,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             child: IconButton(
                               padding: const EdgeInsets.only(bottom: 30),
                               onPressed: () {
-                                deleteNutritionPermitted(index, true);
+                                deletePermittedFoodLocally(index);
                               },
                               icon: const Icon(Icons.delete,
                                   color: Color(0xff999999)), // myIcon is a 48px-wide widget.
@@ -1687,7 +1645,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   bool editPermittedFood = false;
   bool addNewPermittedfood = false;
-  String? foodPermitted;
+  final TextEditingController foodPermittedFormValue = TextEditingController();
 
   switchAddNutritionButtonOrForm() {
     return editPermittedFood || addNewPermittedfood
@@ -1708,10 +1666,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     child: SizedBox(
                       height: 40,
                       child: TextFormField(
-                          controller: TextEditingController(text: foodPermitted),
-                          onChanged: (value) {
-                            foodPermitted = value;
-                          },
+                          controller: foodPermittedFormValue,
                           style: const TextStyle(fontSize: 14),
                           decoration: staticComponents.getMiddleInputDecoration('Frutas')),
                     ),
@@ -1719,15 +1674,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   const SizedBox(width: 10),
                   CheckButton(
                     onTap: () async {
-                      if (!formKey.currentState!.validate() || foodPermitted == null) return;
-                      if (editPermittedFood) {
-                        await updateFoodInDatabase(foodPermitted, true, currentPermitedFoodIndex);
-                      } else {
-                        await saveFoodInDatabase(foodPermitted, true);
-                      }
-                      editPermittedFood = false;
-                      addNewPermittedfood = false;
-                      refreshNutritionPrescription();
+                      addOrUpdatePermittedFoodLocally();
                     },
                   )
                 ],
@@ -1806,13 +1753,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           child: IconButton(
                             padding: const EdgeInsets.only(bottom: 14),
                             onPressed: () {
-                              //editFood(index, false);
-                              setState(() {
-                                editNotPermittedFood = true;
-                                addNewNotPermittedfood = false;
-                              });
-                              currentNotPermitedFoodIndex = index;
-                              foodPermitted = nutritionNoPermittedList[index].name;
+                              showNotPermittedFoodForm(index);
                             },
                             icon: const Icon(Icons.edit,
                                 color: Color(0xff999999)), // myIcon is a 48px-wide widget.
@@ -1823,7 +1764,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           child: IconButton(
                             padding: const EdgeInsets.only(bottom: 30),
                             onPressed: () {
-                              deleteNutritionPermitted(index, false);
+                              deleteNotPermittedFoodLocally(index);
                             },
                             icon: const Icon(Icons.delete,
                                 color: Color(0xff999999)), // myIcon is a 48px-wide widget.
@@ -1840,7 +1781,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   bool editNotPermittedFood = false;
   bool addNewNotPermittedfood = false;
-  String? foodNotPermitted;
+  final TextEditingController foodNotPermittedForm = TextEditingController();
 
   switchAddNotPermittedNutritionButtonOrForm() {
     return editNotPermittedFood || addNewNotPermittedfood
@@ -1861,26 +1802,14 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     child: SizedBox(
                       height: 40,
                       child: TextFormField(
-                          controller: TextEditingController(text: foodNotPermitted),
-                          onChanged: (value) {
-                            foodNotPermitted = value;
-                          },
+                          controller: foodNotPermittedForm,
                           style: const TextStyle(fontSize: 14),
                           decoration: staticComponents.getMiddleInputDecoration('Dulces')),
                     ),
                   ),
                   const SizedBox(width: 10),
                   CheckButton(onTap: () async {
-                    if (!formKey.currentState!.validate() || foodNotPermitted == null) return;
-                    if (editNotPermittedFood) {
-                      await updateFoodInDatabase(
-                          foodNotPermitted, false, currentNotPermitedFoodIndex);
-                    } else {
-                      await saveFoodInDatabase(foodNotPermitted, false);
-                    }
-                    editNotPermittedFood = false;
-                    addNewNotPermittedfood = false;
-                    refreshNutritionPrescription();
+                    addOrUpdateNotPermittedFoodLocally();
                   }),
                 ],
               ),
@@ -2145,7 +2074,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     return null;
                   }, */
                   readOnly: true,
-                  // controller: TextEditingController(text: examnEndDateFormValue),
+                  controller: TextEditingController(text: examnEndDateFormValue),
                   onTap: () {
                     selectDateForNextExamn(context);
                   },
@@ -3532,9 +3461,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       textColor: Colors.white,
                       onPressed: () async {
                         await saveExamnInDatabase();
-                        if (mounted) {
-                          Navigator.pop(context, _currentPage);
-                        }
                       },
                       child: const Text(
                         'Guardar',
@@ -3907,7 +3833,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     if (readOnlyExamn) {
       fillExamnFormWithValues(index);
     } else {
-      clearActivityForm();
+      clearExamnForm();
     }
   }
 
@@ -3974,27 +3900,153 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  void addOrUpdatePermittedFoodLocally() {
+    if (editPermittedFood) {
+      setState(() {
+        nutritionList[currentPermitedFoodIndex] = nutritionList[currentPermitedFoodIndex]
+          ..name = foodPermittedFormValue.text;
+      });
+    } else {
+      setState(() {
+        editPermittedFood = false;
+      });
+      setState(() {
+        nutritionList.add(NutritionPrescription(
+          name: foodPermittedFormValue.text,
+          permitted: YES_KEY,
+        ));
+      });
+    }
+    addNewPermittedfood = false;
+    editPermittedFood = false;
+    foodPermittedFormValue.clear();
+  }
+
+  List<String> tempDeletedPermittedFoodForLater = [];
+
+  void deletePermittedFoodLocally(int index) {
+    setState(() {
+      String? databaseId = nutritionList[index].databaseId;
+      bool exits = databaseId != null;
+      if (exits) {
+        tempDeletedPermittedFoodForLater.add(databaseId);
+      }
+      nutritionList.removeAt(index);
+    });
+  }
+
+  int currentPermitedFoodIndex = 0;
+
+  void showPermittedFoodForm(int index) {
+    setState(() {
+      editPermittedFood = true;
+      addNewPermittedfood = false;
+      currentPermitedFoodIndex = index;
+      foodPermittedFormValue.text = nutritionList[index].name ?? '';
+    });
+  }
+
+  ////NOT PERMITED////////////////////////////////////////////////////////////////////////////////////
+
+  void addOrUpdateNotPermittedFoodLocally() {
+    if (editNotPermittedFood) {
+      setState(() {
+        nutritionNoPermittedList[currentNotPermitedFoodIndex] =
+            nutritionNoPermittedList[currentNotPermitedFoodIndex]..name = foodNotPermittedForm.text;
+      });
+    } else {
+      setState(() {
+        editNotPermittedFood = false;
+      });
+      setState(() {
+        nutritionNoPermittedList.add(NutritionPrescription(
+          name: foodNotPermittedForm.text,
+          permitted: NO_KEY,
+        ));
+      });
+    }
+    addNewNotPermittedfood = false;
+    editNotPermittedFood = false;
+    foodNotPermittedForm.clear();
+  }
+
+  List<String> tempDeletedNotPermittedFoodForLater = [];
+
+  void deleteNotPermittedFoodLocally(int index) {
+    setState(() {
+      String? databaseId = nutritionNoPermittedList[index].databaseId;
+      bool exits = databaseId != null;
+      if (exits) {
+        tempDeletedNotPermittedFoodForLater.add(databaseId);
+      }
+      nutritionNoPermittedList.removeAt(index);
+    });
+  }
+
+  void showNotPermittedFoodForm(int index) {
+    setState(() {
+      editNotPermittedFood = true;
+      addNewNotPermittedfood = false;
+      currentNotPermitedFoodIndex = index;
+      foodNotPermittedForm.text = nutritionNoPermittedList[index].name ?? '';
+    });
+  }
+
   void saveEachFoodInDatabase() async {
-    if (foodPermitted != null) {
-      await saveFoodInDatabase(foodPermitted, true);
+    if (!formKey.currentState!.validate() ||
+        (nutritionList.isEmpty && nutritionNoPermittedList.isEmpty)) return;
+
+    if (nutritionList.isNotEmpty) {
+      for (var i = 0; i < nutritionList.length; i++) {
+        saveFoodInDatabase(nutritionList[i]);
+      }
     }
-    if (foodNotPermitted != null) {
-      await saveFoodInDatabase(foodNotPermitted, false);
+
+    if (tempDeletedPermittedFoodForLater.isNotEmpty) {
+      for (var i = 0; i < tempDeletedPermittedFoodForLater.length; i++) {
+        String id = tempDeletedPermittedFoodForLater[i];
+        firebase.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(id).delete();
+      }
     }
+
+    if (nutritionNoPermittedList.isNotEmpty) {
+      for (var i = 0; i < nutritionNoPermittedList.length; i++) {
+        saveFoodInDatabase(nutritionNoPermittedList[i]);
+      }
+    }
+
+    if (tempDeletedNotPermittedFoodForLater.isNotEmpty) {
+      for (var i = 0; i < tempDeletedNotPermittedFoodForLater.length; i++) {
+        String id = tempDeletedNotPermittedFoodForLater[i];
+        firebase.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(id).delete();
+      }
+    }
+
     if (mounted) {
       Navigator.pop(context, _currentPage);
     }
   }
 
   //databaseID = FoW5LrG3K132gAYKEdeS
-  Future<void> saveFoodInDatabase(String? foodName, bool isPermitted) async {
-    final String treatmentId = currentTreatment!.databaseId!;
+  Future<void> saveFoodInDatabase(NutritionPrescription food) async {
+    String? databaseId = food.databaseId;
+    final currentCollection = firebase.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY);
+    final data = {
+      TREATMENT_ID_KEY: currentTreatmentDatabaseId,
+      NUTRITION_NAME_KEY: food.name ?? "",
+      NUTRITION_HEIGHT_KEY: heightController.text,
+      NUTRITION_WEIGHT_KEY: weightController.text,
+      NUTRITION_IMC_KEY: imcTextController.text,
+      PERMITTED_KEY: food.permitted,
+    };
 
-    final db = FirebaseFirestore.instance;
-    final data = makeFoodStructure(foodName, isPermitted, treatmentId);
-    var response = await db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).add(data);
-    await saveInPendingList(
-        PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, response.id, treatmentId);
+    if (await docExits(databaseId, NUTRITION_PRESCRIPTION_COLLECTION_KEY)) {
+      currentCollection.doc(databaseId).update(data);
+    } else {
+      final response = await currentCollection.add(data);
+      saveInPendingList(
+          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, response.id, currentTreatmentDatabaseId);
+    }
   }
 
   Future<void> updateFoodInDatabase(String? foodName, bool isPermitted, int index) async {
@@ -4473,6 +4525,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   } */
 
   void _calculateIMC(String value) {
+    if (!formKey.currentState!.validate()) return;
     double height = double.parse(heightController.text.isEmpty ? '0.0' : heightController.text);
     double weight = double.parse(weightController.text.isEmpty ? '0.0' : weightController.text);
     if (height != 0.0 && weight != 0.0) {
