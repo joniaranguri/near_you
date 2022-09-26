@@ -9,6 +9,7 @@ import 'package:near_you/screens/patient_detail_screen.dart';
 import 'package:near_you/screens/visualize_prescription_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 import '../model/user.dart' as user;
 import '../widgets/grouped_bar_chart.dart';
@@ -46,6 +47,7 @@ class PatientDetailState extends State<PatientDetail> {
   final PageController _pageController = PageController(initialPage: 0);
   bool isDoctorView;
   late final Future<Treatment> currentTreatmentFuture;
+  late final Future<List<BarCharData>> barchartDataFuture;
   late final Future<List<String>> medicationFuture;
   late final Future<List<String>> activityFuture;
   late final Future<List<String>> nutritionFuture;
@@ -65,6 +67,14 @@ class PatientDetailState extends State<PatientDetail> {
   List<String> nutritionList = <String>[];
   List<String> activitiesList = <String>[];
   List<String> examnList = <String>[];
+  int barChartPeriodIndex = 0;
+
+  List<BarCharData>? barcharListGlobal;
+
+  List<BarCharData> dailySeriesAdherence = <BarCharData>[];
+  List<BarCharData> weeklySeriesAdherence = <BarCharData>[];
+  List<BarCharData> monthlySeriesAdherence = <BarCharData>[];
+  List<BarCharData> annualSeriesAdherence = <BarCharData>[];
 
   PatientDetailState(this.detailedUser, this.isDoctorView);
 
@@ -98,6 +108,7 @@ class PatientDetailState extends State<PatientDetail> {
 
   @override
   void initState() {
+    barchartDataFuture = getAdherenceHistory();
     currentTreatmentFuture =
         getCurrentTReatmentById(detailedUser!.currentTreatment!);
     medicationFuture =
@@ -106,6 +117,12 @@ class PatientDetailState extends State<PatientDetail> {
     nutritionFuture =
         getNutritionPrescriptions(detailedUser!.currentTreatment!);
     examnFuture = getExamnPrescriptions(detailedUser!.currentTreatment!);
+    barchartDataFuture.then((value) => {
+          setState(() {
+            barcharListGlobal = value;
+            updateBarCharSeries();
+          })
+        });
     currentTreatmentFuture.then((value) => {
           setState(() {
             currentTreatment = value;
@@ -391,12 +408,22 @@ class PatientDetailState extends State<PatientDetail> {
                                   child: FlatButton(
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(5),
+                                      side: const BorderSide(
+                                          color: Color(0xff3BACB6),
+                                          width: 1,
+                                          style: BorderStyle.solid),
                                     ),
                                     height: 20,
-                                    color: const Color(0xff3BACB6),
-                                    textColor: Colors.white,
+                                    color: barChartPeriodIndex != 0
+                                        ? Colors.white
+                                        : const Color(0xff3BACB6),
+                                    textColor: barChartPeriodIndex != 0
+                                        ? Color(0xff999999)
+                                        : Colors.white,
                                     onPressed: () {
-                                      // _signInWithEmailAndPassword();
+                                      setState(() {
+                                        barChartPeriodIndex = 0;
+                                      });
                                     },
                                     child: const Text(
                                       'Diario',
@@ -416,13 +443,16 @@ class PatientDetailState extends State<PatientDetail> {
                                         style: BorderStyle.solid),
                                   ),
                                   height: 20,
-                                  color: true
+                                  color: barChartPeriodIndex != 1
                                       ? Colors.white
                                       : const Color(0xff3BACB6),
-                                  textColor:
-                                  true ? Color(0xff999999) : Colors.white,
+                                  textColor: barChartPeriodIndex != 1
+                                      ? Color(0xff999999)
+                                      : Colors.white,
                                   onPressed: () {
-                                    // _signInWithEmailAndPassword();
+                                    setState(() {
+                                      barChartPeriodIndex = 1;
+                                    });
                                   },
                                   child: const Text(
                                     'Semanal',
@@ -443,13 +473,16 @@ class PatientDetailState extends State<PatientDetail> {
                                         style: BorderStyle.solid),
                                   ),
                                   height: 20,
-                                  color: true
+                                  color: barChartPeriodIndex != 2
                                       ? Colors.white
                                       : const Color(0xff3BACB6),
-                                  textColor:
-                                  true ? Color(0xff999999) : Colors.white,
+                                  textColor: barChartPeriodIndex != 2
+                                      ? Color(0xff999999)
+                                      : Colors.white,
                                   onPressed: () {
-                                    // _signInWithEmailAndPassword();
+                                    setState(() {
+                                      barChartPeriodIndex = 2;
+                                    });
                                   },
                                   child: const Text(
                                     'Mensual',
@@ -470,13 +503,16 @@ class PatientDetailState extends State<PatientDetail> {
                                         style: BorderStyle.solid),
                                   ),
                                   height: 20,
-                                  color: true
+                                  color: barChartPeriodIndex != 3
                                       ? Colors.white
                                       : const Color(0xff3BACB6),
-                                  textColor:
-                                  true ? Color(0xff999999) : Colors.white,
+                                  textColor: barChartPeriodIndex != 3
+                                      ? Color(0xff999999)
+                                      : Colors.white,
                                   onPressed: () {
-                                    // _signInWithEmailAndPassword();
+                                    setState(() {
+                                      barChartPeriodIndex = 3;
+                                    });
                                   },
                                   child: const Text(
                                     'Anual',
@@ -486,7 +522,6 @@ class PatientDetailState extends State<PatientDetail> {
                                   ),
                                 ),
                               ),
-
                             ],
                           )),
                       Row(
@@ -517,7 +552,18 @@ class PatientDetailState extends State<PatientDetail> {
                                 ))
                           ]),
                       Container(
-                          height: 150, child: GroupedBarChart.withSampleData()),
+                          height: 150,
+                          child: FutureBuilder(
+                            future: barchartDataFuture,
+                            builder: (context,
+                                AsyncSnapshot<List<BarCharData>> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                return getBarCharView();
+                              }
+                              return CircularProgressIndicator();
+                            },
+                          )),
                       const SizedBox(
                         height: 10,
                       ),
@@ -2232,5 +2278,251 @@ class PatientDetailState extends State<PatientDetail> {
       'assets/images/arrow_up_blue.png',
       fit: BoxFit.none,
     );
+  }
+
+  Future<List<BarCharData>> getAdherenceHistory() async {
+    List<BarCharData> result = <BarCharData>[];
+    final db = FirebaseFirestore.instance;
+    var snapshot = await db
+        .collection(BAR_CHART_COLLECTION_KEY)
+        .where(PATIENT_ID_KEY, isEqualTo: detailedUser?.userId)
+        .get();
+
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      result.add(BarCharData.fromSnapshot(snapshot.docs[i]));
+    }
+    result.sort((a, b) => a.timestamp!.compareTo(b.timestamp!));
+
+    return result;
+  }
+
+  updateBarCharSeries() {
+    setState(() {
+      dailySeriesAdherence = getDailySeriesAdherence();
+      weeklySeriesAdherence = getWeeklySeriesAdherence();
+      monthlySeriesAdherence = getMonthlySeriesAdherence();
+      annualSeriesAdherence = getAnnualSeriesAdherence();
+    });
+  }
+
+  getBarCharView() {
+    List<BarCharData> seriesData = <BarCharData>[];
+    switch (barChartPeriodIndex) {
+      case 0:
+        seriesData = dailySeriesAdherence;
+        break;
+      case 1:
+        seriesData = weeklySeriesAdherence;
+        break;
+      case 2:
+        seriesData = monthlySeriesAdherence;
+        break;
+      case 3:
+        seriesData = annualSeriesAdherence;
+    }
+    List<charts.Series<dynamic, String>> barCharSeries = [
+      charts.Series<BarCharData, String>(
+        id: 'Adherence',
+        labelAccessorFn: (BarCharData barChartData, _) =>
+            '${((barChartData.adherence ?? 0) * 100).toInt()}%',
+        domainFn: (BarCharData barChartData, _) => barChartData.dateLabel!,
+        measureFn: (BarCharData barChartData, _) => barChartData.adherence,
+        colorFn: (ordinary, __) {
+          if (ordinary.adherence! >= 80) {
+            return charts.Color.fromHex(code: "#DCF0EF");
+          }
+          return charts.Color.fromHex(code: "#2F8F9D");
+        },
+        insideLabelStyleAccessorFn: (BarCharData barChartData, _) {
+          final color = ((barChartData.adherence ?? 0) >= 0.8)
+              ? charts.Color.fromHex(code: "#6EC6A4")
+              : charts.Color.fromHex(code: "#F8191E");
+          return charts.TextStyleSpec(color: color);
+        },
+        outsideLabelStyleAccessorFn: (BarCharData barChartData, _) {
+          final color = ((barChartData.adherence ?? 0) >= 0.8)
+              ? charts.Color.fromHex(code: "#6EC6A4")
+              : charts.Color.fromHex(code: "#F8191E");
+          return charts.TextStyleSpec(color: color);
+        },
+        data: seriesData,
+      ),
+    ];
+
+    return Expanded(
+      child: GroupedBarChart(barCharSeries, animate: true),
+    );
+  }
+
+  List<BarCharData> getDailySeriesAdherence() {
+    List<BarCharData> result = <BarCharData>[];
+    DateTime today = DateTime.now();
+    int firstIndex = 0;
+    if ((barcharListGlobal?.length ?? 0) > 7) {
+      firstIndex = barcharListGlobal?.length ?? 7 - 7;
+    }
+    for (int i = 0; i < daysList.length; i++) {
+      BarCharData currentBarChart = BarCharData(
+          dateTime: null,
+          medicationPercentage: null,
+          nutritionPercentage: null,
+          activitiesPercentage: null,
+          examsPercentage: null);
+      currentBarChart.dateLabel = daysList[i];
+      currentBarChart.adherence = 0;
+      result.add(currentBarChart);
+    }
+    for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
+      BarCharData currentBarChart = barcharListGlobal![i];
+      DateTime currentDate = currentBarChart.dateTime!;
+      if (today.subtract(const Duration(days: 7)).isAfter(currentDate)) {
+        continue; // skip if is invalid range
+      }
+      int day = currentDate.weekday - 1;
+      currentBarChart.dateLabel = result[day].dateLabel;
+      result[day] = currentBarChart;
+    }
+
+    int todayIndex = today.weekday;
+    if (todayIndex == DateTime.sunday) return result;
+
+    List<BarCharData> finalResult = <BarCharData>[];
+    for (int i = todayIndex; i < result.length; i++) {
+      finalResult.add(result[i]);
+    }
+    for (int i = 0; i < todayIndex; i++) {
+      finalResult.add(result[i]);
+    }
+    return finalResult;
+  }
+
+  List<BarCharData> getWeeklySeriesAdherence() {
+    List<BarCharData> result = <BarCharData>[];
+    DateTime today = DateTime.now();
+    int firstIndex = 0;
+
+    if ((barcharListGlobal?.length ?? 0) > 30) {
+      firstIndex = barcharListGlobal?.length ?? 30 - 30;
+    }
+    for (int i = 0; i < weeksList.length; i++) {
+      BarCharData currentBarChart = BarCharData(
+          dateTime: null,
+          medicationPercentage: null,
+          nutritionPercentage: null,
+          activitiesPercentage: null,
+          examsPercentage: null);
+      currentBarChart.dateLabel = weeksList[i];
+      currentBarChart.adherence = 0;
+      result.add(currentBarChart);
+    }
+    double sum1 = 0;
+    int cant1 = 0;
+    double sum2 = 0;
+    int cant2 = 0;
+    int cant3 = 0;
+    int cant4 = 0;
+    double sum3 = 0;
+    double sum4 = 0;
+    for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
+      BarCharData currentBarChart = barcharListGlobal![i];
+      DateTime currentDate = currentBarChart.dateTime!;
+      if (today.subtract(const Duration(days: 30)).isAfter(currentDate)) {
+        continue; // skip if is invalid range
+      }
+      int day = currentDate.day;
+      double currentAdherence = currentBarChart.adherence!;
+      if (day > 7 && day <= 15) {
+        cant2++;
+        sum2 += currentAdherence;
+      } else if (day > 15 && day <= 21) {
+        cant3++;
+        sum3 += currentAdherence;
+      } else if (day > 21) {
+        cant4++;
+        sum4 += currentAdherence;
+      } else {
+        cant1++;
+        sum1 += currentAdherence;
+      }
+    }
+    result[0].adherence = cant1 > 0 ? sum1 / cant1 : 0;
+    result[1].adherence = cant2 > 0 ? sum2 / cant2 : 0;
+    result[2].adherence = cant3 > 0 ? sum3 / cant3 : 0;
+    result[3].adherence = cant4 > 0 ? sum4 / cant4 : 0;
+    return result;
+  }
+
+  List<BarCharData> getMonthlySeriesAdherence() {
+    List<BarCharData> result = <BarCharData>[];
+    DateTime today = DateTime.now();
+    int firstIndex = 0;
+    if ((barcharListGlobal?.length ?? 0) > 365) {
+      firstIndex = barcharListGlobal?.length ?? 365 - 365;
+    }
+    for (int i = 0; i < monthsList.length; i++) {
+      BarCharData currentBarChart = BarCharData(
+          dateTime: null,
+          medicationPercentage: null,
+          nutritionPercentage: null,
+          activitiesPercentage: null,
+          examsPercentage: null);
+      currentBarChart.dateLabel = monthsList[i];
+      currentBarChart.adherence = 0;
+      result.add(currentBarChart);
+    }
+    for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
+      BarCharData currentBarChart = barcharListGlobal![i];
+      DateTime currentDate = currentBarChart.dateTime!;
+      if (today.subtract(const Duration(days: 365)).isAfter(currentDate)) {
+        continue; // skip if is invalid range
+      }
+      double sum = currentBarChart.adherence ?? 0;
+      int cantCounter = 1;
+      int month = currentDate.month;
+      while (i + 1 < barcharListGlobal!.length &&
+          month == barcharListGlobal![i + 1].dateTime!.month) {
+        i++;
+        currentBarChart = barcharListGlobal![i];
+        currentDate = currentBarChart.dateTime!;
+        month = currentDate.month;
+        sum += currentBarChart.adherence ?? 0;
+        cantCounter++;
+      }
+      currentBarChart = result[month - 1];
+      currentBarChart.adherence = cantCounter > 0 ? sum / cantCounter : 0;
+    }
+    return result;
+  }
+
+  List<BarCharData> getAnnualSeriesAdherence() {
+    List<BarCharData> result = <BarCharData>[];
+    DateTime today = DateTime.now();
+    int firstIndex = 0;
+    for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
+      BarCharData currentBarChart = barcharListGlobal![i];
+      DateTime currentDate = currentBarChart.dateTime!;
+      int year = currentDate.year;
+      double sum = currentBarChart.adherence ?? 0;
+      int cantCounter = 1;
+      while (i + 1 < barcharListGlobal!.length &&
+          year == barcharListGlobal![i + 1].dateTime!.year) {
+        i++;
+        currentBarChart = barcharListGlobal![i];
+        currentDate = currentBarChart.dateTime!;
+        year = currentDate.year;
+        sum += currentBarChart.adherence ?? 0;
+        cantCounter++;
+      }
+      currentBarChart = BarCharData(
+          dateTime: null,
+          medicationPercentage: null,
+          nutritionPercentage: null,
+          activitiesPercentage: null,
+          examsPercentage: null);
+      currentBarChart.dateLabel = year.toString();
+      currentBarChart.adherence = cantCounter > 0 ? sum / cantCounter : 0;
+      result.add(currentBarChart);
+    }
+    return result;
   }
 }

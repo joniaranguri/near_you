@@ -1264,10 +1264,8 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       int nutritionNPValue,
       int examsValue) async {
     final db = FirebaseFirestore.instance;
-
-    var userReference = db
-        .collection(USERS_COLLECTION_KEY)
-        .doc(FirebaseAuth.instance.currentUser?.uid);
+    String? patientId = FirebaseAuth.instance.currentUser?.uid;
+    var userReference = db.collection(USERS_COLLECTION_KEY).doc(patientId);
     final lastSurveySnapshot = await userReference
         .collection(
             SURVEY_COLLECTION_KEY) //TODO: REFACTOR THIS! THE SURVEY LIST CAN GROW A LOT
@@ -1335,11 +1333,22 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       DATA_SUMA_KEY: sumData,
       DATA_ADHERENCIA_KEY: adherenceData
     };
-
     db
         .collection(DATA_COLLECTION_KEY)
         .doc("$currentTreatmentId-$todayFormattedDate")
         .set(dataToAdd);
+    db
+        .collection(BAR_CHART_COLLECTION_KEY)
+        .doc("$currentTreatmentId-$todayFormattedDate")
+        .set({
+      DATA_ADHERENCIA_KEY: adherenceData,
+      PATIENT_ID_KEY: patientId,
+      DATA_TIMESTAMP_KEY: DateTime.now().millisecondsSinceEpoch,
+      ROUTINE_MEDICATION_PERCENTAGE_KEY: medicationPercentage,
+      ROUTINE_NUTRITION_PERCENTAGE_KEY: nutritionPercentage,
+      ROUTINE_ACTIVITY_PERCENTAGE_KEY: activitiesPercentage,
+      ROUTINE_EXAMS_PERCENTAGE_KEY: examsPercentage,
+    });
   }
 
   getNutritionData(int nutritionValue, int nutritionNPValue) {
