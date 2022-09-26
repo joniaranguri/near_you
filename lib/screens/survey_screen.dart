@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:near_you/common/survey_static_values.dart';
+import 'package:near_you/screens/home_screen.dart';
 
 import '../Constants.dart';
 
@@ -120,22 +121,6 @@ class _SurveyScreenState extends State<SurveyScreen> {
                 },
               ))
         ]),
-        bottomNavigationBar: _buildBottomBar(),
-        //TODO : REVIEW THIS
-        floatingActionButton: keyboardIsOpened
-            ? null
-            : GestureDetector(
-                child: Container(
-                  padding: const EdgeInsets.only(top: 40),
-                  child: SvgPicture.asset('assets/images/tab_plus_selected.svg'),
-                ),
-                onTap: () {
-                  setState(() {
-                    //mostrar menu
-                  });
-                },
-              ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       )
     ]);
   }
@@ -177,8 +162,8 @@ class _SurveyScreenState extends State<SurveyScreen> {
       return noSurveyView();
     }
     return SizedBox(
-      width: 400,
-      height: 600,
+      width: HomeScreen.screenWidth,
+      height: HomeScreen.screenHeight,
       child: Padding(
           padding: const EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 10),
           child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
@@ -220,7 +205,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
                 horizontal: 20,
               ),
               width: double.infinity,
-              height: 520,
+              height: HomeScreen.screenHeight*0.8,
               child: SingleChildScrollView(
                   child: ConstrainedBox(
                       constraints: const BoxConstraints(
@@ -340,6 +325,9 @@ class _SurveyScreenState extends State<SurveyScreen> {
                                     ),
                                   ),
                                 ],
+                              ),
+                              SizedBox(
+                                height: HomeScreen.screenHeight*0.3,
                               )
                             ],
                           )))),

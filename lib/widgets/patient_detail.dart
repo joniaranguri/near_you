@@ -1466,7 +1466,10 @@ class PatientDetailState extends State<PatientDetail> {
                     getActivityTreatmentCard(),
                     getExamnTreatmentCard(),
                     //getOtherTreatmentCard(),
-                    getTreatmentButtons()
+                    getTreatmentButtons(),
+                    SizedBox(
+                      height: HomeScreen.screenHeight * 0.2,
+                    )
                   ],
                 ))),
       );

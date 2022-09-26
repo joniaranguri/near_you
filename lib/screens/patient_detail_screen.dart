@@ -5,6 +5,7 @@ import 'package:near_you/widgets/patient_detail.dart';
 
 import '../model/user.dart' as user;
 import '../widgets/firebase_utils.dart';
+import 'home_screen.dart';
 
 class PatientDetailScreen extends StatefulWidget {
   String userId;
@@ -106,6 +107,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                                 return CircularProgressIndicator();
                               },
                             ),
+                            SizedBox(height:HomeScreen.screenHeight*0.2)
                           ],
                         ),
                       ),
@@ -114,57 +116,8 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                 },
               ))
         ]),
-        bottomNavigationBar: _buildBottomBar(),
-        //TODO : REVIEW THIS
-        floatingActionButton: keyboardIsOpened
-            ? null
-            : GestureDetector(
-                child: Container(
-                  padding: EdgeInsets.only(top: 40),
-                  child:
-                      SvgPicture.asset('assets/images/tab_plus_selected.svg'),
-                ),
-                onTap: () {
-                  setState(() {
-                    startPatientVinculation();
-                  });
-                },
-              ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       )
     ]);
-  }
-
-  Widget _buildBottomBar() {
-    return Container(
-      child: Material(
-        elevation: 0.0,
-        color: Colors.white,
-        child: BottomNavigationBar(
-          elevation: 0,
-          onTap: (index) {
-            _currentIndex = index;
-          },
-          backgroundColor: Colors.transparent,
-          currentIndex: _currentIndex,
-          type: BottomNavigationBarType.fixed,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: [
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_metrics_unselected.svg',
-                ),
-                label: ""),
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_person_unselected.svg',
-                ),
-                label: "")
-          ],
-        ),
-      ),
-    );
   }
 
   getScreenType() {
