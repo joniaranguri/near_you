@@ -52,6 +52,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   late final Future<List<ActivityPrescription>> activityPrescriptionFuture;
   late final Future<List<OthersPrescription>> othersPrescriptionFuture;
   List<MedicationPrescription> medicationsList = <MedicationPrescription>[];
+
   List<NutritionPrescription> nutritionList = <NutritionPrescription>[];
   List<ActivityPrescription> activitiesList = <ActivityPrescription>[];
   List<NutritionPrescription> nutritionNoPermittedList = <NutritionPrescription>[];
@@ -67,7 +68,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   bool isExamnLoading = false;
 
   String? medicationStartDateValue;
-  String? medicationNameValue;
+  //String? medicationNameValue;
   String? medicationDurationNumberValue;
   String? medicationDurationTypeValue;
   String? medicationTypeValue;
@@ -179,8 +180,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   void refreshNutritionPrescription() async {
     setState(() => isNutritionLoading = true);
     final nutritions = await getNutritionPrescriptions();
-    nutritionList = [];
-    nutritionNoPermittedList = [];
     for (int i = 0; i < nutritions.length; i++) {
       if (nutritions[i].permitted == YES_KEY) {
         nutritionList.add(nutritions[i]);
@@ -188,15 +187,23 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         nutritionNoPermittedList.add(nutritions[i]);
       }
     }
+    if (nutritionList.isNotEmpty) {
+      weightController.text = nutritionList[0].weight.toString();
+      heightController.text = nutritionList[0].height.toString();
+      imcTextController.text = nutritionList[0].imc.toString();
+    }
+    if (nutritionNoPermittedList.isNotEmpty) {
+      weightController.text = nutritionNoPermittedList[0].weight.toString();
+      heightController.text = nutritionNoPermittedList[0].height.toString();
+      imcTextController.text = nutritionNoPermittedList[0].imc.toString();
+    }
     editNotPermittedFood = false;
     editPermittedFood = false;
-    foodPermitted = null;
-    foodNotPermitted = null;
     setState(() => isNutritionLoading = false);
   }
 
   void clearMedicationForm() {
-    medicationNameValue = null;
+    medicationNameValue.clear();
     medicationPeriodicityValue = null;
     medicationRecommendationValue = null;
   }
@@ -221,58 +228,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     refreshNutritionPrescription();
     refreshActivityPrescription();
     refreshExamnPrescription();
-    //medicationPrescriptionFuture = getMedicationPrescriptions();
-    //nutritionPrescriptionFuture = getNutritionPrescriptions();
-    //activityPrescriptionFuture = getActivityPrescriptions();
-    //othersPrescriptionFuture = getOthersPrescriptions();
-    /* medicationPrescriptionFuture.then((value) => {
-          if (mounted)
-            {
-              setState(() {
-                medicationsList = value;
-              })
-            }
-        }); */
-    /* nutritionPrescriptionFuture.then((value) => {
-          if (mounted)
-            {
-              setState(() {
-                nutritionList = [];
-                nutritionNoPermittedList = [];
-                for (int i = 0; i < value.length; i++) {
-                  if (value[i].permitted == YES_KEY) {
-                    nutritionList.add(value[i]);
-                  } else {
-                    nutritionNoPermittedList.add(value[i]);
-                  }
-                }
-              })
-            }
-        }); */
-    /* activityPrescriptionFuture.then((value) => {
-          if (mounted)
-            {
-              setState(() {
-                activitiesList = [];
-                activitiesNoPermittedList = [];
-                for (int i = 0; i < value.length; i++) {
-                  if (value[i].permitted == YES_KEY) {
-                    activitiesList.add(value[i]);
-                  } else {
-                    activitiesNoPermittedList.add(value[i]);
-                  }
-                }
-              })
-            }
-        }); */
-    /* othersPrescriptionFuture.then((value) => {
-          if (mounted)
-            {
-              setState(() {
-                othersList = value;
-              })
-            }
-        }); */
 
     super.initState();
   }
@@ -433,9 +388,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       textColor: Colors.white,
                       onPressed: () async {
                         await saveMedicationInDatabase();
-                        if (mounted) {
-                          Navigator.pop(context, _currentPage);
-                        }
                       },
                       child: const Text(
                         'Guardar',
@@ -458,7 +410,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             borderRadius: BorderRadius.circular(30)),
                         textColor: const Color(0xff9D9CB5),
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(context, _currentPage);
                         },
                         child: const Text(
                           'Cancelar',
@@ -515,7 +467,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             borderRadius: BorderRadius.circular(30)),
                         textColor: const Color(0xff9D9CB5),
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(context, _currentPage);
                         },
                         child: const Text(
                           'Cancelar',
@@ -552,9 +504,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       textColor: Colors.white,
                       onPressed: () async {
                         await saveActivityInDatabase();
-                        if (mounted) {
-                          Navigator.pop(context, _currentPage);
-                        }
                       },
                       child: const Text(
                         'Guardar',
@@ -577,7 +526,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             borderRadius: BorderRadius.circular(30)),
                         textColor: const Color(0xff9D9CB5),
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(context, _currentPage);
                         },
                         child: const Text(
                           'Cancelar',
@@ -632,10 +581,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                         child: IconButton(
                                           padding: const EdgeInsets.only(bottom: 40),
                                           onPressed: () {
-                                            setState(() {
-                                              readOnlyMedication = !readOnlyMedication;
-                                            });
-                                            fillMedicationFormWithValues(index);
+                                            showReadOnlyMedication(index);
                                           },
                                           icon: const Icon(Icons.keyboard_arrow_down,
                                               size: 30,
@@ -655,7 +601,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                         child: IconButton(
                                           padding: const EdgeInsets.only(bottom: 14),
                                           onPressed: () {
-                                            editMedication(index);
+                                            showEditMedicationForm(index);
                                           },
                                           icon: const Icon(Icons.edit,
                                               color: Color(
@@ -666,7 +612,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                         child: IconButton(
                                           padding: const EdgeInsets.only(bottom: 30),
                                           onPressed: () {
-                                            deleteMedication(index);
+                                            //deleteMedication(index);
+                                            deleteMedicationLocally(index);
                                           },
                                           icon: const Icon(Icons.delete,
                                               color: Color(
@@ -1032,547 +979,186 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             ));
   } */
 
+  bool addNewMedication = false;
+
   getFormOrButtonAddMedication() {
-    if (editingMedication || readOnlyMedication) {
-      return SingleChildScrollView(
-          child: Form(
-              key: medicationFormState,
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                    ),
-                    padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                      color: Color(0xffD9D9D9),
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                    ),
-                    child: Column(
-                      children: [
-                        sizedBox10,
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(
-                              child: DisableWidget(
-                                isDisable: readOnlyMedication,
-                                child: SizedBox(
-                                  height: durationError ? 55 : 35,
-                                  child: TextFormField(
-                                      controller: TextEditingController(text: medicationNameValue),
-                                      onChanged: (value) {
-                                        medicationNameValue = value;
-                                      },
-                                      style: const TextStyle(fontSize: 14),
-                                      decoration: staticComponents
-                                          .getMiddleInputDecoration('Nombre del medicamento')),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            DisableWidget(
-                              isDisable: readOnlyMedication,
-                              child: Flexible(
-                                  child: GestureDetector(
-                                behavior: HitTestBehavior.translucent,
-                                onTap: () async {
-                                  setState(() {
-                                    editingMedication = false;
-                                  });
-                                  await saveMedicationInDatabase();
-                                  refreshMedicationPrescription();
-                                },
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.all(Radius.circular(15))),
-                                  height: 30,
-                                  width: 30,
-                                  child: const Icon(Icons.check, color: Color(0xff999999)),
-                                ),
-                              )),
-                            )
-                          ],
-                        ),
-                        sizedBox10,
-                        /* Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Fecha de inicio",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xff999999)))
-                          ],
-                        ),
-                        sizedBox10,
-                        SizedBox(
-                            height: startDateError ? 55 : 35,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value == '') {
-                                  setState(() {
-                                    startDateError = true;
-                                  });
-                                  return "Complete el campo";
-                                }
-                                setState(() {
-                                  startDateError = false;
-                                });
-                              },
-                              readOnly: true,
-                              controller: TextEditingController(
-                                  text: medicationStartDateValue),
-                              onTap: () {
-                                selectStartDate(context);
-                              },
-                              style: TextStyle(fontSize: 14),
-                              decoration: InputDecoration(
-                                  filled: true,
-                                  prefixIcon: IconButton(
-                                    padding: EdgeInsets.only(bottom: 5),
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                        Icons.calendar_today_outlined,
-                                        color: Color(
-                                            0xff999999)), // myIcon is a 48px-wide widget.
-                                  ),
-                                  hintText: '18 - Jul 2022  15:00',
-                                  hintStyle: const TextStyle(
-                                      fontSize: 14,
-                                      color: Color(0xff999999)),
-                                  contentPadding: EdgeInsets.zero,
-                                  enabledBorder:
-                                      staticComponents.middleInputBorder,
-                                  border:
-                                      staticComponents.middleInputBorder,
-                                  focusedBorder:
-                                      staticComponents.middleInputBorder),
-                            )),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Duración",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xff999999)))
-                          ],
-                        ),
-                        sizedBox10,
-                        Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            new Flexible(
-                              child: SizedBox(
-                                  height: durationError ? 55 : 35,
-                                  width: 111,
-                                  child: TextFormField(
-                                    validator: (value) {
-                                      if (value == null || value == '') {
-                                        setState(() {
-                                          durationError = true;
-                                        });
-                                        return "Complete el campo";
-                                      }
-                                      setState(() {
-                                        durationError = false;
-                                      });
-                                    },
-                                    controller: TextEditingController(
-                                        text:
-                                            medicationDurationNumberValue),
-                                    onChanged: (value) {
-                                      medicationDurationNumberValue =
-                                          value;
-                                    },
-                                    style: const TextStyle(fontSize: 14),
-                                    decoration: staticComponents
-                                        .getMiddleInputDecoration('15'),
-                                  )),
-                            ),
-                            Flexible(
-                                child: SizedBox(
-                                    height: 35,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
-                                            color: durationTypeError
-                                                ? Colors.red
-                                                : Color(0xFF999999),
-                                            width: 1),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(
-                                                10) //         <--- border radius here
-                                            ),
-                                      ),
-                                      child: Container(
-                                        width: 150,
-                                        child:
-                                            DropdownButtonHideUnderline(
-                                          child: ButtonTheme(
-                                            alignedDropdown: true,
-                                            child: DropdownButton<String>(
-                                              hint: Text(
-                                                'Seleccionar',
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Color(
-                                                        0xFF999999)),
-                                              ),
-                                              dropdownColor: Colors.white,
-                                              value:
-                                                  medicationDurationTypeValue,
-                                              icon: Padding(
-                                                padding:
-                                                    const EdgeInsetsDirectional
-                                                        .only(end: 12.0),
-                                                child: Icon(
-                                                    Icons
-                                                        .keyboard_arrow_down,
-                                                    color: Color(
-                                                        0xff999999)), // myIcon is a 48px-wide widget.
-                                              ),
-                                              onChanged: (newValue) {
-                                                setState(() {
-                                                  medicationDurationTypeValue =
-                                                      newValue.toString();
-                                                });
-                                              },
-                                              items: durationsList
-                                                  .map((String item) {
-                                                return DropdownMenuItem(
-                                                  value: item,
-                                                  child: Text(
-                                                    item,
-                                                    style: TextStyle(
-                                                        fontSize: 14),
-                                                  ),
-                                                );
-                                              }).toList(),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )))
-                          ],
-                        ),
-                        sizedBox10,
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Tipo",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xff999999)))
-                          ],
-                        ),
-                        sizedBox10,
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                                color: stateError
-                                    ? Colors.red
-                                    : Color(0xFF999999),
-                                width: 1),
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(
-                                    10) //         <--- border radius here
-                                ),
-                          ),
-                          child: Container(
-                            height: 35,
-                            width: double.infinity,
-                            child: DropdownButtonHideUnderline(
-                              child: ButtonTheme(
-                                alignedDropdown: true,
-                                child: DropdownButton<String>(
-                                  hint: Text(
-                                    'Seleccionar',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: Color(0xFF999999)),
-                                  ),
-                                  dropdownColor: Colors.white,
-                                  value: medicationTypeValue,
-                                  icon: Padding(
-                                    padding:
-                                        const EdgeInsetsDirectional.only(
-                                            end: 12.0),
-                                    child: Icon(Icons.keyboard_arrow_down,
-                                        color: Color(
-                                            0xff999999)), // myIcon is a 48px-wide widget.
-                                  ),
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      medicationTypeValue =
-                                          newValue.toString();
-                                    });
-                                  },
-                                  items:
-                                      pastilleTypeList.map((String item) {
-                                    return DropdownMenuItem(
-                                      value: item,
-                                      child: Text(
-                                        item,
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Dosis",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xff999999)))
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        SizedBox(
-                            height: durationError ? 55 : 35,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value == '') {
-                                  setState(() {
-                                    durationError = true;
-                                  });
-                                  return "Complete el campo";
-                                }
-                                setState(() {
-                                  durationError = false;
-                                });
-                              },
-                              controller: TextEditingController(
-                                  text: medicationDoseValue),
-                              onChanged: (value) {
-                                medicationDoseValue = value;
-                              },
-                              style: const TextStyle(fontSize: 14),
-                              decoration: staticComponents
-                                  .getMiddleInputDecoration(
-                                      'Después del almuerzo'),
-                            )),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Cantidad",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xff999999)))
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                                color: stateError
-                                    ? Colors.red
-                                    : Color(0xFF999999),
-                                width: 1),
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(
-                                    10) //         <--- border radius here
-                                ),
-                          ),
-                          child: Container(
-                            height: 35,
-                            width: double.infinity,
-                            child: DropdownButtonHideUnderline(
-                              child: ButtonTheme(
-                                alignedDropdown: true,
-                                child: DropdownButton<String>(
-                                  hint: Text(
-                                    'Seleccionar',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: Color(0xFF999999)),
-                                  ),
-                                  dropdownColor: Colors.white,
-                                  value: medicationQuantityValue,
-                                  icon: Padding(
-                                    padding:
-                                        const EdgeInsetsDirectional.only(
-                                            end: 12.0),
-                                    child: Icon(Icons.keyboard_arrow_down,
-                                        color: Color(
-                                            0xff999999)), // myIcon is a 48px-wide widget.
-                                  ),
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      medicationQuantityValue =
-                                          newValue.toString();
-                                    });
-                                  },
-                                  items: pastilleQuantitiesList
-                                      .map((String item) {
-                                    return DropdownMenuItem(
-                                      value: item,
-                                      child: Text(
-                                        item,
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        sizedBox10, */
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text("Periodicidad",
-                                style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                          ],
-                        ),
-                        sizedBox10,
-                        DisableWidget(
-                          isDisable: readOnlyMedication,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(
-                                  color: stateError ? Colors.red : const Color(0xFF999999),
-                                  width: 1),
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(10) //         <--- border radius here
-                                  ),
-                            ),
-                            child: SizedBox(
-                              height: 35,
-                              width: double.infinity,
-                              child: DropdownButtonHideUnderline(
-                                child: ButtonTheme(
-                                  alignedDropdown: true,
-                                  child: DropdownButton<String>(
-                                    hint: const Text(
-                                      'Seleccionar',
-                                      style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                                    ),
-                                    dropdownColor: Colors.white,
-                                    value: medicationPeriodicityValue,
-                                    icon: const Padding(
-                                      padding: EdgeInsetsDirectional.only(end: 12.0),
-                                      child: Icon(Icons.keyboard_arrow_down,
-                                          color:
-                                              Color(0xff999999)), // myIcon is a 48px-wide widget.
-                                    ),
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        medicationPeriodicityValue = newValue.toString();
-                                      });
-                                    },
-                                    items: periodicityList.map((String item) {
-                                      return DropdownMenuItem(
-                                        value: item,
-                                        child: Text(
-                                          item,
-                                          style: const TextStyle(fontSize: 14),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        sizedBox10,
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text("Descripción",
-                                style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                          ],
-                        ),
-                        sizedBox10,
-                        DisableWidget(
-                          isDisable: readOnlyMedication,
-                          child: TextFormField(
-                            validator: (value) {
-                              if (value == null || value == '') {
-                                setState(() {
-                                  durationError = true;
-                                });
-                                return "Complete el campo";
-                              }
-                              setState(() {
-                                durationError = false;
-                              });
-                              return null;
-                            },
-                            controller: TextEditingController(text: medicationRecommendationValue),
-                            onChanged: (value) {
-                              medicationRecommendationValue = value;
-                            },
-                            style: const TextStyle(fontSize: 14),
-                            minLines: 2,
-                            maxLines: 10,
-                            textAlignVertical: TextAlignVertical.center,
-                            decoration: staticComponents.getBigInputDecoration('Agregar texto'),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        // getPrescriptionButtons()
-                      ],
+    return Column(children: [
+      if (editingMedication || readOnlyMedication || addNewMedication) ...[
+        buildMedicationForm()
+      ] else ...[
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              editingMedication = false;
+              addNewMedication = true;
+            });
+          },
+          child: TextField(
+              minLines: 1,
+              maxLines: 10,
+              enabled: false,
+              style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                prefixIcon: const Icon(Icons.circle, color: Colors.white),
+                filled: true,
+                fillColor: const Color(0xffD9D9D9),
+                hintText: "Agregar medicamento",
+                hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                focusedBorder: borderGray,
+                border: borderGray,
+                enabledBorder: borderGray,
+              )
+              // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+
+              ),
+        ),
+      ],
+      getMedicationButtons(),
+    ]);
+  }
+
+  final TextEditingController medicationNameValue = TextEditingController();
+
+  buildMedicationForm() {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color(0xffD9D9D9),
+        borderRadius: BorderRadius.all(Radius.circular(5)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+      child: Center(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: DisableWidget(
+                    isDisable: readOnlyMedication,
+                    child: SizedBox(
+                      height: durationError ? 55 : 35,
+                      child: TextFormField(
+                          controller: medicationNameValue,
+                          style: const TextStyle(fontSize: 14),
+                          decoration:
+                              staticComponents.getMiddleInputDecoration('Nombre del medicamento')),
                     ),
                   ),
-                  if (readOnlyMedication == false) getMedicationButtons()
-                ],
-              )));
-    }
-    return GestureDetector(
-        onTap: () {
-          setState(() {
-            editingMedication = true;
-          });
-        },
-        child: TextField(
-            minLines: 1,
-            maxLines: 10,
-            enabled: false,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              prefixIcon: const Icon(Icons.circle, color: Colors.white),
-              filled: true,
-              fillColor: const Color(0xffD9D9D9),
-              hintText: "Agregar medicamento",
-              hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-              focusedBorder: borderGray,
-              border: borderGray,
-              enabledBorder: borderGray,
-            )
-            // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+                ),
+                const SizedBox(width: 10),
+                DisableWidget(
+                  isDisable: readOnlyMedication,
+                  child: CheckButton(
+                    onTap: () async {
+                      addOrUpdateMedicationLocally();
+                    },
+                  ),
+                )
+              ],
+            ),
+            sizedBox10,
 
-            ));
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text("Periodicidad", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+              ],
+            ),
+            sizedBox10,
+            DisableWidget(
+              isDisable: readOnlyMedication,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(
+                      color: stateError ? Colors.red : const Color(0xFF999999), width: 1),
+                  borderRadius:
+                      const BorderRadius.all(Radius.circular(10) //         <--- border radius here
+                          ),
+                ),
+                child: SizedBox(
+                  height: 35,
+                  width: double.infinity,
+                  child: DropdownButtonHideUnderline(
+                    child: ButtonTheme(
+                      alignedDropdown: true,
+                      child: DropdownButton<String>(
+                        hint: const Text(
+                          'Seleccionar',
+                          style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                        ),
+                        dropdownColor: Colors.white,
+                        value: medicationPeriodicityValue,
+                        icon: const Padding(
+                          padding: EdgeInsetsDirectional.only(end: 12.0),
+                          child: Icon(Icons.keyboard_arrow_down,
+                              color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                        ),
+                        onChanged: (newValue) {
+                          setState(() {
+                            medicationPeriodicityValue = newValue.toString();
+                          });
+                        },
+                        items: periodicityList.map((String item) {
+                          return DropdownMenuItem(
+                            value: item,
+                            child: Text(
+                              item,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            sizedBox10,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text("Descripción", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+              ],
+            ),
+            sizedBox10,
+            DisableWidget(
+              isDisable: readOnlyMedication,
+              child: TextFormField(
+                validator: (value) {
+                  if (value == null || value == '') {
+                    setState(() {
+                      durationError = true;
+                    });
+                    return "Complete el campo";
+                  }
+                  setState(() {
+                    durationError = false;
+                  });
+                  return null;
+                },
+                controller: TextEditingController(text: medicationRecommendationValue),
+                onChanged: (value) {
+                  medicationRecommendationValue = value;
+                },
+                style: const TextStyle(fontSize: 14),
+                minLines: 2,
+                maxLines: 10,
+                textAlignVertical: TextAlignVertical.center,
+                decoration: staticComponents.getBigInputDecoration('Agregar texto'),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            // getPrescriptionButtons()
+          ],
+        ),
+      ),
+    );
   }
 
   final formKey = GlobalKey<FormState>();
@@ -1619,6 +1205,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 }
                                 return null;
                               },
+                              onChanged: _calculateIMC,
                               controller: weightController,
                               decoration: InputDecoration(
                                 contentPadding:
@@ -1678,6 +1265,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                   /*  onChanged: (value) {
                                     heightValue = value;
                                   }, */
+                                  onChanged: _calculateIMC,
                                   onFieldSubmitted: _calculateIMC,
                                   style: const TextStyle(fontSize: 14),
                                   decoration: InputDecoration(
@@ -1721,22 +1309,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             child: TextFormField(
                               enabled: false,
                               controller: imcTextController,
-                              /* validator: (value) {
-                                    if (value == null || value == '') {
-                                      setState(() {
-                                        durationError = true;
-                                      });
-                                      return "Complete el campo";
-                                    }
-                                    setState(() {
-                                      durationError = false;
-                                    });
-                                    return null;
-                                  }, */
-                              //controller: TextEditingController(text: imcValue),
-                              /* onChanged: (value) {
-                                    imcValue = value;
-                                  }, */
                               style: const TextStyle(fontSize: 14),
                               decoration: InputDecoration(
                                   contentPadding:
@@ -1773,34 +1345,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         const SizedBox(height: 10),
                         getNotPermittedFoodView(),
                         const SizedBox(height: 10),
-
-                        /*   Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: const [
-                                Text("Alimentación ",
-                                    style: TextStyle(fontSize: 14, color: Color(0xff999999))),
-                                Icon(Icons.info, size: 18, color: Color(0xff999999))
-                              ],
-                            ),
-                            sizedBox10, */
-
-                        /* getButtonAddFoodOrList(),
-                            sizedBox10,
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: const [
-                                Text("Alimentos no permitidos",
-                                    style: TextStyle(fontSize: 14, color: Color(0xff999999))),
-                              ],
-                            ), */
-                        //sizedBox10,
-
-                        //getButtonAddFoodOrListProhibited(),
-                        const SizedBox(
-                          height: 32,
-                        ),
+                        const SizedBox(height: 32),
                         getAlimentationButtons()
                       ],
                     ),
@@ -1808,7 +1353,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     );
   }
 
-  int currentPermitedFoodIndex = 0;
   bool readOnlyPermittedFood = false;
 
   Widget getPermittedFoodView() {
@@ -1856,13 +1400,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             child: IconButton(
                               padding: const EdgeInsets.only(bottom: 14),
                               onPressed: () {
-                                //editFood(index, true);
-                                setState(() {
-                                  editPermittedFood = true;
-                                  addNewPermittedfood = false;
-                                });
-                                currentPermitedFoodIndex = index;
-                                foodPermitted = nutritionList[index].name;
+                                showPermittedFoodForm(index);
                               },
                               icon: const Icon(Icons.edit,
                                   color: Color(0xff999999)), // myIcon is a 48px-wide widget.
@@ -1873,7 +1411,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             child: IconButton(
                               padding: const EdgeInsets.only(bottom: 30),
                               onPressed: () {
-                                deleteNutritionPermitted(index, true);
+                                deletePermittedFoodLocally(index);
                               },
                               icon: const Icon(Icons.delete,
                                   color: Color(0xff999999)), // myIcon is a 48px-wide widget.
@@ -1889,12 +1427,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   bool editPermittedFood = false;
   bool addNewPermittedfood = false;
-  String? foodPermitted;
+  final TextEditingController foodPermittedFormValue = TextEditingController();
 
   switchAddNutritionButtonOrForm() {
     return editPermittedFood || addNewPermittedfood
         ? Container(
-            width: 250,
+            width: double.infinity,
             height: 64,
             decoration: const BoxDecoration(
               color: Color(0xffD9D9D9),
@@ -1910,35 +1448,16 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     child: SizedBox(
                       height: 40,
                       child: TextFormField(
-                          controller: TextEditingController(text: foodPermitted),
-                          onChanged: (value) {
-                            foodPermitted = value;
-                          },
+                          controller: foodPermittedFormValue,
                           style: const TextStyle(fontSize: 14),
                           decoration: staticComponents.getMiddleInputDecoration('Frutas')),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  GestureDetector(
-                    behavior: HitTestBehavior.translucent,
+                  CheckButton(
                     onTap: () async {
-                      if (!formKey.currentState!.validate() || foodPermitted == null) return;
-                      if (editPermittedFood) {
-                        await updateFoodInDatabase(foodPermitted, true, currentPermitedFoodIndex);
-                      } else {
-                        await saveFoodInDatabase(foodPermitted, true);
-                      }
-                      editPermittedFood = false;
-                      addNewPermittedfood = false;
-                      refreshNutritionPrescription();
+                      addOrUpdatePermittedFoodLocally();
                     },
-                    child: Container(
-                      decoration: const BoxDecoration(
-                          color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(15))),
-                      height: 30,
-                      width: 30,
-                      child: const Icon(Icons.check, color: Color(0xff999999)),
-                    ),
                   )
                 ],
               ),
@@ -2016,13 +1535,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           child: IconButton(
                             padding: const EdgeInsets.only(bottom: 14),
                             onPressed: () {
-                              //editFood(index, false);
-                              setState(() {
-                                editNotPermittedFood = true;
-                                addNewNotPermittedfood = false;
-                              });
-                              currentNotPermitedFoodIndex = index;
-                              foodPermitted = nutritionNoPermittedList[index].name;
+                              showNotPermittedFoodForm(index);
                             },
                             icon: const Icon(Icons.edit,
                                 color: Color(0xff999999)), // myIcon is a 48px-wide widget.
@@ -2033,7 +1546,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           child: IconButton(
                             padding: const EdgeInsets.only(bottom: 30),
                             onPressed: () {
-                              deleteNutritionPermitted(index, false);
+                              deleteNotPermittedFoodLocally(index);
                             },
                             icon: const Icon(Icons.delete,
                                 color: Color(0xff999999)), // myIcon is a 48px-wide widget.
@@ -2050,12 +1563,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   bool editNotPermittedFood = false;
   bool addNewNotPermittedfood = false;
-  String? foodNotPermitted;
+  final TextEditingController foodNotPermittedForm = TextEditingController();
 
   switchAddNotPermittedNutritionButtonOrForm() {
     return editNotPermittedFood || addNewNotPermittedfood
         ? Container(
-            width: 250,
+            width: double.infinity,
             height: 64,
             decoration: const BoxDecoration(
               color: Color(0xffD9D9D9),
@@ -2071,37 +1584,15 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     child: SizedBox(
                       height: 40,
                       child: TextFormField(
-                          controller: TextEditingController(text: foodNotPermitted),
-                          onChanged: (value) {
-                            foodNotPermitted = value;
-                          },
+                          controller: foodNotPermittedForm,
                           style: const TextStyle(fontSize: 14),
                           decoration: staticComponents.getMiddleInputDecoration('Dulces')),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: () async {
-                      if (!formKey.currentState!.validate() || foodNotPermitted == null) return;
-                      if (editNotPermittedFood) {
-                        await updateFoodInDatabase(
-                            foodNotPermitted, false, currentNotPermitedFoodIndex);
-                      } else {
-                        await saveFoodInDatabase(foodNotPermitted, false);
-                      }
-                      editNotPermittedFood = false;
-                      addNewNotPermittedfood = false;
-                      refreshNutritionPrescription();
-                    },
-                    child: Container(
-                      decoration: const BoxDecoration(
-                          color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(15))),
-                      height: 30,
-                      width: 30,
-                      child: const Icon(Icons.check, color: Color(0xff999999)),
-                    ),
-                  )
+                  CheckButton(onTap: () async {
+                    addOrUpdateNotPermittedFoodLocally();
+                  }),
                 ],
               ),
             ),
@@ -2164,10 +1655,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                         child: IconButton(
                                           padding: const EdgeInsets.only(bottom: 40),
                                           onPressed: () {
-                                            setState(() {
-                                              readOnlyExamn = !readOnlyExamn;
-                                            });
-                                            fillExamnFormWithValues(index);
+                                            showReadOnlyExamn(index);
                                           },
                                           icon: const Icon(Icons.keyboard_arrow_down,
                                               size: 30,
@@ -2199,7 +1687,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                         child: IconButton(
                                           padding: const EdgeInsets.only(bottom: 30),
                                           onPressed: () {
-                                            deleteExamn(index);
+                                            deleteExamnLocally(index);
                                           },
                                           icon: const Icon(Icons.delete,
                                               color: Color(
@@ -2223,49 +1711,50 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   bool readOnlyExamn = false;
 
   Widget getFormOrButtonExamn() {
-    if (editingExamn || readOnlyExamn || addNewExamn) {
-      return Column(
-        children: [
-          DisableWidget(isDisable: readOnlyExamn, child: buildExamnForm()),
-          if (readOnlyExamn == false) getExamnButtons()
+    return Column(
+      children: [
+        if (editingExamn || readOnlyExamn || addNewExamn) ...[
+          DisableWidget(isDisable: readOnlyExamn, child: buildExamnForm())
+        ] else ...[
+          GestureDetector(
+              onTap: () {
+                setState(() {
+                  editingExamn = false;
+                  addNewExamn = true;
+                });
+              },
+              child: TextField(
+                  minLines: 1,
+                  maxLines: 10,
+                  enabled: false,
+                  style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    prefixIcon: const Icon(Icons.circle, color: Colors.white),
+                    filled: true,
+                    fillColor: const Color(0xffD9D9D9),
+                    hintText: "Agregar Exámen",
+                    hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                    focusedBorder: borderGray,
+                    border: borderGray,
+                    enabledBorder: borderGray,
+                  )
+                  // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
+
+                  ))
         ],
-      );
-    }
-
-    return GestureDetector(
-        onTap: () {
-          setState(() {
-            editingExamn = false;
-            addNewExamn = true;
-          });
-        },
-        child: TextField(
-            minLines: 1,
-            maxLines: 10,
-            enabled: false,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              prefixIcon: const Icon(Icons.circle, color: Colors.white),
-              filled: true,
-              fillColor: const Color(0xffD9D9D9),
-              hintText: "Agregar Exámen",
-              hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-              focusedBorder: borderGray,
-              border: borderGray,
-              enabledBorder: borderGray,
-            )
-            // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
-
-            ));
+        getExamnButtons()
+      ],
+    );
   }
 
   final TextEditingController examnNameFormValue = TextEditingController();
   String? examnDurationFormValue;
   String? examnEndDateFormValue;
+
   Widget buildExamnForm() {
     return Container(
-      width: 250,
+      width: double.infinity,
       decoration: const BoxDecoration(
         color: Color(0xffD9D9D9),
         borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -2278,35 +1767,20 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                SizedBox(
-                  height: 40,
-                  width: 185,
-                  child: TextFormField(
-                    controller: examnNameFormValue,
-                    style: const TextStyle(fontSize: 14),
-                    decoration: staticComponents.getMiddleInputDecoration('Nombre del Exámen'),
+                Expanded(
+                  child: SizedBox(
+                    height: 40,
+                    child: TextFormField(
+                      controller: examnNameFormValue,
+                      style: const TextStyle(fontSize: 14),
+                      decoration: staticComponents.getMiddleInputDecoration('Nombre del Exámen'),
+                    ),
                   ),
                 ),
-                Flexible(
-                    child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () async {
-                    setState(() {
-                      isExamnLoading = true;
-                    });
-                    await saveExamnInDatabase();
-                    addNewExamn = false;
-                    editingExamn = false;
-                    refreshExamnPrescription();
-                  },
-                  child: Container(
-                    decoration: const BoxDecoration(
-                        color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(15))),
-                    height: 30,
-                    width: 30,
-                    child: const Icon(Icons.check, color: Color(0xff999999)),
-                  ),
-                ))
+                const SizedBox(width: 10),
+                CheckButton(onTap: () async {
+                  addOrUpdateExamnLocally();
+                })
               ],
             ),
             const SizedBox(
@@ -2378,9 +1852,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             SizedBox(
                 height: 40,
                 child: TextFormField(
-                  validator: (value) {
+                  /* validator: (value) {
                     return null;
-                  },
+                  }, */
                   readOnly: true,
                   controller: TextEditingController(text: examnEndDateFormValue),
                   onTap: () {
@@ -2439,10 +1913,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                         child: IconButton(
                                           padding: const EdgeInsets.only(bottom: 40),
                                           onPressed: () {
-                                            setState(() {
-                                              readOnlyActivity = !readOnlyActivity;
-                                            });
-                                            fillActivityFormWithValues(index);
+                                            showReadOnlyActivity(index);
                                           },
                                           icon: const Icon(Icons.keyboard_arrow_down,
                                               size: 30,
@@ -2474,7 +1945,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                         child: IconButton(
                                           padding: const EdgeInsets.only(bottom: 30),
                                           onPressed: () {
-                                            deleteActivity(index);
+                                            deleteActivityLocally(index);
                                           },
                                           icon: const Icon(Icons.delete,
                                               color: Color(
@@ -2498,41 +1969,39 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   bool readOnlyActivity = false;
 
   Widget getFormOrButtonActivity() {
-    if (editingActivity || readOnlyActivity || addNewActivity) {
-      return Column(
-        children: [
+    return Column(
+      children: [
+        if (editingActivity || readOnlyActivity || addNewActivity) ...[
           DisableWidget(isDisable: readOnlyActivity, child: buildPhisicalActivityForm()),
-          if (readOnlyActivity == false) getActivityButtons()
+        ] else ...[
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                editingActivity = false;
+                addNewActivity = true;
+              });
+            },
+            child: TextField(
+                minLines: 1,
+                maxLines: 10,
+                enabled: false,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  prefixIcon: const Icon(Icons.circle, color: Colors.white),
+                  filled: true,
+                  fillColor: const Color(0xffD9D9D9),
+                  hintText: "Agregar Actividad",
+                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  focusedBorder: borderGray,
+                  border: borderGray,
+                  enabledBorder: borderGray,
+                )),
+          ),
         ],
-      );
-    }
-
-    return GestureDetector(
-        onTap: () {
-          setState(() {
-            editingActivity = false;
-            addNewActivity = true;
-          });
-        },
-        child: TextField(
-            minLines: 1,
-            maxLines: 10,
-            enabled: false,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              prefixIcon: const Icon(Icons.circle, color: Colors.white),
-              filled: true,
-              fillColor: const Color(0xffD9D9D9),
-              hintText: "Agregar Actividad",
-              hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-              focusedBorder: borderGray,
-              border: borderGray,
-              enabledBorder: borderGray,
-            )
-            // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
-
-            ));
+        getActivityButtons(),
+      ],
+    );
   }
 
   final TextEditingController activityNameFormValue = TextEditingController();
@@ -2541,7 +2010,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   Widget buildPhisicalActivityForm() {
     return Container(
-      width: 250,
+      width: double.infinity,
       decoration: const BoxDecoration(
         color: Color(0xffD9D9D9),
         borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -2568,25 +2037,11 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
+                CheckButton(
                   onTap: () async {
-                    setState(() {
-                      isPhisicalActivityLoading = true;
-                    });
-                    await saveActivityInDatabase();
-                    addNewActivity = false;
-                    editingActivity = false;
-                    refreshActivityPrescription();
+                    addOrUpdateActivityLocally();
                   },
-                  child: Container(
-                    decoration: const BoxDecoration(
-                        color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(15))),
-                    height: 30,
-                    width: 30,
-                    child: const Icon(Icons.check, color: Color(0xff999999)),
-                  ),
-                )
+                ),
               ],
             ),
             const SizedBox(
@@ -2621,58 +2076,55 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   ),
                 ),
                 const SizedBox(width: 5),
-                Flexible(
-                  child: SizedBox(
-                      width: 140,
-                      height: 35,
-                      child: Container(
-                        //color: Colors.white,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(
-                              color: durationTypeError ? Colors.red : const Color(0xFF999999),
-                              width: 1),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(10) //         <--- border radius here
+                SizedBox(
+                    width: 140,
+                    height: 35,
+                    child: Container(
+                      //color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                            color: durationTypeError ? Colors.red : const Color(0xFF999999),
+                            width: 1),
+                        borderRadius: const BorderRadius.all(
+                            Radius.circular(10) //         <--- border radius here
+                            ),
+                      ),
+                      child: SizedBox(
+                        child: DropdownButtonHideUnderline(
+                          child: ButtonTheme(
+                            alignedDropdown: true,
+                            child: DropdownButton<String>(
+                              hint: Text(
+                                activityDurationFormValue ?? 'Horas',
+                                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                               ),
-                        ),
-                        child: SizedBox(
-                          child: DropdownButtonHideUnderline(
-                            child: ButtonTheme(
-                              alignedDropdown: true,
-                              child: DropdownButton<String>(
-                                hint: Text(
-                                  activityDurationFormValue ?? 'Horas',
-                                  style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                                ),
-                                dropdownColor: Colors.white,
-                                value: activityDurationFormValue,
-                                icon:
-                                    const Icon(Icons.keyboard_arrow_down, color: Color(0xff999999)),
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    activityDurationFormValue = newValue;
-                                  });
+                              dropdownColor: Colors.white,
+                              value: activityDurationFormValue,
+                              icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xff999999)),
+                              onChanged: (newValue) {
+                                setState(() {
+                                  activityDurationFormValue = newValue;
+                                });
 
-                                  /* setState(() {
-                                    //durationTypeValue = newValue.toString();
-                                  }); */
-                                },
-                                items: ['Horas', 'Minutos'].map((String item) {
-                                  return DropdownMenuItem(
-                                    value: item,
-                                    child: Text(
-                                      item,
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
+                                /* setState(() {
+                                  //durationTypeValue = newValue.toString();
+                                }); */
+                              },
+                              items: ['Horas', 'Minutos'].map((String item) {
+                                return DropdownMenuItem(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                );
+                              }).toList(),
                             ),
                           ),
                         ),
-                      )),
-                )
+                      ),
+                    ))
               ],
             ),
           ],
@@ -3791,9 +3243,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       textColor: Colors.white,
                       onPressed: () async {
                         await saveExamnInDatabase();
-                        if (mounted) {
-                          Navigator.pop(context, _currentPage);
-                        }
                       },
                       child: const Text(
                         'Guardar',
@@ -3833,7 +3282,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         : const SizedBox(height: 0);
   }
 
-  Future<void> saveExamnInDatabase() async {
+  /*  Future<void> saveExamnInDatabase() async {
     final db = FirebaseFirestore.instance;
     final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
     final data = <String, String>{
@@ -3854,9 +3303,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
     /* then((value) => saveInPendingListAndGoBack(
         PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId)); */
-  }
+  } */
 
-  Future<void> saveActivityInDatabase() async {
+  /*  Future<void> saveActivityInDatabase() async {
     final db = FirebaseFirestore.instance;
     final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
     final data = <String, String>{
@@ -3897,92 +3346,489 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
           saveInPendingList(
               PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId)); */
     //}
-  }
-
-  Future<void> saveMedicationInDatabase() async {
-    final db = FirebaseFirestore.instance;
-    final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
-    final data = <String, String>{
-      TREATMENT_ID_KEY: currentTreatmentDatabaseId,
-      MEDICATION_NAME_KEY: medicationNameValue ?? "",
-      MEDICATION_START_DATE_KEY: medicationStartDateValue ?? "",
-      MEDICATION_DURATION_NUMBER_KEY: medicationDurationNumberValue ?? "",
-      MEDICATION_DURATION_TYPE_KEY: medicationDurationTypeValue ?? "",
-      MEDICATION_PASTILLE_TYPE_KEY: medicationTypeValue ?? "",
-      MEDICATION_DOSE_KEY: medicationDoseValue ?? "",
-      MEDICATION_QUANTITY_KEY: medicationQuantityValue ?? "",
-      MEDICATION_PERIODICITY_KEY: medicationPeriodicityValue ?? "",
-      MEDICATION_RECOMMENDATION_KEY: medicationRecommendationValue ?? ""
-    };
-    if (updateMedication >= 0) {
-      await db
-          .collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY)
-          .doc(medicationsList[updateMedication].databaseId)
-          .update(data);
-      //.then((value) => Navigator.pop(context, _currentPage));
-    } else {
-      final response = await db.collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY).add(data);
-      await saveInPendingList(
-          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY, response.id, currentTreatmentDatabaseId);
-      /* .then((value) =>
-          saveInPendingList(
-              PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY, value.id, currentTreatmentDatabaseId,
-              dontGoBack: dontGoBack)); */
-    }
-  }
-
-  /*  Future<void> saveNutritionInDatabase(String? foodName, bool isPermitted) async {
-    final db = FirebaseFirestore.instance;
-    final String currentTreatmentDatabaseId = currentTreatment!.databaseId!;
-    final data = <String, String>{
-      TREATMENT_ID_KEY: currentTreatmentDatabaseId,
-      NUTRITION_NAME_KEY: foodName ?? "",
-      //NUTRITION_CARBOHYDRATES_KEY: nutritionCarboValue ?? "",
-      //NUTRITION_MAX_CALORIES_KEY: nutritionCaloriesValue ?? "",
-      NUTRITION_HEIGHT_KEY: heightValue ?? "",
-      NUTRITION_WEIGHT_KEY: weightValue ?? "",
-      NUTRITION_IMC_KEY: imcTextController.text,
-      PERMITTED_KEY: isPermitted ? YES_KEY : NO_KEY,
-    };
-    if (updatePermittedFood >= 0 || updateNoPermittedFood >= 0) {
-      String? databaseId;
-      if (updatePermittedFood >= 0) {
-        //Ver cual de la lista hay que modificar.
-        databaseId = nutritionList[updatePermittedFood].databaseId;
-      } else {
-        databaseId = nutritionNoPermittedList[updateNoPermittedFood].databaseId;
-      }
-      await db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(databaseId).update(data);
-      //.then((value) => Navigator.pop(context, _currentPage));
-    } else {
-      await db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).add(data);
-      /* .then((value) =>
-          saveInPendingListAndGoBack(PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, value.id,
-              currentTreatmentDatabaseId)); */
-    }
   } */
 
-  void saveEachFoodInDatabase() async {
-    if (foodPermitted != null) {
-      await saveFoodInDatabase(foodPermitted, true);
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  get firebase => FirebaseFirestore.instance;
+  String get currentTreatmentDatabaseId => currentTreatment!.databaseId!;
+
+  Future<void> saveMedicationInDatabase() async {
+    final currentCollection = firebase.collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY);
+    if (medicationsList.isNotEmpty) {
+      for (var index = 0; index < medicationsList.length; index++) {
+        String? databaseId = medicationsList[index].databaseId;
+        final medication = medicationsList[index];
+
+        final data = <String, String>{
+          TREATMENT_ID_KEY: currentTreatmentDatabaseId,
+          MEDICATION_NAME_KEY: medication.name ?? '',
+          MEDICATION_PERIODICITY_KEY: medication.periodicity ?? "",
+          MEDICATION_RECOMMENDATION_KEY: medication.recomendation ?? ""
+        };
+
+        if (await docExits(databaseId, MEDICATION_PRESCRIPTION_COLLECTION_KEY)) {
+          currentCollection.doc(databaseId).update(data);
+        } else {
+          final response = await currentCollection.add(data);
+          saveInPendingList(PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY, response.id,
+              currentTreatmentDatabaseId);
+        }
+      }
     }
-    if (foodNotPermitted != null) {
-      await saveFoodInDatabase(foodNotPermitted, false);
+    if (tempDeletedMedicationIdForLater.isNotEmpty) {
+      for (var i = 0; i < tempDeletedMedicationIdForLater.length; i++) {
+        String id = tempDeletedMedicationIdForLater[i];
+        currentCollection.doc(id).delete();
+      }
     }
     if (mounted) {
       Navigator.pop(context, _currentPage);
     }
   }
 
-  //databaseID = FoW5LrG3K132gAYKEdeS
-  Future<void> saveFoodInDatabase(String? foodName, bool isPermitted) async {
-    final String treatmentId = currentTreatment!.databaseId!;
+  void addOrUpdateMedicationLocally() {
+    if (editingMedication) {
+      setState(() {
+        medicationsList[updateMedication] = medicationsList[updateMedication]
+          ..name = medicationNameValue.text
+          ..periodicity = medicationPeriodicityValue
+          ..recomendation = medicationRecommendationValue;
+      });
+    } else {
+      setState(() {
+        editingMedication = false;
+      });
+      setState(() {
+        medicationsList.add(MedicationPrescription(
+          name: medicationNameValue.text,
+          periodicity: medicationPeriodicityValue,
+          recomendation: medicationRecommendationValue,
+        ));
+      });
+    }
+    addNewMedication = false;
+    editingMedication = false;
+    clearMedicationForm();
+  }
 
-    final db = FirebaseFirestore.instance;
-    final data = makeFoodStructure(foodName, isPermitted, treatmentId);
-    var response = await db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).add(data);
-    await saveInPendingList(
-        PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, response.id, treatmentId);
+  Future<bool> docExits(String? id, String collectionId) async {
+    var document = await FirebaseFirestore.instance.collection(collectionId).doc(id).get();
+    return document.exists;
+  }
+
+  List<String> tempDeletedMedicationIdForLater = [];
+
+  void showReadOnlyMedication(int index) {
+    setState(() {
+      readOnlyMedication = !readOnlyMedication;
+      editingMedication = false;
+      addNewMedication = false;
+    });
+    if (readOnlyMedication) {
+      fillMedicationFormWithValues(index);
+    } else {
+      clearMedicationForm();
+    }
+  }
+
+  void deleteMedicationLocally(int index) {
+    setState(() {
+      String? databaseId = medicationsList[index].databaseId;
+      bool exits = databaseId != null;
+      if (exits) {
+        tempDeletedMedicationIdForLater.add(databaseId);
+      }
+      medicationsList.removeAt(index);
+    });
+  }
+
+  void showEditMedicationForm(int index) {
+    setState(() {
+      editingMedication = true;
+      addNewMedication = false;
+      updateMedication = index;
+      fillMedicationFormWithValues(index);
+      readOnlyMedication = false;
+    });
+  }
+
+  void fillMedicationFormWithValues(int index) {
+    medicationNameValue.text = medicationsList[index].name ?? "";
+    medicationPeriodicityValue = medicationsList[index].periodicity;
+    medicationRecommendationValue = medicationsList[index].recomendation ?? "";
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  Future<void> saveActivityInDatabase() async {
+    final currentCollection = firebase.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY);
+    if (activitiesList.isNotEmpty) {
+      for (var index = 0; index < activitiesList.length; index++) {
+        String? databaseId = activitiesList[index].databaseId;
+        final activity = activitiesList[index];
+
+        final data = <String, String>{
+          TREATMENT_ID_KEY: currentTreatmentDatabaseId,
+          ACTIVITY_NAME_KEY: activity.name ?? '',
+          ACTIVITY_TIME_NUMBER_KEY: activity.timeNumber ?? '',
+          ACTIVITY_TIME_TYPE_KEY: activity.timeType ?? "",
+        };
+
+        if (await docExits(databaseId, ACTIVITY_PRESCRIPTION_COLLECTION_KEY)) {
+          currentCollection.doc(databaseId).update(data);
+        } else {
+          final response = await currentCollection.add(data);
+          saveInPendingList(PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY, response.id,
+              currentTreatmentDatabaseId);
+        }
+      }
+    }
+    if (tempDeletedActivityIdForLater.isNotEmpty) {
+      for (var i = 0; i < tempDeletedActivityIdForLater.length; i++) {
+        String id = tempDeletedActivityIdForLater[i];
+        currentCollection.doc(id).delete();
+      }
+    }
+    if (mounted) {
+      Navigator.pop(context, _currentPage);
+    }
+  }
+
+  void showReadOnlyActivity(int index) {
+    setState(() {
+      readOnlyActivity = !readOnlyActivity;
+      editingActivity = false;
+      addNewActivity = false;
+    });
+    if (readOnlyActivity) {
+      fillActivityFormWithValues(index);
+    } else {
+      clearActivityForm();
+    }
+  }
+
+  List<String> tempDeletedActivityIdForLater = [];
+
+  void deleteActivityLocally(int index) {
+    setState(() {
+      String? databaseId = activitiesList[index].databaseId;
+      bool exits = databaseId != null;
+      if (exits) {
+        tempDeletedActivityIdForLater.add(databaseId);
+      }
+      activitiesList.removeAt(index);
+    });
+  }
+
+  int activityIndex = 0;
+
+  void showEditActivityForm(int index) {
+    setState(() {
+      editingActivity = true;
+      addNewActivity = false;
+      activityIndex = index;
+      fillActivityFormWithValues(index);
+      readOnlyActivity = false;
+    });
+  }
+
+  fillActivityFormWithValues(int index) {
+    activityNameFormValue.text = activitiesList[index].name ?? '';
+    activityTimeFormValue.text = activitiesList[index].timeNumber ?? '';
+    activityDurationFormValue = activitiesList[index].timeType ?? '';
+  }
+
+  clearActivityForm() {
+    activityNameFormValue.clear();
+    activityTimeFormValue.clear();
+    activityDurationFormValue = null;
+  }
+
+  void addOrUpdateActivityLocally() {
+    if (editingActivity) {
+      setState(() {
+        activitiesList[activityIndex] = activitiesList[activityIndex]
+          ..name = activityNameFormValue.text
+          ..timeType = activityDurationFormValue
+          ..timeNumber = activityTimeFormValue.text;
+      });
+    } else {
+      setState(() {
+        editingActivity = false;
+      });
+      setState(() {
+        activitiesList.add(ActivityPrescription(
+          name: activityNameFormValue.text,
+          timeNumber: activityTimeFormValue.text,
+          timeType: activityDurationFormValue,
+        ));
+      });
+    }
+    addNewActivity = false;
+    editingActivity = false;
+    clearActivityForm();
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  Future<void> saveExamnInDatabase() async {
+    final currentCollection = firebase.collection(EXAMN_PRESCRIPTION_COLLECTION_KEY);
+    if (examnList.isNotEmpty) {
+      for (var index = 0; index < examnList.length; index++) {
+        String? databaseId = examnList[index].databaseId;
+        final examn = examnList[index];
+
+        final data = <String, String>{
+          TREATMENT_ID_KEY: currentTreatmentDatabaseId,
+          EXAMN_NAME_KEY: examn.name ?? '',
+          EXAMN_PERIODICITY_KEY: examn.periodicity ?? "",
+          EXAMN_END_DATE_KEY: examn.endDate ?? "",
+        };
+
+        if (await docExits(databaseId, EXAMN_PRESCRIPTION_COLLECTION_KEY)) {
+          currentCollection.doc(databaseId).update(data);
+        } else {
+          final response = await currentCollection.add(data);
+          saveInPendingList(
+              PENDING_EXAMN_PRESCRIPTIONS_COLLECTION_KEY, response.id, currentTreatmentDatabaseId);
+        }
+      }
+    }
+    if (tempDeletedExamnIdForLater.isNotEmpty) {
+      for (var i = 0; i < tempDeletedExamnIdForLater.length; i++) {
+        String id = tempDeletedExamnIdForLater[i];
+        currentCollection.doc(id).delete();
+      }
+    }
+    if (mounted) {
+      Navigator.pop(context, _currentPage);
+    }
+  }
+
+  void showReadOnlyExamn(int index) {
+    setState(() {
+      readOnlyExamn = !readOnlyExamn;
+      editingExamn = false;
+      addNewExamn = false;
+    });
+    if (readOnlyExamn) {
+      fillExamnFormWithValues(index);
+    } else {
+      clearExamnForm();
+    }
+  }
+
+  List<String> tempDeletedExamnIdForLater = [];
+
+  void deleteExamnLocally(int index) {
+    setState(() {
+      String? databaseId = examnList[index].databaseId;
+      bool exits = databaseId != null;
+      if (exits) {
+        tempDeletedExamnIdForLater.add(databaseId);
+      }
+      examnList.removeAt(index);
+    });
+  }
+
+  int examnIndex = 0;
+
+  void showEditExamnForm(int index) {
+    setState(() {
+      editingExamn = true;
+      addNewExamn = false;
+      examnIndex = index;
+      fillExamnFormWithValues(index);
+      readOnlyExamn = false;
+    });
+  }
+
+  fillExamnFormWithValues(int index) {
+    examnNameFormValue.text = examnList[index].name ?? '';
+    examnDurationFormValue = examnList[index].periodicity ?? '';
+    examnEndDateFormValue = examnList[index].endDate ?? '';
+  }
+
+  clearExamnForm() {
+    examnNameFormValue.clear();
+    examnDurationFormValue = null;
+    examnEndDateFormValue = null;
+  }
+
+  void addOrUpdateExamnLocally() {
+    if (editingExamn) {
+      setState(() {
+        examnList[examnIndex] = examnList[examnIndex]
+          ..name = examnNameFormValue.text
+          ..periodicity = examnDurationFormValue
+          ..endDate = examnEndDateFormValue;
+      });
+    } else {
+      setState(() {
+        editingExamn = false;
+      });
+      setState(() {
+        examnList.add(ExamnPrescription(
+            name: examnNameFormValue.text,
+            periodicity: examnDurationFormValue,
+            endDate: examnEndDateFormValue));
+      });
+    }
+    addNewExamn = false;
+    editingExamn = false;
+    clearExamnForm();
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  void addOrUpdatePermittedFoodLocally() {
+    if (editPermittedFood) {
+      setState(() {
+        nutritionList[currentPermitedFoodIndex] = nutritionList[currentPermitedFoodIndex]
+          ..name = foodPermittedFormValue.text;
+      });
+    } else {
+      setState(() {
+        editPermittedFood = false;
+      });
+      setState(() {
+        nutritionList.add(NutritionPrescription(
+          name: foodPermittedFormValue.text,
+          permitted: YES_KEY,
+        ));
+      });
+    }
+    addNewPermittedfood = false;
+    editPermittedFood = false;
+    foodPermittedFormValue.clear();
+  }
+
+  List<String> tempDeletedPermittedFoodForLater = [];
+
+  void deletePermittedFoodLocally(int index) {
+    setState(() {
+      String? databaseId = nutritionList[index].databaseId;
+      bool exits = databaseId != null;
+      if (exits) {
+        tempDeletedPermittedFoodForLater.add(databaseId);
+      }
+      nutritionList.removeAt(index);
+    });
+  }
+
+  int currentPermitedFoodIndex = 0;
+
+  void showPermittedFoodForm(int index) {
+    setState(() {
+      editPermittedFood = true;
+      addNewPermittedfood = false;
+      currentPermitedFoodIndex = index;
+      foodPermittedFormValue.text = nutritionList[index].name ?? '';
+    });
+  }
+
+  ////NOT PERMITED////////////////////////////////////////////////////////////////////////////////////
+
+  void addOrUpdateNotPermittedFoodLocally() {
+    if (editNotPermittedFood) {
+      setState(() {
+        nutritionNoPermittedList[currentNotPermitedFoodIndex] =
+            nutritionNoPermittedList[currentNotPermitedFoodIndex]..name = foodNotPermittedForm.text;
+      });
+    } else {
+      setState(() {
+        editNotPermittedFood = false;
+      });
+      setState(() {
+        nutritionNoPermittedList.add(NutritionPrescription(
+          name: foodNotPermittedForm.text,
+          permitted: NO_KEY,
+        ));
+      });
+    }
+    addNewNotPermittedfood = false;
+    editNotPermittedFood = false;
+    foodNotPermittedForm.clear();
+  }
+
+  List<String> tempDeletedNotPermittedFoodForLater = [];
+
+  void deleteNotPermittedFoodLocally(int index) {
+    setState(() {
+      String? databaseId = nutritionNoPermittedList[index].databaseId;
+      bool exits = databaseId != null;
+      if (exits) {
+        tempDeletedNotPermittedFoodForLater.add(databaseId);
+      }
+      nutritionNoPermittedList.removeAt(index);
+    });
+  }
+
+  void showNotPermittedFoodForm(int index) {
+    setState(() {
+      editNotPermittedFood = true;
+      addNewNotPermittedfood = false;
+      currentNotPermitedFoodIndex = index;
+      foodNotPermittedForm.text = nutritionNoPermittedList[index].name ?? '';
+    });
+  }
+
+  void saveEachFoodInDatabase() async {
+    if (!formKey.currentState!.validate() ||
+        (nutritionList.isEmpty && nutritionNoPermittedList.isEmpty)) return;
+
+    if (nutritionList.isNotEmpty) {
+      for (var i = 0; i < nutritionList.length; i++) {
+        saveFoodInDatabase(nutritionList[i]);
+      }
+    }
+
+    if (tempDeletedPermittedFoodForLater.isNotEmpty) {
+      for (var i = 0; i < tempDeletedPermittedFoodForLater.length; i++) {
+        String id = tempDeletedPermittedFoodForLater[i];
+        firebase.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(id).delete();
+      }
+    }
+
+    if (nutritionNoPermittedList.isNotEmpty) {
+      for (var i = 0; i < nutritionNoPermittedList.length; i++) {
+        saveFoodInDatabase(nutritionNoPermittedList[i]);
+      }
+    }
+
+    if (tempDeletedNotPermittedFoodForLater.isNotEmpty) {
+      for (var i = 0; i < tempDeletedNotPermittedFoodForLater.length; i++) {
+        String id = tempDeletedNotPermittedFoodForLater[i];
+        firebase.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(id).delete();
+      }
+    }
+
+    if (mounted) {
+      Navigator.pop(context, _currentPage);
+    }
+  }
+
+  //databaseID = FoW5LrG3K132gAYKEdeS
+  Future<void> saveFoodInDatabase(NutritionPrescription food) async {
+    String? databaseId = food.databaseId;
+    final currentCollection = firebase.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY);
+    final data = {
+      TREATMENT_ID_KEY: currentTreatmentDatabaseId,
+      NUTRITION_NAME_KEY: food.name ?? "",
+      NUTRITION_HEIGHT_KEY: heightController.text,
+      NUTRITION_WEIGHT_KEY: weightController.text,
+      NUTRITION_IMC_KEY: imcTextController.text,
+      PERMITTED_KEY: food.permitted,
+    };
+
+    if (await docExits(databaseId, NUTRITION_PRESCRIPTION_COLLECTION_KEY)) {
+      currentCollection.doc(databaseId).update(data);
+    } else {
+      final response = await currentCollection.add(data);
+      saveInPendingList(
+          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, response.id, currentTreatmentDatabaseId);
+    }
   }
 
   Future<void> updateFoodInDatabase(String? foodName, bool isPermitted, int index) async {
@@ -4361,8 +4207,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     });
   }
 
-  int activityIndex = 0;
-
   void editActivity(int index) {
     setState(() {
       editingActivity = true;
@@ -4371,12 +4215,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       fillActivityFormWithValues(index);
       readOnlyActivity = false;
     });
-  }
-
-  fillActivityFormWithValues(int index) {
-    activityNameFormValue.text = activitiesList[index].name ?? '';
-    activityTimeFormValue.text = activitiesList[index].timeNumber ?? '';
-    activityDurationFormValue = activitiesList[index].timeType ?? '';
   }
 
   int currentExamnIndex = 0;
@@ -4389,45 +4227,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       fillExamnFormWithValues(index);
       readOnlyExamn = false;
     });
-  }
-
-  fillExamnFormWithValues(int index) {
-    examnNameFormValue.text = examnList[index].name ?? '';
-    examnDurationFormValue = examnList[index].periodicity ?? '';
-    examnEndDateFormValue = examnList[index].endDate ?? '';
-  }
-
-  void editMedication(int index) {
-    setState(() {
-      //Muestra el formulario
-      editingMedication = true;
-      //En vez de guardar en db, lo actualiza
-      updateMedication = index;
-      //Formulario
-      fillMedicationFormWithValues(index);
-
-      readOnlyMedication = false;
-    });
-  }
-
-  void fillMedicationFormWithValues(int index) {
-    medicationNameValue = medicationsList[index].name ?? "";
-    medicationDurationNumberValue = medicationsList[index].durationNumber ?? "";
-    medicationStartDateValue = medicationsList[index].startDate ?? "";
-    medicationDoseValue = medicationsList[index].dose ?? "";
-    medicationRecommendationValue = medicationsList[index].recomendation ?? "";
-    if (isNotEmpty(medicationsList[index].durationType)) {
-      medicationDurationTypeValue = medicationsList[index].durationType;
-    }
-    if (isNotEmpty(medicationsList[index].pastilleType)) {
-      medicationTypeValue = medicationsList[index].pastilleType;
-    }
-    if (isNotEmpty(medicationsList[index].quantity)) {
-      medicationQuantityValue = medicationsList[index].quantity;
-    }
-    if (isNotEmpty(medicationsList[index].periodicity)) {
-      medicationPeriodicityValue = medicationsList[index].periodicity;
-    }
   }
 
   void editFood(int index, bool permitted) {
@@ -4508,6 +4307,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   } */
 
   void _calculateIMC(String value) {
+    if (!formKey.currentState!.validate()) return;
     double height = double.parse(heightController.text.isEmpty ? '0.0' : heightController.text);
     double weight = double.parse(weightController.text.isEmpty ? '0.0' : weightController.text);
     if (height != 0.0 && weight != 0.0) {
@@ -4526,5 +4326,26 @@ class DisableWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return IgnorePointer(
         ignoring: isDisable, child: Opacity(opacity: isDisable ? 0.5 : 1, child: child));
+  }
+}
+
+class CheckButton extends StatelessWidget {
+  const CheckButton({Key? key, required this.onTap}) : super(key: key);
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Container(
+        decoration: const BoxDecoration(
+            color: Color(0xff6EC6A4), borderRadius: BorderRadius.all(Radius.circular(15))),
+        height: 30,
+        width: 30,
+        child: const Icon(Icons.check, color: Colors.white),
+      ),
+    );
   }
 }
