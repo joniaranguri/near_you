@@ -75,6 +75,10 @@ class PatientDetailState extends State<PatientDetail> {
   List<BarCharData> weeklySeriesAdherence = <BarCharData>[];
   List<BarCharData> monthlySeriesAdherence = <BarCharData>[];
   List<BarCharData> annualSeriesAdherence = <BarCharData>[];
+  List<int> periodMedicationPercentages = List.filled(4, 0);
+  List<int> periodNutritionPercentages = List.filled(4, 0);
+  List<int> periodActivityPercentages = List.filled(4, 0);
+  List<int> periodExamsPercentages = List.filled(4, 0);
 
   PatientDetailState(this.detailedUser, this.isDoctorView);
 
@@ -616,16 +620,17 @@ class PatientDetailState extends State<PatientDetail> {
                                         children: [
                                           ShaderMask(
                                             blendMode: BlendMode.srcIn,
-                                            shaderCallback: (bounds) =>
-                                                LinearGradient(
-                                                        colors:
-                                                            getGradientColors(
-                                                                50, true))
-                                                    .createShader(
+                                            shaderCallback: (bounds) => LinearGradient(
+                                                    colors: getGradientColors(
+                                                        periodMedicationPercentages[
+                                                            barChartPeriodIndex],
+                                                        true))
+                                                .createShader(
                                               Rect.fromLTRB(0, 0, bounds.width,
                                                   bounds.height),
                                             ),
-                                            child: const Text("50" + "%",
+                                            child: Text(
+                                                "${periodMedicationPercentages[barChartPeriodIndex]}%",
                                                 style: TextStyle(
                                                     fontSize: 42,
                                                     fontWeight:
@@ -633,7 +638,9 @@ class PatientDetailState extends State<PatientDetail> {
                                           ),
                                           SizedBox(
                                               height: 30,
-                                              child: getColoredTriangle(50.0))
+                                              child: getColoredTriangle(
+                                                  periodMedicationPercentages[
+                                                      barChartPeriodIndex]))
                                         ],
                                       )
                                     ],
@@ -669,16 +676,17 @@ class PatientDetailState extends State<PatientDetail> {
                                         children: [
                                           ShaderMask(
                                             blendMode: BlendMode.srcIn,
-                                            shaderCallback: (bounds) =>
-                                                LinearGradient(
-                                                        colors:
-                                                            getGradientColors(
-                                                                86, true))
-                                                    .createShader(
+                                            shaderCallback: (bounds) => LinearGradient(
+                                                    colors: getGradientColors(
+                                                        periodNutritionPercentages[
+                                                            barChartPeriodIndex],
+                                                        true))
+                                                .createShader(
                                               Rect.fromLTRB(0, 0, bounds.width,
                                                   bounds.height),
                                             ),
-                                            child: const Text("86" + "%",
+                                            child: Text(
+                                                "${periodNutritionPercentages[barChartPeriodIndex]}%",
                                                 style: TextStyle(
                                                     fontSize: 42,
                                                     fontWeight:
@@ -686,7 +694,9 @@ class PatientDetailState extends State<PatientDetail> {
                                           ),
                                           SizedBox(
                                             height: 30,
-                                            child: getColoredTriangle(86.0),
+                                            child: getColoredTriangle(
+                                                periodNutritionPercentages[
+                                                    barChartPeriodIndex]),
                                           )
                                         ],
                                       )
@@ -730,16 +740,17 @@ class PatientDetailState extends State<PatientDetail> {
                                         children: [
                                           ShaderMask(
                                             blendMode: BlendMode.srcIn,
-                                            shaderCallback: (bounds) =>
-                                                LinearGradient(
-                                                        colors:
-                                                            getGradientColors(
-                                                                95, true))
-                                                    .createShader(
+                                            shaderCallback: (bounds) => LinearGradient(
+                                                    colors: getGradientColors(
+                                                        periodActivityPercentages[
+                                                            barChartPeriodIndex],
+                                                        true))
+                                                .createShader(
                                               Rect.fromLTRB(0, 0, bounds.width,
                                                   bounds.height),
                                             ),
-                                            child: const Text("95" + "%",
+                                            child: Text(
+                                                "${periodActivityPercentages[barChartPeriodIndex]}%",
                                                 style: TextStyle(
                                                     fontSize: 42,
                                                     fontWeight:
@@ -747,7 +758,9 @@ class PatientDetailState extends State<PatientDetail> {
                                           ),
                                           SizedBox(
                                             height: 30,
-                                            child: getColoredTriangle(95.0),
+                                            child: getColoredTriangle(
+                                                periodActivityPercentages[
+                                                    barChartPeriodIndex]),
                                           )
                                         ],
                                       )
@@ -784,16 +797,17 @@ class PatientDetailState extends State<PatientDetail> {
                                         children: [
                                           ShaderMask(
                                             blendMode: BlendMode.srcIn,
-                                            shaderCallback: (bounds) =>
-                                                LinearGradient(
-                                                        colors:
-                                                            getGradientColors(
-                                                                20, true))
-                                                    .createShader(
+                                            shaderCallback: (bounds) => LinearGradient(
+                                                    colors: getGradientColors(
+                                                        periodExamsPercentages[
+                                                            barChartPeriodIndex],
+                                                        true))
+                                                .createShader(
                                               Rect.fromLTRB(0, 0, bounds.width,
                                                   bounds.height),
                                             ),
-                                            child: const Text("20" + "%",
+                                            child: Text(
+                                                "${periodExamsPercentages[barChartPeriodIndex]}%",
                                                 style: TextStyle(
                                                     fontSize: 42,
                                                     fontWeight:
@@ -801,7 +815,9 @@ class PatientDetailState extends State<PatientDetail> {
                                           ),
                                           SizedBox(
                                             height: 30,
-                                            child: getColoredTriangle(20.0),
+                                            child: getColoredTriangle(
+                                                periodExamsPercentages[
+                                                    barChartPeriodIndex]),
                                           )
                                         ],
                                       )
@@ -2242,7 +2258,7 @@ class PatientDetailState extends State<PatientDetail> {
     return result;
   }
 
-  getGradientColors(double percentage, [bool? inverted]) {
+  getGradientColors(int percentage, [bool? inverted]) {
     var redList = <Color>[
       Color(0xff9D2F2F),
       Color(0xffE72A2A),
@@ -2267,7 +2283,7 @@ class PatientDetailState extends State<PatientDetail> {
     return "¡Sigue así con tu tratamiento!";
   }
 
-  getColoredTriangle(double percentage) {
+  getColoredTriangle(int percentage) {
     if (percentage < 80) {
       return Image.asset(
         'assets/images/arrow_up_red.png',
@@ -2372,6 +2388,11 @@ class PatientDetailState extends State<PatientDetail> {
       currentBarChart.adherence = 0;
       result.add(currentBarChart);
     }
+    double medicationSum = 0;
+    double nutritionSum = 0;
+    double activitiesSum = 0;
+    double examsSum = 0;
+    int cantCounter = 0;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
       DateTime currentDate = currentBarChart.dateTime!;
@@ -2381,7 +2402,20 @@ class PatientDetailState extends State<PatientDetail> {
       int day = currentDate.weekday - 1;
       currentBarChart.dateLabel = result[day].dateLabel;
       result[day] = currentBarChart;
+      medicationSum += currentBarChart.medicationPercentage ?? 0;
+      nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+      activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+      examsSum += currentBarChart.examsPercentage ?? 0;
+      cantCounter++;
     }
+    periodMedicationPercentages[0] =
+        (cantCounter > 0 ? medicationSum ~/ cantCounter : 0) * 100;
+    periodNutritionPercentages[0] =
+        (cantCounter > 0 ? nutritionSum ~/ cantCounter : 0) * 100;
+    periodActivityPercentages[0] =
+        (cantCounter > 0 ? activitiesSum ~/ cantCounter : 0) * 100;
+    periodExamsPercentages[0] =
+        (cantCounter > 0 ? examsSum ~/ cantCounter : 0) * 100;
 
     int todayIndex = today.weekday;
     if (todayIndex == DateTime.sunday) return result;
@@ -2423,6 +2457,11 @@ class PatientDetailState extends State<PatientDetail> {
     int cant4 = 0;
     double sum3 = 0;
     double sum4 = 0;
+    double medicationSum = 0;
+    double nutritionSum = 0;
+    double activitiesSum = 0;
+    double examsSum = 0;
+    int cantCounter = 0;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
       DateTime currentDate = currentBarChart.dateTime!;
@@ -2444,7 +2483,21 @@ class PatientDetailState extends State<PatientDetail> {
         cant1++;
         sum1 += currentAdherence;
       }
+      medicationSum += currentBarChart.medicationPercentage ?? 0;
+      nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+      activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+      examsSum += currentBarChart.examsPercentage ?? 0;
+      cantCounter++;
     }
+    periodMedicationPercentages[1] =
+        (cantCounter > 0 ? medicationSum ~/ cantCounter : 0) * 100;
+    periodNutritionPercentages[1] =
+        (cantCounter > 0 ? nutritionSum ~/ cantCounter : 0) * 100;
+    periodActivityPercentages[1] =
+        (cantCounter > 0 ? activitiesSum ~/ cantCounter : 0) * 100;
+    periodExamsPercentages[1] =
+        (cantCounter > 0 ? examsSum ~/ cantCounter : 0) * 100;
+
     result[0].adherence = cant1 > 0 ? sum1 / cant1 : 0;
     result[1].adherence = cant2 > 0 ? sum2 / cant2 : 0;
     result[2].adherence = cant3 > 0 ? sum3 / cant3 : 0;
@@ -2470,6 +2523,11 @@ class PatientDetailState extends State<PatientDetail> {
       currentBarChart.adherence = 0;
       result.add(currentBarChart);
     }
+    double medicationSum = 0;
+    double nutritionSum = 0;
+    double activitiesSum = 0;
+    double examsSum = 0;
+    int cantCounter = 0;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
       DateTime currentDate = currentBarChart.dateTime!;
@@ -2477,7 +2535,12 @@ class PatientDetailState extends State<PatientDetail> {
         continue; // skip if is invalid range
       }
       double sum = currentBarChart.adherence ?? 0;
-      int cantCounter = 1;
+      medicationSum += currentBarChart.medicationPercentage ?? 0;
+      nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+      activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+      examsSum += currentBarChart.examsPercentage ?? 0;
+      cantCounter++;
+      int cantCounterMonth = 1;
       int month = currentDate.month;
       while (i + 1 < barcharListGlobal!.length &&
           month == barcharListGlobal![i + 1].dateTime!.month) {
@@ -2486,11 +2549,26 @@ class PatientDetailState extends State<PatientDetail> {
         currentDate = currentBarChart.dateTime!;
         month = currentDate.month;
         sum += currentBarChart.adherence ?? 0;
+        medicationSum += currentBarChart.medicationPercentage ?? 0;
+        nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+        activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+        examsSum += currentBarChart.examsPercentage ?? 0;
         cantCounter++;
+        cantCounterMonth++;
       }
       currentBarChart = result[month - 1];
-      currentBarChart.adherence = cantCounter > 0 ? sum / cantCounter : 0;
+      currentBarChart.adherence =
+          cantCounterMonth > 0 ? sum / cantCounterMonth : 0;
     }
+
+    periodMedicationPercentages[2] =
+        (cantCounter > 0 ? medicationSum ~/ cantCounter : 0) * 100;
+    periodNutritionPercentages[2] =
+        (cantCounter > 0 ? nutritionSum ~/ cantCounter : 0) * 100;
+    periodActivityPercentages[2] =
+        (cantCounter > 0 ? activitiesSum ~/ cantCounter : 0) * 100;
+    periodExamsPercentages[2] =
+        (cantCounter > 0 ? examsSum ~/ cantCounter : 0) * 100;
     return result;
   }
 
@@ -2498,12 +2576,22 @@ class PatientDetailState extends State<PatientDetail> {
     List<BarCharData> result = <BarCharData>[];
     DateTime today = DateTime.now();
     int firstIndex = 0;
+    double medicationSum = 0;
+    double nutritionSum = 0;
+    double activitiesSum = 0;
+    double examsSum = 0;
+    int cantCounter = 0;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
       DateTime currentDate = currentBarChart.dateTime!;
       int year = currentDate.year;
       double sum = currentBarChart.adherence ?? 0;
-      int cantCounter = 1;
+      int cantCounterYear = 1;
+      medicationSum += currentBarChart.medicationPercentage ?? 0;
+      nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+      activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+      examsSum += currentBarChart.examsPercentage ?? 0;
+      cantCounter++;
       while (i + 1 < barcharListGlobal!.length &&
           year == barcharListGlobal![i + 1].dateTime!.year) {
         i++;
@@ -2511,6 +2599,11 @@ class PatientDetailState extends State<PatientDetail> {
         currentDate = currentBarChart.dateTime!;
         year = currentDate.year;
         sum += currentBarChart.adherence ?? 0;
+        cantCounterYear++;
+        medicationSum += currentBarChart.medicationPercentage ?? 0;
+        nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+        activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+        examsSum += currentBarChart.examsPercentage ?? 0;
         cantCounter++;
       }
       currentBarChart = BarCharData(
@@ -2520,9 +2613,18 @@ class PatientDetailState extends State<PatientDetail> {
           activitiesPercentage: null,
           examsPercentage: null);
       currentBarChart.dateLabel = year.toString();
-      currentBarChart.adherence = cantCounter > 0 ? sum / cantCounter : 0;
+      currentBarChart.adherence =
+          cantCounterYear > 0 ? sum / cantCounterYear : 0;
       result.add(currentBarChart);
     }
+    periodMedicationPercentages[3] =
+        (cantCounter > 0 ? medicationSum ~/ cantCounter : 0) * 100;
+    periodNutritionPercentages[3] =
+        (cantCounter > 0 ? nutritionSum ~/ cantCounter : 0) * 100;
+    periodActivityPercentages[3] =
+        (cantCounter > 0 ? activitiesSum ~/ cantCounter : 0) * 100;
+    periodExamsPercentages[3] =
+        (cantCounter > 0 ? examsSum ~/ cantCounter : 0) * 100;
     return result;
   }
 }
