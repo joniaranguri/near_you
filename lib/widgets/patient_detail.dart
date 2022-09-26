@@ -79,6 +79,9 @@ class PatientDetailState extends State<PatientDetail> {
   List<int> periodNutritionPercentages = List.filled(4, 0);
   List<int> periodActivityPercentages = List.filled(4, 0);
   List<int> periodExamsPercentages = List.filled(4, 0);
+  List<int> periodAdherences = List.filled(4, 0);
+
+  int todayAdherence = 0;
 
   PatientDetailState(this.detailedUser, this.isDoctorView);
 
@@ -358,7 +361,7 @@ class PatientDetailState extends State<PatientDetail> {
                       ),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: const <Widget>[
+                          children: <Widget>[
                             Padding(
                               padding: EdgeInsets.only(left: 20, right: 20),
                               //apply padding to all four sides
@@ -392,11 +395,12 @@ class PatientDetailState extends State<PatientDetail> {
                               padding: EdgeInsets.only(right: 20, left: 2),
                               //apply padding to all four sides
                               child: Text(
-                                '53%',
+                                '${periodAdherences[barChartPeriodIndex]}%',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.normal,
-                                  color: Color(0xffF8191E),
+                                  color: getAdherenceColor(
+                                      periodAdherences[barChartPeriodIndex]),
                                 ),
                               ),
                             )
@@ -530,7 +534,7 @@ class PatientDetailState extends State<PatientDetail> {
                           )),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const <Widget>[
+                          children: <Widget>[
                             Padding(
                               padding: EdgeInsets.only(left: 20, right: 2),
                               //apply padding to all four sides
@@ -547,11 +551,11 @@ class PatientDetailState extends State<PatientDetail> {
                                 padding: EdgeInsets.only(right: 30, left: 2),
                                 //apply padding to all four sides
                                 child: Text(
-                                  '53%',
+                                  '$todayAdherence%',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.normal,
-                                    color: Color(0xffF8191E),
+                                    color: getAdherenceColor(todayAdherence),
                                   ),
                                 ))
                           ]),
@@ -2392,12 +2396,18 @@ class PatientDetailState extends State<PatientDetail> {
     double nutritionSum = 0;
     double activitiesSum = 0;
     double examsSum = 0;
+    double adherenceTotalSum = 0;
     int cantCounter = 0;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
       DateTime currentDate = currentBarChart.dateTime!;
       if (today.subtract(const Duration(days: 7)).isAfter(currentDate)) {
         continue; // skip if is invalid range
+      }
+      if (today.day == currentDate.day &&
+          today.month == currentDate.month &&
+          today.year == currentDate.year) {
+        todayAdherence = ((currentBarChart.adherence ?? 0) * 100).toInt();
       }
       int day = currentDate.weekday - 1;
       currentBarChart.dateLabel = result[day].dateLabel;
@@ -2406,16 +2416,19 @@ class PatientDetailState extends State<PatientDetail> {
       nutritionSum += currentBarChart.nutritionPercentage ?? 0;
       activitiesSum += currentBarChart.activitiesPercentage ?? 0;
       examsSum += currentBarChart.examsPercentage ?? 0;
+      adherenceTotalSum += currentBarChart.adherence ?? 0;
       cantCounter++;
     }
     periodMedicationPercentages[0] =
-        (cantCounter > 0 ? medicationSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
     periodNutritionPercentages[0] =
-        (cantCounter > 0 ? nutritionSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? nutritionSum / cantCounter : 0) * 100).toInt();
     periodActivityPercentages[0] =
-        (cantCounter > 0 ? activitiesSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? activitiesSum / cantCounter : 0) * 100).toInt();
     periodExamsPercentages[0] =
-        (cantCounter > 0 ? examsSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? examsSum / cantCounter : 0) * 100).toInt();
+    periodAdherences[0] =
+        ((cantCounter > 0 ? adherenceTotalSum / cantCounter : 0) * 100).toInt();
 
     int todayIndex = today.weekday;
     if (todayIndex == DateTime.sunday) return result;
@@ -2460,6 +2473,7 @@ class PatientDetailState extends State<PatientDetail> {
     double medicationSum = 0;
     double nutritionSum = 0;
     double activitiesSum = 0;
+    double adherenceTotalSum = 0;
     double examsSum = 0;
     int cantCounter = 0;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
@@ -2487,16 +2501,19 @@ class PatientDetailState extends State<PatientDetail> {
       nutritionSum += currentBarChart.nutritionPercentage ?? 0;
       activitiesSum += currentBarChart.activitiesPercentage ?? 0;
       examsSum += currentBarChart.examsPercentage ?? 0;
+      adherenceTotalSum += currentBarChart.adherence ?? 0;
       cantCounter++;
     }
     periodMedicationPercentages[1] =
-        (cantCounter > 0 ? medicationSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
     periodNutritionPercentages[1] =
-        (cantCounter > 0 ? nutritionSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? nutritionSum / cantCounter : 0) * 100).toInt();
     periodActivityPercentages[1] =
-        (cantCounter > 0 ? activitiesSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? activitiesSum / cantCounter : 0) * 100).toInt();
     periodExamsPercentages[1] =
-        (cantCounter > 0 ? examsSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? examsSum / cantCounter : 0) * 100).toInt();
+    periodAdherences[1] =
+        ((cantCounter > 0 ? adherenceTotalSum / cantCounter : 0) * 100).toInt();
 
     result[0].adherence = cant1 > 0 ? sum1 / cant1 : 0;
     result[1].adherence = cant2 > 0 ? sum2 / cant2 : 0;
@@ -2527,6 +2544,7 @@ class PatientDetailState extends State<PatientDetail> {
     double nutritionSum = 0;
     double activitiesSum = 0;
     double examsSum = 0;
+    double adherenceSum = 0;
     int cantCounter = 0;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
@@ -2539,6 +2557,7 @@ class PatientDetailState extends State<PatientDetail> {
       nutritionSum += currentBarChart.nutritionPercentage ?? 0;
       activitiesSum += currentBarChart.activitiesPercentage ?? 0;
       examsSum += currentBarChart.examsPercentage ?? 0;
+      adherenceSum += currentBarChart.adherence ?? 0;
       cantCounter++;
       int cantCounterMonth = 1;
       int month = currentDate.month;
@@ -2553,6 +2572,7 @@ class PatientDetailState extends State<PatientDetail> {
         nutritionSum += currentBarChart.nutritionPercentage ?? 0;
         activitiesSum += currentBarChart.activitiesPercentage ?? 0;
         examsSum += currentBarChart.examsPercentage ?? 0;
+        adherenceSum += currentBarChart.adherence ?? 0;
         cantCounter++;
         cantCounterMonth++;
       }
@@ -2562,13 +2582,16 @@ class PatientDetailState extends State<PatientDetail> {
     }
 
     periodMedicationPercentages[2] =
-        (cantCounter > 0 ? medicationSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
     periodNutritionPercentages[2] =
-        (cantCounter > 0 ? nutritionSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? nutritionSum / cantCounter : 0) * 100).toInt();
     periodActivityPercentages[2] =
-        (cantCounter > 0 ? activitiesSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? activitiesSum / cantCounter : 0) * 100).toInt();
     periodExamsPercentages[2] =
-        (cantCounter > 0 ? examsSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? examsSum / cantCounter : 0) * 100).toInt();
+    periodAdherences[2] =
+        ((cantCounter > 0 ? adherenceSum / cantCounter : 0) * 100).toInt();
+
     return result;
   }
 
@@ -2580,6 +2603,7 @@ class PatientDetailState extends State<PatientDetail> {
     double nutritionSum = 0;
     double activitiesSum = 0;
     double examsSum = 0;
+    double adherenceTotalSum = 0;
     int cantCounter = 0;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
@@ -2591,6 +2615,7 @@ class PatientDetailState extends State<PatientDetail> {
       nutritionSum += currentBarChart.nutritionPercentage ?? 0;
       activitiesSum += currentBarChart.activitiesPercentage ?? 0;
       examsSum += currentBarChart.examsPercentage ?? 0;
+      adherenceTotalSum += currentBarChart.adherence ?? 0;
       cantCounter++;
       while (i + 1 < barcharListGlobal!.length &&
           year == barcharListGlobal![i + 1].dateTime!.year) {
@@ -2604,6 +2629,7 @@ class PatientDetailState extends State<PatientDetail> {
         nutritionSum += currentBarChart.nutritionPercentage ?? 0;
         activitiesSum += currentBarChart.activitiesPercentage ?? 0;
         examsSum += currentBarChart.examsPercentage ?? 0;
+        adherenceTotalSum += currentBarChart.adherence ?? 0;
         cantCounter++;
       }
       currentBarChart = BarCharData(
@@ -2618,13 +2644,21 @@ class PatientDetailState extends State<PatientDetail> {
       result.add(currentBarChart);
     }
     periodMedicationPercentages[3] =
-        (cantCounter > 0 ? medicationSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
     periodNutritionPercentages[3] =
-        (cantCounter > 0 ? nutritionSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? nutritionSum / cantCounter : 0) * 100).toInt();
     periodActivityPercentages[3] =
-        (cantCounter > 0 ? activitiesSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? activitiesSum / cantCounter : 0) * 100).toInt();
     periodExamsPercentages[3] =
-        (cantCounter > 0 ? examsSum ~/ cantCounter : 0) * 100;
+        ((cantCounter > 0 ? examsSum / cantCounter : 0) * 100).toInt();
+    periodAdherences[3] =
+        ((cantCounter > 0 ? adherenceTotalSum / cantCounter : 0) * 100).toInt();
+
     return result;
+  }
+
+  getAdherenceColor(int adherence) {
+    if (adherence >= 80) return Color(0xff47B4AC);
+    return Color(0xffE72A2A);
   }
 }
