@@ -572,7 +572,8 @@ class PatientDetailState extends State<PatientDetail> {
                                   ConnectionState.done) {
                                 return getBarCharView();
                               }
-                              return CircularProgressIndicator();
+                              return Center(child: CircularProgressIndicator());
+                              ;
                             },
                           )),
                       const SizedBox(
