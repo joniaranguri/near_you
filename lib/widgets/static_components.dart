@@ -109,7 +109,7 @@ class StaticComponents {
         focusedBorder: middleInputBorder);
   }
 }
-final  List<String> daysList = ["Lun", "Mar", "Mier", "Jue", "Vier", "Sáb", "Dom"];
-final  List<String> weeksList = ["1ra Sem", "2da Sem", "3ra Sem", "4ta Sem"];
-final  List<String> monthsList = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Set", "Oct", "Nov", "Dic"];
+final  List<String> daysList = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+final  List<String> weeksList = ["1ra Semana", "2da Semana", "3ra Semana", "4ta Semana"];
+final  List<String> monthsList = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 

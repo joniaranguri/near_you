@@ -15,6 +15,16 @@ class GroupedBarChart extends StatelessWidget {
       primaryMeasureAxis:
           charts.NumericAxisSpec(renderSpec: charts.NoneRenderSpec()),
       domainAxis: charts.OrdinalAxisSpec(
+          renderSpec: new charts.SmallTickRendererSpec(
+
+              // Tick and Label styling here.
+              labelStyle: new charts.TextStyleSpec(
+                  fontSize: 6, // size in Pts.
+                  color: charts.Color.fromHex(code: "#999999")),
+
+              // Change the line colors to match text color.
+              lineStyle: new charts.LineStyleSpec(
+                  color: charts.MaterialPalette.transparent)),
           showAxisLine: false,
           viewport: charts.OrdinalViewport(
               '0', seriesList[0].data.length > 7 ? 6 : 7)),
