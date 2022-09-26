@@ -1,6 +1,7 @@
 /// Bar chart example
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:near_you/Constants.dart';
 
 class GroupedBarChart extends StatelessWidget {
   final List<charts.Series<dynamic, String>> seriesList;
@@ -8,101 +9,74 @@ class GroupedBarChart extends StatelessWidget {
 
   GroupedBarChart(this.seriesList, {required this.animate});
 
-  factory GroupedBarChart.withSampleData() {
-    return new GroupedBarChart(
-      _createSampleData(),
-      // Disable animations for image tests.
-      animate: false,
-    );
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return charts.BarChart(
       primaryMeasureAxis:
-      new charts.NumericAxisSpec(renderSpec: new charts.NoneRenderSpec()),
+          charts.NumericAxisSpec(renderSpec: charts.NoneRenderSpec()),
+      domainAxis: charts.OrdinalAxisSpec(
+          renderSpec: new charts.SmallTickRendererSpec(
 
-      domainAxis: new charts.OrdinalAxisSpec(
-          showAxisLine: true,
-          renderSpec: new charts.NoneRenderSpec()),
+              // Tick and Label styling here.
+              labelStyle: new charts.TextStyleSpec(
+                  fontSize: 6, // size in Pts.
+                  color: charts.Color.fromHex(code: "#999999")),
+
+              // Change the line colors to match text color.
+              lineStyle: new charts.LineStyleSpec(
+                  color: charts.MaterialPalette.transparent)),
+          showAxisLine: false,
+          viewport: charts.OrdinalViewport(
+              '0', seriesList[0].data.length > 7 ? 6 : 7)),
+      behaviors: [
+        // Add the sliding viewport behavior to have the viewport center on the
+        // domain that is currently selected.
+        new charts.SlidingViewport(),
+        // A pan and zoom behavior helps demonstrate the sliding viewport
+        // behavior by allowing the data visible in the viewport to be adjusted
+        // dynamically.
+        new charts.PanAndZoomBehavior(),
+      ],
       seriesList,
       animate: animate,
       barGroupingType: charts.BarGroupingType.grouped,
+      defaultRenderer: charts.BarRendererConfig(
+          cornerStrategy: const charts.ConstCornerStrategy(9),
+          barRendererDecorator: charts.BarLabelDecorator<String>(
+              labelPosition: charts.BarLabelPosition.outside)),
     );
-  }
-
-  /// Create series list with multiple series
-  static List<charts.Series<OrdinalSales, String>> _createSampleData() {
-    final desktopSalesData = [
-      new OrdinalSales('2014', 40),
-      new OrdinalSales('2015', 25),
-      new OrdinalSales('2016', 60),
-      new OrdinalSales('2017', 75),
-    ];
-
-    final tableSalesData = [
-      new OrdinalSales('2014', 25),
-      new OrdinalSales('2015', 50),
-      new OrdinalSales('2016', 10),
-      new OrdinalSales('2017', 20),
-    ];
-
-    final tableSalesData2 = [
-      new OrdinalSales('2018', 25),
-      new OrdinalSales('2019', 50),
-      new OrdinalSales('2020', 10),
-      new OrdinalSales('2021', 20),
-    ];
-
-    final tableSalesData3 = [
-      new OrdinalSales('2018', 25),
-      new OrdinalSales('2019', 50),
-      new OrdinalSales('2020', 10),
-      new OrdinalSales('2021', 20),
-    ];
-
-
-    return [
-      new charts.Series<OrdinalSales, String>(
-        id: 'Tablet',
-        domainFn: (OrdinalSales sales, _) => sales.year,
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        colorFn: (_, __) => charts.MaterialPalette.cyan.shadeDefault,
-
-        data: tableSalesData,
-      ),
-
-      new charts.Series<OrdinalSales, String>(
-        id: 'Desktop',
-        domainFn: (OrdinalSales sales, _) => sales.year,
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        colorFn: (_, __) => charts.MaterialPalette.cyan.shadeDefault.lighter,
-        data: desktopSalesData,
-      ),
-      new charts.Series<OrdinalSales, String>(
-        id: 'Tablet',
-        domainFn: (OrdinalSales sales, _) => sales.year,
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        colorFn: (_, __) => charts.MaterialPalette.cyan.shadeDefault,
-        data: tableSalesData2,
-      ),
-
-    new charts.Series<OrdinalSales, String>(
-    id: 'Tablet',
-    domainFn: (OrdinalSales sales, _) => sales.year,
-    measureFn: (OrdinalSales sales, _) => sales.sales,
-      colorFn: (_, __) => charts.MaterialPalette.cyan.shadeDefault.lighter,
-      data: tableSalesData3,
-    )
-    ];
   }
 }
 
-/// Sample ordinal data type.
-class OrdinalSales {
-  final String year;
-  final int sales;
+class BarCharData {
+  String? dateLabel;
+  double? adherence;
+  DateTime? dateTime;
+  double? medicationPercentage;
+  double? nutritionPercentage;
+  double? activitiesPercentage;
+  double? examsPercentage;
+  int? timestamp;
 
-  OrdinalSales(this.year, this.sales);
+  BarCharData(
+      {this.adherence,
+      this.dateTime,
+      this.medicationPercentage,
+      this.nutritionPercentage,
+      this.activitiesPercentage,
+      this.examsPercentage,
+      this.timestamp});
+
+  factory BarCharData.fromSnapshot(snapshot) {
+    var realData = snapshot.data();
+    return BarCharData(
+        adherence: realData[DATA_ADHERENCIA_KEY] ?? 0 * 100,
+        timestamp: realData[DATA_TIMESTAMP_KEY],
+        dateTime: DateTime.fromMillisecondsSinceEpoch(
+            realData[DATA_TIMESTAMP_KEY] ?? 0),
+        medicationPercentage: realData[ROUTINE_MEDICATION_PERCENTAGE_KEY],
+        nutritionPercentage: realData[ROUTINE_NUTRITION_PERCENTAGE_KEY],
+        activitiesPercentage: realData[ROUTINE_ACTIVITY_PERCENTAGE_KEY],
+        examsPercentage: realData[ROUTINE_EXAMS_PERCENTAGE_KEY]);
+  }
 }

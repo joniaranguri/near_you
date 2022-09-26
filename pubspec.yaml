@@ -40,6 +40,7 @@ dependencies:
   calendar_timeline: ^1.0.5
   age_calculator: ^1.0.0
   device_preview: 1.1.0
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:
@@ -64,7 +65,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
- 
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -106,6 +107,8 @@ flutter:
     - assets/images/logo.svg
     - assets/images/logo.png
     - assets/images/refresh_icon.svg
+    - assets/images/arrow_up_red.png
+    - assets/images/arrow_up_blue.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -1,3 +1,4 @@
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,6 +11,7 @@ import 'package:near_you/screens/visualize_prescription_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
+import '../common/adherence_prediction.dart';
 import '../model/user.dart' as user;
 import '../widgets/grouped_bar_chart.dart';
 
@@ -46,6 +48,8 @@ class PatientDetailState extends State<PatientDetail> {
   final PageController _pageController = PageController(initialPage: 0);
   bool isDoctorView;
   late final Future<Treatment> currentTreatmentFuture;
+  late final Future<int> predictionFuture;
+  late final Future<List<BarCharData>> barchartDataFuture;
   late final Future<List<String>> medicationFuture;
   late final Future<List<String>> activityFuture;
   late final Future<List<String>> nutritionFuture;
@@ -65,6 +69,23 @@ class PatientDetailState extends State<PatientDetail> {
   List<String> nutritionList = <String>[];
   List<String> activitiesList = <String>[];
   List<String> examnList = <String>[];
+  int barChartPeriodIndex = 0;
+
+  List<BarCharData>? barcharListGlobal;
+
+  List<BarCharData> dailySeriesAdherence = <BarCharData>[];
+  List<BarCharData> weeklySeriesAdherence = <BarCharData>[];
+  List<BarCharData> monthlySeriesAdherence = <BarCharData>[];
+  List<BarCharData> annualSeriesAdherence = <BarCharData>[];
+  List<int> periodMedicationPercentages = List.filled(4, 0);
+  List<int> periodNutritionPercentages = List.filled(4, 0);
+  List<int> periodActivityPercentages = List.filled(4, 0);
+  List<int> periodExamsPercentages = List.filled(4, 0);
+  List<int> periodAdherences = List.filled(4, 0);
+
+  int todayAdherence = 0;
+
+  int adherencePrediction = 80; // TODO: Change with value from ML algorithm
 
   PatientDetailState(this.detailedUser, this.isDoctorView);
 
@@ -98,6 +119,9 @@ class PatientDetailState extends State<PatientDetail> {
 
   @override
   void initState() {
+    predictionFuture =
+        AdherencePrediction.getPrediction(detailedUser!.currentTreatment);
+    barchartDataFuture = getAdherenceHistory();
     currentTreatmentFuture =
         getCurrentTReatmentById(detailedUser!.currentTreatment!);
     medicationFuture =
@@ -106,6 +130,17 @@ class PatientDetailState extends State<PatientDetail> {
     nutritionFuture =
         getNutritionPrescriptions(detailedUser!.currentTreatment!);
     examnFuture = getExamnPrescriptions(detailedUser!.currentTreatment!);
+    predictionFuture.then((value) => {
+          setState(() {
+            adherencePrediction = value;
+          })
+        });
+    barchartDataFuture.then((value) => {
+          setState(() {
+            barcharListGlobal = value;
+            updateBarCharSeries();
+          })
+        });
     currentTreatmentFuture.then((value) => {
           setState(() {
             currentTreatment = value;
@@ -225,224 +260,728 @@ class PatientDetailState extends State<PatientDetail> {
         height: 580,
         child: Padding(
           padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
-                  Widget>[
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.arrow_back, color: Color(0xff2F8F9D)),
-                        onPressed: () {
-                          goBack();
-                        },
+          child: SingleChildScrollView(
+              child: ConstrainedBox(
+                  child: Column(
+                    children: [
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: Icon(Icons.arrow_back,
+                                        color: Color(0xff2F8F9D)),
+                                    onPressed: () {
+                                      goBack();
+                                    },
+                                  ),
+                                  const Padding(
+                                    padding:
+                                        EdgeInsets.only(left: 40, right: 40),
+                                    //apply padding to all four sides
+                                    child: Text(
+                                      'Adherencia',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff2F8F9D),
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.arrow_forward,
+                                        color: Color(0xff2F8F9D)),
+                                    onPressed: () {
+                                      goAhead();
+                                    },
+                                  )
+                                ]),
+                            adherencePrediction < 0
+                                ? Container(
+                                    width: double.infinity,
+                                    height: HomeScreen.screenHeight * 0.3,
+                                    child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 40),
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              SizedBox(height: 5),
+                                              Text(
+                                                'No tiene suficiente\ninformación para mostrar\nel riesgo',
+                                                textAlign: TextAlign.center,
+                                                maxLines: 5,
+                                                style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  fontSize: 14,
+                                                  color: Color(0xff999999),
+                                                  fontFamily: 'Italic',
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ])),
+                                  )
+                                : Column(
+                                    children: [
+                                      Transform.scale(
+                                          scale: 0.9,
+                                          child: Material(
+                                              elevation: 10,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(100)),
+                                              child: CircularPercentIndicator(
+                                                  backgroundColor: Colors.white,
+                                                  radius: 100,
+                                                  lineWidth: 15,
+                                                  percent:
+                                                      adherencePrediction / 100,
+                                                  center: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      ShaderMask(
+                                                        blendMode:
+                                                            BlendMode.srcIn,
+                                                        shaderCallback: (bounds) =>
+                                                            LinearGradient(
+                                                                    colors: getGradientColors(
+                                                                        adherencePrediction))
+                                                                .createShader(
+                                                          Rect.fromLTRB(
+                                                              0,
+                                                              0,
+                                                              bounds.width,
+                                                              bounds.height),
+                                                        ),
+                                                        child: Text(
+                                                            "$adherencePrediction%",
+                                                            style: TextStyle(
+                                                                fontSize: 42,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w900)),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      const Text(
+                                                        'RIESGO DE\nABANDONO',
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: Color(
+                                                                0xff666666)),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  linearGradient: LinearGradient(
+                                                      begin: Alignment.topRight,
+                                                      end: Alignment.bottomLeft,
+                                                      colors: getGradientColors(
+                                                          adherencePrediction)),
+                                                  rotateLinearGradient: true,
+                                                  circularStrokeCap:
+                                                      CircularStrokeCap
+                                                          .round))),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Text(
+                                        getAdherenceMessage(),
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xff999999),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                          ]),
+                      const SizedBox(
+                        height: 20,
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 40, right: 40),
-                        //apply padding to all four sides
-                        child: Text(
-                          'Adherencia',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xff2F8F9D),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon:
-                            Icon(Icons.arrow_forward, color: Color(0xff2F8F9D)),
-                        onPressed: () {
-                          goAhead();
-                        },
-                      )
-                    ]),
-                const SizedBox(
-                  height: 20,
-                ),
-                CircularPercentIndicator(
-                    radius: 100,
-                    lineWidth: 10,
-                    percent: 0.75,
-                    //center: Text("75%", style: TextStyle(color: Color(0xFF1AB600), fontSize: 27, fontWeight: FontWeight.bold, backgroundColor: Colors.red)),
-                    center: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
-                        Text("75%",
-                            style: TextStyle(
-                                color: Color(0xff6EC6A4),
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold)),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          'ADHERENCIA',
-                          style:
-                              TextStyle(fontSize: 11, color: Color(0xff666666)),
-                        ),
-                        Text('NORMAL',
-                            style: TextStyle(
-                                fontSize: 11, color: Color(0xff666666)))
-                      ],
-                    ),
-                    linearGradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        colors: <Color>[Color(0xff6EC6A4), Color(0xff6EC6A4)]),
-                    rotateLinearGradient: true,
-                    circularStrokeCap: CircularStrokeCap.round),
-                const SizedBox(
-                  height: 20,
-                ),
-                const Text(
-                  '¡Te felicito, sigue así!',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff999999),
-                  ),
-                )
-              ]),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: const <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(left: 20, right: 20),
-                      //apply padding to all four sides
-                      child: Text(
-                        'Periodo',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                          color: Color(0xffCECECE),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                        child: Divider(
-                      color: Color(0xffCECECE),
-                      thickness: 1,
-                    )),
-                    Padding(
-                      padding: EdgeInsets.only(left: 20, right: 2),
-                      //apply padding to all four sides
-                      child: Text(
-                        'Lower',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                          color: Color(0xffCECECE),
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '53%',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
-                        color: Color(0xffF8191E),
-                      ),
-                    ),
-                    Icon(Icons.keyboard_arrow_down, color: Color(0xffF8191E))
-                  ]),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      height: 20,
-                      color: const Color(0xff3BACB6),
-                      textColor: Colors.white,
-                      onPressed: () {
-                        // _signInWithEmailAndPassword();
-                      },
-                      child: const Text(
-                        'Semanal',
-                        style: TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      height: 20,
-                      color: const Color(0xff3BACB6),
-                      textColor: Colors.white,
-                      onPressed: () {
-                        // _signInWithEmailAndPassword();
-                      },
-                      child: const Text(
-                        'Semanal',
-                        style: TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      height: 20,
-                      color: const Color(0xff3BACB6),
-                      textColor: Colors.white,
-                      onPressed: () {
-                        // _signInWithEmailAndPassword();
-                      },
-                      child: const Text(
-                        'Semanal',
-                        style: TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                    )
-                  ]),
-              Container(height: 76, child: GroupedBarChart.withSampleData()),
-              Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Padding(
-                        padding: EdgeInsets.only(left: 30, right: 30),
-                        child: FlatButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          color: const Color(0xff3BACB6),
-                          textColor: Colors.white,
-                          onPressed: () {
-                            // _signInWithEmailAndPassword();
-                          },
-                          height: 27,
-                          child: const Text(
-                            'ver gráficos',
-                            style: TextStyle(
-                              fontSize: 16,
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              //apply padding to all four sides
+                              child: Text(
+                                'Periodo',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Color(0xffCECECE),
+                                ),
+                              ),
                             ),
-                          ),
-                        )),
-                  ]),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    blueIndicator,
-                    grayIndicator,
-                    grayIndicator
-                  ]),
-              //SizedBox
-            ],
-          ), //Column
+                            Expanded(
+                                child: Divider(
+                              color: Color(0xffCECECE),
+                              thickness: 1,
+                            )),
+                            Padding(
+                              padding: EdgeInsets.only(left: 20, right: 2),
+                              //apply padding to all four sides
+                              child: Text(
+                                (barcharListGlobal?.isEmpty ?? true)
+                                    ? ""
+                                    : 'Adherencia',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Color(0xffCECECE),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(right: 20, left: 2),
+                              //apply padding to all four sides
+                              child: Text(
+                                (barcharListGlobal?.isEmpty ?? true)
+                                    ? ""
+                                    : '${periodAdherences[barChartPeriodIndex]}%',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                  color: getAdherenceColor(
+                                      periodAdherences[barChartPeriodIndex]),
+                                ),
+                              ),
+                            )
+                          ]),
+                      Container(
+                          margin: EdgeInsets.symmetric(vertical: 20.0),
+                          height: 20,
+                          child: new ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: <Widget>[
+                              Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 5),
+                                  child: FlatButton(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                      side: const BorderSide(
+                                          color: Color(0xff3BACB6),
+                                          width: 1,
+                                          style: BorderStyle.solid),
+                                    ),
+                                    height: 20,
+                                    color: barChartPeriodIndex != 0
+                                        ? Colors.white
+                                        : const Color(0xff3BACB6),
+                                    textColor: barChartPeriodIndex != 0
+                                        ? Color(0xff999999)
+                                        : Colors.white,
+                                    onPressed: () {
+                                      setState(() {
+                                        barChartPeriodIndex = 0;
+                                      });
+                                    },
+                                    child: const Text(
+                                      'Diario',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  )),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: FlatButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    side: const BorderSide(
+                                        color: Color(0xff3BACB6),
+                                        width: 1,
+                                        style: BorderStyle.solid),
+                                  ),
+                                  height: 20,
+                                  color: barChartPeriodIndex != 1
+                                      ? Colors.white
+                                      : const Color(0xff3BACB6),
+                                  textColor: barChartPeriodIndex != 1
+                                      ? Color(0xff999999)
+                                      : Colors.white,
+                                  onPressed: () {
+                                    setState(() {
+                                      barChartPeriodIndex = 1;
+                                    });
+                                  },
+                                  child: const Text(
+                                    'Semanal',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: FlatButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    side: const BorderSide(
+                                        color: Color(0xff3BACB6),
+                                        width: 1,
+                                        style: BorderStyle.solid),
+                                  ),
+                                  height: 20,
+                                  color: barChartPeriodIndex != 2
+                                      ? Colors.white
+                                      : const Color(0xff3BACB6),
+                                  textColor: barChartPeriodIndex != 2
+                                      ? Color(0xff999999)
+                                      : Colors.white,
+                                  onPressed: () {
+                                    setState(() {
+                                      barChartPeriodIndex = 2;
+                                    });
+                                  },
+                                  child: const Text(
+                                    'Mensual',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: FlatButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    side: const BorderSide(
+                                        color: Color(0xff3BACB6),
+                                        width: 1,
+                                        style: BorderStyle.solid),
+                                  ),
+                                  height: 20,
+                                  color: barChartPeriodIndex != 3
+                                      ? Colors.white
+                                      : const Color(0xff3BACB6),
+                                  textColor: barChartPeriodIndex != 3
+                                      ? Color(0xff999999)
+                                      : Colors.white,
+                                  onPressed: () {
+                                    setState(() {
+                                      barChartPeriodIndex = 3;
+                                    });
+                                  },
+                                  child: const Text(
+                                    'Anual',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )),
+                      (barcharListGlobal?.isEmpty ?? true)
+                          ? SizedBox(
+                              height: 0,
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(left: 20, right: 2),
+                                    //apply padding to all four sides
+                                    child: Text(
+                                      'Adherencia de Hoy',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xff2F8F9D),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                      padding:
+                                          EdgeInsets.only(right: 30, left: 2),
+                                      //apply padding to all four sides
+                                      child: Text(
+                                        '$todayAdherence%',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.normal,
+                                          color:
+                                              getAdherenceColor(todayAdherence),
+                                        ),
+                                      ))
+                                ]),
+                      Container(
+                          height: 150,
+                          child: FutureBuilder(
+                            future: barchartDataFuture,
+                            builder: (context,
+                                AsyncSnapshot<List<BarCharData>> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                if (barcharListGlobal?.isEmpty ?? true) {
+                                  return Container(
+                                    width: double.infinity,
+                                    height: HomeScreen.screenHeight * 0.55,
+                                    child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 40),
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              SizedBox(height: 5),
+                                              Text(
+                                                'No tiene suficiente\ninformación para mostrar\ngráficos',
+                                                textAlign: TextAlign.center,
+                                                maxLines: 5,
+                                                style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  fontSize: 14,
+                                                  color: Color(0xff999999),
+                                                  fontFamily: 'Italic',
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ])),
+                                  );
+                                }
+                                return getBarCharView();
+                              }
+                              return Center(child: CircularProgressIndicator());
+                            },
+                          )),
+                      (barcharListGlobal?.isEmpty ?? true)
+                          ? SizedBox(
+                              height: 0,
+                            )
+                          : Column(
+                              children: [
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: const <Widget>[
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 20, right: 2),
+                                        child: Text(
+                                          'Cumplimiento de rutinas',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xff999999),
+                                          ),
+                                        ),
+                                      )
+                                    ]),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                SizedBox(
+                                    height: 86,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            margin: EdgeInsets.only(right: 5),
+                                            padding: EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                  color: Color(0xFFEBE3E3),
+                                                  width: 1),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(
+                                                      10) //         <--- border radius here
+                                                  ),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Text("Medicación",
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xff797979),
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    ShaderMask(
+                                                      blendMode:
+                                                          BlendMode.srcIn,
+                                                      shaderCallback: (bounds) =>
+                                                          LinearGradient(
+                                                                  colors: getGradientColors(
+                                                                      periodMedicationPercentages[
+                                                                          barChartPeriodIndex],
+                                                                      true))
+                                                              .createShader(
+                                                        Rect.fromLTRB(
+                                                            0,
+                                                            0,
+                                                            bounds.width,
+                                                            bounds.height),
+                                                      ),
+                                                      child: Text(
+                                                          "${periodMedicationPercentages[barChartPeriodIndex]}%",
+                                                          style: TextStyle(
+                                                              fontSize: 42,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900)),
+                                                    ),
+                                                    SizedBox(
+                                                        height: 30,
+                                                        child: getColoredTriangle(
+                                                            periodMedicationPercentages[
+                                                                barChartPeriodIndex]))
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Container(
+                                            margin: EdgeInsets.only(left: 5),
+                                            padding: EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                  color: Color(0xFFEBE3E3),
+                                                  width: 1),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(
+                                                      10) //         <--- border radius here
+                                                  ),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  "Alimentación",
+                                                  style: TextStyle(
+                                                      color: Color(0xff797979),
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    ShaderMask(
+                                                      blendMode:
+                                                          BlendMode.srcIn,
+                                                      shaderCallback: (bounds) =>
+                                                          LinearGradient(
+                                                                  colors: getGradientColors(
+                                                                      periodNutritionPercentages[
+                                                                          barChartPeriodIndex],
+                                                                      true))
+                                                              .createShader(
+                                                        Rect.fromLTRB(
+                                                            0,
+                                                            0,
+                                                            bounds.width,
+                                                            bounds.height),
+                                                      ),
+                                                      child: Text(
+                                                          "${periodNutritionPercentages[barChartPeriodIndex]}%",
+                                                          style: TextStyle(
+                                                              fontSize: 42,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900)),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 30,
+                                                      child: getColoredTriangle(
+                                                          periodNutritionPercentages[
+                                                              barChartPeriodIndex]),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    )),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                SizedBox(
+                                    height: 86,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            margin: EdgeInsets.only(right: 5),
+                                            padding: EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                  color: Color(0xFFEBE3E3),
+                                                  width: 1),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(
+                                                      10) //         <--- border radius here
+                                                  ),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Text("Actividad Física",
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xff797979),
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    ShaderMask(
+                                                      blendMode:
+                                                          BlendMode.srcIn,
+                                                      shaderCallback: (bounds) =>
+                                                          LinearGradient(
+                                                                  colors: getGradientColors(
+                                                                      periodActivityPercentages[
+                                                                          barChartPeriodIndex],
+                                                                      true))
+                                                              .createShader(
+                                                        Rect.fromLTRB(
+                                                            0,
+                                                            0,
+                                                            bounds.width,
+                                                            bounds.height),
+                                                      ),
+                                                      child: Text(
+                                                          "${periodActivityPercentages[barChartPeriodIndex]}%",
+                                                          style: TextStyle(
+                                                              fontSize: 42,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900)),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 30,
+                                                      child: getColoredTriangle(
+                                                          periodActivityPercentages[
+                                                              barChartPeriodIndex]),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Container(
+                                            margin: EdgeInsets.only(left: 5),
+                                            padding: EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                  color: Color(0xFFEBE3E3),
+                                                  width: 1),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(
+                                                      10) //         <--- border radius here
+                                                  ),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  "Exámenes",
+                                                  style: TextStyle(
+                                                      color: Color(0xff797979),
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    ShaderMask(
+                                                      blendMode:
+                                                          BlendMode.srcIn,
+                                                      shaderCallback: (bounds) =>
+                                                          LinearGradient(
+                                                                  colors: getGradientColors(
+                                                                      periodExamsPercentages[
+                                                                          barChartPeriodIndex],
+                                                                      true))
+                                                              .createShader(
+                                                        Rect.fromLTRB(
+                                                            0,
+                                                            0,
+                                                            bounds.width,
+                                                            bounds.height),
+                                                      ),
+                                                      child: Text(
+                                                          "${periodExamsPercentages[barChartPeriodIndex]}%",
+                                                          style: TextStyle(
+                                                              fontSize: 42,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900)),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 30,
+                                                      child: getColoredTriangle(
+                                                          periodExamsPercentages[
+                                                              barChartPeriodIndex]),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ))
+                              ],
+                            ),
+                      SizedBox(
+                        height: HomeScreen.screenHeight * 0.15,
+                      ),
+                      // TODO: Review this to get pinned at bottom
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            blueIndicator,
+                            grayIndicator,
+                            grayIndicator
+                          ]),
+                      //SizedBox
+                    ],
+                  ),
+                  constraints: BoxConstraints(
+                    minHeight: 200,
+                  ))), //Column
         ), //Padding
       ), //SizedBox
     );
@@ -831,7 +1370,7 @@ class PatientDetailState extends State<PatientDetail> {
                     const SizedBox(
                       height: 10,
                     ),
-                   /*  Row(
+                    /*  Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("Estado",
@@ -876,7 +1415,7 @@ class PatientDetailState extends State<PatientDetail> {
                       decoration: staticComponents.getLittleInputDecoration(
                           'Tratamiento de de la diabetes\n con 6 meses de pre...'),
                     ), */
-                   /*  const SizedBox(
+                    /*  const SizedBox(
                       height: 30,
                     ), */
                     medicationCounter +
@@ -1168,7 +1707,7 @@ class PatientDetailState extends State<PatientDetail> {
     );*/
   }
 
-   getExamnTreatmentCard() {
+  getExamnTreatmentCard() {
     return FutureBuilder(
       future: examnFuture,
       builder: (context, AsyncSnapshot snapshot) {
@@ -1276,123 +1815,7 @@ class PatientDetailState extends State<PatientDetail> {
         return CircularProgressIndicator();
       },
     );
-/*    return SizedBox(
-      height: 0,
-    );*/
   }
-
-  /* getOtherTreatmentCard() {
-    return FutureBuilder(
-      future: othersFuture,
-      builder: (context, AsyncSnapshot snapshot) {
-        //patientUser = user.User.fromSnapshot(snapshot.data);
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (othersList.isEmpty) {
-            return staticComponents.emptyBox;
-          }
-          return InkWell(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VisualizePrescriptionScreen(
-                        detailedUser!.currentTreatment!, 3),
-                  ));
-            },
-            child: Card(
-                color: Color(0xffF1F1F1),
-                margin: EdgeInsets.only(top: 10, bottom: 10),
-                child: ClipPath(
-                  child: Container(
-                      height: 75,
-                      decoration: BoxDecoration(
-                          border: Border(
-                              left: BorderSide(
-                                  color: Color(0xff2F8F9D), width: 5))),
-                      child: Column(
-                        children: [
-                          Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 12, top: 5, right: 12),
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(
-                                      "Otros",
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xff2F8F9D),
-                                      ),
-                                    )
-                                  ])),
-                          Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 25, top: 7, bottom: 7),
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Flexible(
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            SizedBox(
-                                                height: 40,
-                                                child: ListView.builder(
-                                                    padding: EdgeInsets.zero,
-                                                    shrinkWrap: true,
-                                                    physics:
-                                                        const NeverScrollableScrollPhysics(),
-                                                    itemCount:
-                                                        othersList.length > 3
-                                                            ? 3
-                                                            : othersList.length,
-                                                    itemBuilder:
-                                                        (context, index) {
-                                                      return Text(
-                                                        othersList[index],
-                                                        style: const TextStyle(
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.normal,
-                                                          color:
-                                                              Color(0xff67757F),
-                                                        ),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      );
-                                                    }))
-                                          ]),
-                                    ),
-                                    Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 5),
-                                        child: Container(
-                                            width: 24,
-                                            height: 24,
-                                            child: Icon(Icons.chevron_right,
-                                                color: Color(0xff2F8F9D))))
-                                  ]))
-                          //SizedBox
-                        ],
-                      )),
-                  clipper: ShapeBorderClipper(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3))),
-                )),
-          );
-        }
-        return CircularProgressIndicator();
-      },
-    );
-/*    return SizedBox(
-      height: 0,
-    );*/
-  } */
 
   getActivityTreatmentCard() {
     return FutureBuilder(
@@ -1829,8 +2252,7 @@ class PatientDetailState extends State<PatientDetail> {
     return result;
   }
 
-   Future<List<String>> getExamnPrescriptions(
-      String currentTreatmentId) async {
+  Future<List<String>> getExamnPrescriptions(String currentTreatmentId) async {
     List<String> result = <String>[];
     final db = FirebaseFirestore.instance;
     var snapshot = await db
@@ -1856,5 +2278,404 @@ class PatientDetailState extends State<PatientDetail> {
       result.add(currentValue);
     }
     return result;
+  }
+
+  getGradientColors(int percentage, [bool? inverted]) {
+    var redList = <Color>[
+      Color(0xff9D2F2F),
+      Color(0xffE72A2A),
+      Color(0xff9D2F2F)
+    ];
+    var blueList = <Color>[
+      Color(0xff2F8F9D),
+      Color(0xff47B4AC),
+      Color(0xff2F8F9D)
+    ];
+    if (percentage >= 80) {
+      return inverted != null && inverted ? blueList : redList;
+    }
+    return inverted != null && inverted ? redList : blueList;
+  }
+
+  String getAdherenceMessage() {
+    if (adherencePrediction >= 80) {
+      return "Ten cuidado, tus niveles de abandono al tratamiento son altos";
+    }
+    return "¡Sigue así con tu tratamiento!";
+  }
+
+  getColoredTriangle(int percentage) {
+    if (percentage < 80) {
+      return Image.asset(
+        'assets/images/arrow_up_red.png',
+        fit: BoxFit.none,
+      );
+    }
+    return Image.asset(
+      'assets/images/arrow_up_blue.png',
+      fit: BoxFit.none,
+    );
+  }
+
+  Future<List<BarCharData>> getAdherenceHistory() async {
+    List<BarCharData> result = <BarCharData>[];
+    final db = FirebaseFirestore.instance;
+    var snapshot = await db
+        .collection(BAR_CHART_COLLECTION_KEY)
+        .where(PATIENT_ID_KEY, isEqualTo: detailedUser?.userId)
+        .get();
+
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      result.add(BarCharData.fromSnapshot(snapshot.docs[i]));
+    }
+    result.sort((a, b) => a.timestamp!.compareTo(b.timestamp!));
+
+    return result;
+  }
+
+  updateBarCharSeries() {
+    setState(() {
+      dailySeriesAdherence = getDailySeriesAdherence();
+      weeklySeriesAdherence = getWeeklySeriesAdherence();
+      monthlySeriesAdherence = getMonthlySeriesAdherence();
+      annualSeriesAdherence = getAnnualSeriesAdherence();
+    });
+  }
+
+  getBarCharView() {
+    List<BarCharData> seriesData = <BarCharData>[];
+    switch (barChartPeriodIndex) {
+      case 0:
+        seriesData = dailySeriesAdherence;
+        break;
+      case 1:
+        seriesData = weeklySeriesAdherence;
+        break;
+      case 2:
+        seriesData = monthlySeriesAdherence;
+        break;
+      case 3:
+        seriesData = annualSeriesAdherence;
+    }
+    List<charts.Series<dynamic, String>> barCharSeries = [
+      charts.Series<BarCharData, String>(
+        id: 'Adherence',
+        labelAccessorFn: (BarCharData barChartData, _) =>
+            '${((barChartData.adherence ?? 0) * 100).toInt()}%',
+        domainFn: (BarCharData barChartData, _) => barChartData.dateLabel!,
+        measureFn: (BarCharData barChartData, _) => barChartData.adherence,
+        colorFn: (ordinary, __) {
+          if (ordinary.adherence! >= 80) {
+            return charts.Color.fromHex(code: "#DCF0EF");
+          }
+          return charts.Color.fromHex(code: "#2F8F9D");
+        },
+        insideLabelStyleAccessorFn: (BarCharData barChartData, _) {
+          final color = ((barChartData.adherence ?? 0) >= 0.8)
+              ? charts.Color.fromHex(code: "#6EC6A4")
+              : charts.Color.fromHex(code: "#F8191E");
+          return charts.TextStyleSpec(color: color);
+        },
+        outsideLabelStyleAccessorFn: (BarCharData barChartData, _) {
+          final color = ((barChartData.adherence ?? 0) >= 0.8)
+              ? charts.Color.fromHex(code: "#6EC6A4")
+              : charts.Color.fromHex(code: "#F8191E");
+          return charts.TextStyleSpec(color: color);
+        },
+        data: seriesData,
+      ),
+    ];
+
+    return Expanded(
+      child: GroupedBarChart(barCharSeries, animate: true),
+    );
+  }
+
+  List<BarCharData> getDailySeriesAdherence() {
+    List<BarCharData> result = <BarCharData>[];
+    DateTime today = DateTime.now();
+    int firstIndex = 0;
+    if ((barcharListGlobal?.length ?? 0) > 7) {
+      firstIndex = barcharListGlobal?.length ?? 7 - 7;
+    }
+    for (int i = 0; i < daysList.length; i++) {
+      BarCharData currentBarChart = BarCharData(
+          dateTime: null,
+          medicationPercentage: null,
+          nutritionPercentage: null,
+          activitiesPercentage: null,
+          examsPercentage: null);
+      currentBarChart.dateLabel = daysList[i];
+      currentBarChart.adherence = 0;
+      result.add(currentBarChart);
+    }
+    double medicationSum = 0;
+    double nutritionSum = 0;
+    double activitiesSum = 0;
+    double examsSum = 0;
+    double adherenceTotalSum = 0;
+    int cantCounter = 0;
+    for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
+      BarCharData currentBarChart = barcharListGlobal![i];
+      DateTime currentDate = currentBarChart.dateTime!;
+      if (today.subtract(const Duration(days: 7)).isAfter(currentDate)) {
+        continue; // skip if is invalid range
+      }
+      if (today.day == currentDate.day &&
+          today.month == currentDate.month &&
+          today.year == currentDate.year) {
+        todayAdherence = ((currentBarChart.adherence ?? 0) * 100).toInt();
+      }
+      int day = currentDate.weekday - 1;
+      currentBarChart.dateLabel = result[day].dateLabel;
+      result[day] = currentBarChart;
+      medicationSum += currentBarChart.medicationPercentage ?? 0;
+      nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+      activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+      examsSum += currentBarChart.examsPercentage ?? 0;
+      adherenceTotalSum += currentBarChart.adherence ?? 0;
+      cantCounter++;
+    }
+    periodMedicationPercentages[0] =
+        ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
+    periodNutritionPercentages[0] =
+        ((cantCounter > 0 ? nutritionSum / cantCounter : 0) * 100).toInt();
+    periodActivityPercentages[0] =
+        ((cantCounter > 0 ? activitiesSum / cantCounter : 0) * 100).toInt();
+    periodExamsPercentages[0] =
+        ((cantCounter > 0 ? examsSum / cantCounter : 0) * 100).toInt();
+    periodAdherences[0] =
+        ((cantCounter > 0 ? adherenceTotalSum / cantCounter : 0) * 100).toInt();
+
+    int todayIndex = today.weekday;
+    if (todayIndex == DateTime.sunday) return result;
+
+    List<BarCharData> finalResult = <BarCharData>[];
+    for (int i = todayIndex; i < result.length; i++) {
+      finalResult.add(result[i]);
+    }
+    for (int i = 0; i < todayIndex; i++) {
+      finalResult.add(result[i]);
+    }
+    return finalResult;
+  }
+
+  List<BarCharData> getWeeklySeriesAdherence() {
+    List<BarCharData> result = <BarCharData>[];
+    DateTime today = DateTime.now();
+    int firstIndex = 0;
+
+    if ((barcharListGlobal?.length ?? 0) > 30) {
+      firstIndex = barcharListGlobal?.length ?? 30 - 30;
+    }
+    for (int i = 0; i < weeksList.length; i++) {
+      BarCharData currentBarChart = BarCharData(
+          dateTime: null,
+          medicationPercentage: null,
+          nutritionPercentage: null,
+          activitiesPercentage: null,
+          examsPercentage: null);
+      currentBarChart.dateLabel = weeksList[i];
+      currentBarChart.adherence = 0;
+      result.add(currentBarChart);
+    }
+    double sum1 = 0;
+    int cant1 = 0;
+    double sum2 = 0;
+    int cant2 = 0;
+    int cant3 = 0;
+    int cant4 = 0;
+    double sum3 = 0;
+    double sum4 = 0;
+    double medicationSum = 0;
+    double nutritionSum = 0;
+    double activitiesSum = 0;
+    double adherenceTotalSum = 0;
+    double examsSum = 0;
+    int cantCounter = 0;
+    for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
+      BarCharData currentBarChart = barcharListGlobal![i];
+      DateTime currentDate = currentBarChart.dateTime!;
+      if (today.subtract(const Duration(days: 30)).isAfter(currentDate)) {
+        continue; // skip if is invalid range
+      }
+      int day = currentDate.day;
+      double currentAdherence = currentBarChart.adherence!;
+      if (day > 7 && day <= 15) {
+        cant2++;
+        sum2 += currentAdherence;
+      } else if (day > 15 && day <= 21) {
+        cant3++;
+        sum3 += currentAdherence;
+      } else if (day > 21) {
+        cant4++;
+        sum4 += currentAdherence;
+      } else {
+        cant1++;
+        sum1 += currentAdherence;
+      }
+      medicationSum += currentBarChart.medicationPercentage ?? 0;
+      nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+      activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+      examsSum += currentBarChart.examsPercentage ?? 0;
+      adherenceTotalSum += currentBarChart.adherence ?? 0;
+      cantCounter++;
+    }
+    periodMedicationPercentages[1] =
+        ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
+    periodNutritionPercentages[1] =
+        ((cantCounter > 0 ? nutritionSum / cantCounter : 0) * 100).toInt();
+    periodActivityPercentages[1] =
+        ((cantCounter > 0 ? activitiesSum / cantCounter : 0) * 100).toInt();
+    periodExamsPercentages[1] =
+        ((cantCounter > 0 ? examsSum / cantCounter : 0) * 100).toInt();
+    periodAdherences[1] =
+        ((cantCounter > 0 ? adherenceTotalSum / cantCounter : 0) * 100).toInt();
+
+    result[0].adherence = cant1 > 0 ? sum1 / cant1 : 0;
+    result[1].adherence = cant2 > 0 ? sum2 / cant2 : 0;
+    result[2].adherence = cant3 > 0 ? sum3 / cant3 : 0;
+    result[3].adherence = cant4 > 0 ? sum4 / cant4 : 0;
+    return result;
+  }
+
+  List<BarCharData> getMonthlySeriesAdherence() {
+    List<BarCharData> result = <BarCharData>[];
+    DateTime today = DateTime.now();
+    int firstIndex = 0;
+    if ((barcharListGlobal?.length ?? 0) > 365) {
+      firstIndex = barcharListGlobal?.length ?? 365 - 365;
+    }
+    for (int i = 0; i < monthsList.length; i++) {
+      BarCharData currentBarChart = BarCharData(
+          dateTime: null,
+          medicationPercentage: null,
+          nutritionPercentage: null,
+          activitiesPercentage: null,
+          examsPercentage: null);
+      currentBarChart.dateLabel = monthsList[i];
+      currentBarChart.adherence = 0;
+      result.add(currentBarChart);
+    }
+    double medicationSum = 0;
+    double nutritionSum = 0;
+    double activitiesSum = 0;
+    double examsSum = 0;
+    double adherenceSum = 0;
+    int cantCounter = 0;
+    for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
+      BarCharData currentBarChart = barcharListGlobal![i];
+      DateTime currentDate = currentBarChart.dateTime!;
+      if (today.subtract(const Duration(days: 365)).isAfter(currentDate)) {
+        continue; // skip if is invalid range
+      }
+      double sum = currentBarChart.adherence ?? 0;
+      medicationSum += currentBarChart.medicationPercentage ?? 0;
+      nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+      activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+      examsSum += currentBarChart.examsPercentage ?? 0;
+      adherenceSum += currentBarChart.adherence ?? 0;
+      cantCounter++;
+      int cantCounterMonth = 1;
+      int month = currentDate.month;
+      while (i + 1 < barcharListGlobal!.length &&
+          month == barcharListGlobal![i + 1].dateTime!.month) {
+        i++;
+        currentBarChart = barcharListGlobal![i];
+        currentDate = currentBarChart.dateTime!;
+        month = currentDate.month;
+        sum += currentBarChart.adherence ?? 0;
+        medicationSum += currentBarChart.medicationPercentage ?? 0;
+        nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+        activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+        examsSum += currentBarChart.examsPercentage ?? 0;
+        adherenceSum += currentBarChart.adherence ?? 0;
+        cantCounter++;
+        cantCounterMonth++;
+      }
+      currentBarChart = result[month - 1];
+      currentBarChart.adherence =
+          cantCounterMonth > 0 ? sum / cantCounterMonth : 0;
+    }
+
+    periodMedicationPercentages[2] =
+        ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
+    periodNutritionPercentages[2] =
+        ((cantCounter > 0 ? nutritionSum / cantCounter : 0) * 100).toInt();
+    periodActivityPercentages[2] =
+        ((cantCounter > 0 ? activitiesSum / cantCounter : 0) * 100).toInt();
+    periodExamsPercentages[2] =
+        ((cantCounter > 0 ? examsSum / cantCounter : 0) * 100).toInt();
+    periodAdherences[2] =
+        ((cantCounter > 0 ? adherenceSum / cantCounter : 0) * 100).toInt();
+
+    return result;
+  }
+
+  List<BarCharData> getAnnualSeriesAdherence() {
+    List<BarCharData> result = <BarCharData>[];
+    DateTime today = DateTime.now();
+    int firstIndex = 0;
+    double medicationSum = 0;
+    double nutritionSum = 0;
+    double activitiesSum = 0;
+    double examsSum = 0;
+    double adherenceTotalSum = 0;
+    int cantCounter = 0;
+    for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
+      BarCharData currentBarChart = barcharListGlobal![i];
+      DateTime currentDate = currentBarChart.dateTime!;
+      int year = currentDate.year;
+      double sum = currentBarChart.adherence ?? 0;
+      int cantCounterYear = 1;
+      medicationSum += currentBarChart.medicationPercentage ?? 0;
+      nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+      activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+      examsSum += currentBarChart.examsPercentage ?? 0;
+      adherenceTotalSum += currentBarChart.adherence ?? 0;
+      cantCounter++;
+      while (i + 1 < barcharListGlobal!.length &&
+          year == barcharListGlobal![i + 1].dateTime!.year) {
+        i++;
+        currentBarChart = barcharListGlobal![i];
+        currentDate = currentBarChart.dateTime!;
+        year = currentDate.year;
+        sum += currentBarChart.adherence ?? 0;
+        cantCounterYear++;
+        medicationSum += currentBarChart.medicationPercentage ?? 0;
+        nutritionSum += currentBarChart.nutritionPercentage ?? 0;
+        activitiesSum += currentBarChart.activitiesPercentage ?? 0;
+        examsSum += currentBarChart.examsPercentage ?? 0;
+        adherenceTotalSum += currentBarChart.adherence ?? 0;
+        cantCounter++;
+      }
+      currentBarChart = BarCharData(
+          dateTime: null,
+          medicationPercentage: null,
+          nutritionPercentage: null,
+          activitiesPercentage: null,
+          examsPercentage: null);
+      currentBarChart.dateLabel = year.toString();
+      currentBarChart.adherence =
+          cantCounterYear > 0 ? sum / cantCounterYear : 0;
+      result.add(currentBarChart);
+    }
+    periodMedicationPercentages[3] =
+        ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
+    periodNutritionPercentages[3] =
+        ((cantCounter > 0 ? nutritionSum / cantCounter : 0) * 100).toInt();
+    periodActivityPercentages[3] =
+        ((cantCounter > 0 ? activitiesSum / cantCounter : 0) * 100).toInt();
+    periodExamsPercentages[3] =
+        ((cantCounter > 0 ? examsSum / cantCounter : 0) * 100).toInt();
+    periodAdherences[3] =
+        ((cantCounter > 0 ? adherenceTotalSum / cantCounter : 0) * 100).toInt();
+
+    return result;
+  }
+
+  getAdherenceColor(int adherence) {
+    if (adherence >= 80) return Color(0xff47B4AC);
+    return Color(0xffE72A2A);
   }
 }
