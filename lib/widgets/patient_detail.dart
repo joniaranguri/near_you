@@ -831,8 +831,8 @@ class PatientDetailState extends State<PatientDetail> {
                               )
                             ],
                           )),
-                      const SizedBox(
-                        height: 20,
+                      SizedBox(
+                        height: HomeScreen.screenHeight * 0.15,
                       ),
                       // TODO: Review this to get pinned at bottom
                       Row(
