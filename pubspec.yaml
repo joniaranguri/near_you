@@ -39,6 +39,7 @@ dependencies:
   cloud_firestore: ^3.4.6
   calendar_timeline: ^1.0.5
   age_calculator: ^1.0.0
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:
