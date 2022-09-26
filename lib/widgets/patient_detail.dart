@@ -83,6 +83,8 @@ class PatientDetailState extends State<PatientDetail> {
 
   int todayAdherence = 0;
 
+  int adherencePrediction = 80; // TODO: Change with value from ML algorithm
+
   PatientDetailState(this.detailedUser, this.isDoctorView);
 
   get blueIndicator => Expanded(
@@ -298,7 +300,7 @@ class PatientDetailState extends State<PatientDetail> {
                                         backgroundColor: Colors.white,
                                         radius: 100,
                                         lineWidth: 15,
-                                        percent: 0.8,
+                                        percent: adherencePrediction / 100,
                                         center: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
@@ -309,9 +311,8 @@ class PatientDetailState extends State<PatientDetail> {
                                               blendMode: BlendMode.srcIn,
                                               shaderCallback: (bounds) =>
                                                   LinearGradient(
-                                                          colors:
-                                                              getGradientColors(
-                                                                  80))
+                                                          colors: getGradientColors(
+                                                              adherencePrediction))
                                                       .createShader(
                                                 Rect.fromLTRB(
                                                     0,
@@ -319,7 +320,8 @@ class PatientDetailState extends State<PatientDetail> {
                                                     bounds.width,
                                                     bounds.height),
                                               ),
-                                              child: const Text("80" + "%",
+                                              child: Text(
+                                                  "$adherencePrediction%",
                                                   style: TextStyle(
                                                       fontSize: 42,
                                                       fontWeight:
@@ -339,7 +341,8 @@ class PatientDetailState extends State<PatientDetail> {
                                         linearGradient: LinearGradient(
                                             begin: Alignment.topRight,
                                             end: Alignment.bottomLeft,
-                                            colors: getGradientColors(80)),
+                                            colors: getGradientColors(
+                                                adherencePrediction)),
                                         rotateLinearGradient: true,
                                         circularStrokeCap:
                                             CircularStrokeCap.round))),
@@ -2280,8 +2283,7 @@ class PatientDetailState extends State<PatientDetail> {
   }
 
   String getAdherenceMessage() {
-    double percentage = 81.0;
-    if (percentage >= 80) {
+    if (adherencePrediction >= 80) {
       return "Ten cuidado, tus niveles de abandono al tratamiento son altos";
     }
     return "¡Sigue así con tu tratamiento!";
