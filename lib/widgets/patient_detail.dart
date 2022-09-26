@@ -11,6 +11,7 @@ import 'package:near_you/screens/visualize_prescription_screen.dart';
 import 'package:near_you/widgets/static_components.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
+import '../common/adherence_prediction.dart';
 import '../model/user.dart' as user;
 import '../widgets/grouped_bar_chart.dart';
 
@@ -47,6 +48,7 @@ class PatientDetailState extends State<PatientDetail> {
   final PageController _pageController = PageController(initialPage: 0);
   bool isDoctorView;
   late final Future<Treatment> currentTreatmentFuture;
+  late final Future<int> predictionFuture;
   late final Future<List<BarCharData>> barchartDataFuture;
   late final Future<List<String>> medicationFuture;
   late final Future<List<String>> activityFuture;
@@ -117,6 +119,8 @@ class PatientDetailState extends State<PatientDetail> {
 
   @override
   void initState() {
+    predictionFuture =
+        AdherencePrediction.getPrediction(detailedUser!.currentTreatment);
     barchartDataFuture = getAdherenceHistory();
     currentTreatmentFuture =
         getCurrentTReatmentById(detailedUser!.currentTreatment!);
@@ -126,6 +130,11 @@ class PatientDetailState extends State<PatientDetail> {
     nutritionFuture =
         getNutritionPrescriptions(detailedUser!.currentTreatment!);
     examnFuture = getExamnPrescriptions(detailedUser!.currentTreatment!);
+    predictionFuture.then((value) => {
+          setState(() {
+            adherencePrediction = value;
+          })
+        });
     barchartDataFuture.then((value) => {
           setState(() {
             barcharListGlobal = value;

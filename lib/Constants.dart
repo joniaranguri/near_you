@@ -168,3 +168,5 @@ const String DATA_ADHERENCIA_KEY = "Adherencia";
 const String DATA_TIMESTAMP_KEY = "timestamp";
 const String REGEX_PASSWORD = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[#?!@\$%^&*-]).{7,}\$";
 const String REGEX_EMAIL = "^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+.[a-zA-Z]+";
+const String PREDICTIONS_KEY = "predictions";
+const int ADHERENCE_PREDICTION_ERROR = -1;
