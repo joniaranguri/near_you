@@ -5,7 +5,6 @@ import '../model/activityPrescription.dart';
 import '../model/medicationPrescription.dart';
 import '../model/nutritionPrescription.dart';
 import '../model/othersPrescription.dart';
-import '../model/user.dart' as user;
 
 import '../Constants.dart';
 import 'dialogs.dart';

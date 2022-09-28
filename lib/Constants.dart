@@ -170,3 +170,5 @@ const String REGEX_PASSWORD = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[#?!@\$%^&*-]).{7,
 const String REGEX_EMAIL = "^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+.[a-zA-Z]+";
 const String PREDICTIONS_KEY = "predictions";
 const int ADHERENCE_PREDICTION_ERROR = -1;
+const String NOT_SPECIFIED_VALUE = "no especificado";
+const String VINCULATED_KEY = "vinculado";
