@@ -1,14 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:near_you/main.dart';
 import 'package:near_you/screens/login_screen.dart';
 import 'package:near_you/screens/my_profile_screen.dart';
 import 'package:near_you/screens/routine_detail_screen.dart.dart';
 import 'package:near_you/screens/routine_screen.dart';
 import 'package:near_you/screens/survey_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Constants.dart';
 import '../common/static_common_functions.dart';
@@ -161,7 +164,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
             padding: EdgeInsets.only(left: 30, right: 30, top: 5, bottom: 5),
             color: Colors.white,
             onPressed: () {
-              currentUser!.isPatiente()
+              currentUser!.isPatient()
                   ? (isNotEmtpy(currentUser!.medicoId)
                       ? showDialogDevinculation(
                           context, currentUser!.userId!, true, () {
@@ -176,17 +179,17 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                           currentUser!.fullName ?? "Nombre",
                           currentUser!.email!,
                           context,
-                          currentUser!.isPatiente(),
+                          currentUser!.isPatient(),
                           () {}, () {
                           Navigator.pop(context);
                           dialogWaitVinculation(context, () {
                             Navigator.pop(context);
-                          }, currentUser!.isPatiente());
+                          }, currentUser!.isPatient());
                         }))
                   : showNotificationsModal(context);
             },
             child: Text(
-              currentUser!.isPatiente()
+              currentUser!.isPatient()
                   ? (isNotEmtpy(currentUser!.medicoId)
                       ? 'Desvincular'
                       : 'Vincular')
@@ -197,7 +200,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                   color: Color(0xff9D9CB5)),
             ),
           ),
-          currentUser!.isPatiente()
+          currentUser!.isPatient()
               ? const SizedBox(
                   height: 0,
                 )
@@ -259,7 +262,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
       return "";
     }
 
-    if (currentUser!.isPatiente()) {
+    if (currentUser!.isPatient()) {
       return currentUser?.diabetesType ?? 'Diabetes Typo 2';
     }
 
@@ -626,7 +629,7 @@ class _HomeScreenState extends State<HomeScreen> {
           items: [
             BottomNavigationBarItem(
                 icon: SvgPicture.asset(
-                  currentUser?.isPatiente() ?? false
+                  currentUser?.isPatient() ?? false
                       ? 'assets/images/tab_metrics_unselected.svg'
                       : "",
                 ),
@@ -657,7 +660,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return Padding(
           padding: EdgeInsets.only(top: HomeScreen.screenHeight * 0.3),
           child: CircularProgressIndicator());
-    } else if (currentUser!.isPatiente()) {
+    } else if (currentUser!.isPatient()) {
       return PatientDetail.forPatientView(currentUser);
     } else {
       return medicoScreen();
@@ -702,7 +705,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void executeMainAction() {
-    if (currentUser!.isPatiente()) {
+    if (currentUser!.isPatient()) {
       setState(() {
         //howMenu = false;
         notifier.value = true;
@@ -712,7 +715,7 @@ class _HomeScreenState extends State<HomeScreen> {
           currentUser!.fullName ?? "Nombre",
           currentUser!.email!,
           context,
-          currentUser!.isPatiente(),
+          currentUser!.isPatient(),
           errorVinculation,
           successPendingVinculation);
     }
@@ -765,7 +768,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.pop(context);
     dialogWaitVinculation(context, () {
       Navigator.pop(context);
-    }, currentUser!.isPatiente());
+    }, currentUser!.isPatient());
   }
 
   Future<List<PendingVinculation>> getPendingVinculations() async {
@@ -773,7 +776,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final collectionRef = db.collection(PENDING_VINCULATIONS_COLLECTION_KEY);
     final String currentUserId = currentUser!.userId!;
     QuerySnapshot<Map<String, dynamic>> future;
-    if (currentUser!.isPatiente()) {
+    if (currentUser!.isPatient()) {
       future = await collectionRef
           .where(PATIENT_ID_KEY, isEqualTo: currentUserId)
           .where(VINCULATION_STATUS_KEY, isEqualTo: VINCULATION_STATUS_PENDING)
@@ -802,7 +805,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final collectionRef = db.collection(PENDING_VINCULATIONS_COLLECTION_KEY);
     final String currentUserId = currentUser!.userId!;
     QuerySnapshot<Map<String, dynamic>> future;
-    if (currentUser!.isPatiente()) {
+    if (currentUser!.isPatient()) {
       future = await collectionRef
           .where(PATIENT_ID_KEY, isEqualTo: currentUserId)
           .where(VINCULATION_STATUS_KEY, isEqualTo: VINCULATION_STATUS_REFUSED)
@@ -831,7 +834,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final collectionRef = db.collection(PENDING_VINCULATIONS_COLLECTION_KEY);
     final String currentUserId = currentUser!.userId!;
     QuerySnapshot<Map<String, dynamic>> future;
-    if (currentUser!.isPatiente()) {
+    if (currentUser!.isPatient()) {
       future = await collectionRef
           .where(PATIENT_ID_KEY, isEqualTo: currentUserId)
           .where(VINCULATION_STATUS_KEY, isEqualTo: VINCULATION_STATUS_ACCEPTED)
@@ -972,7 +975,7 @@ class _HomeScreenState extends State<HomeScreen> {
       MEDICO_ID_KEY: medicoId,
       // ....rest of your data
     }).then((value) => showDialogSuccessVinculation(context,
-            '¡Todo listo!\nSu ${currentUser!.isPatiente() ? "médico" : "paciente"} fue vinculado \ncorrectamente.',
+            '¡Todo listo!\nSu ${currentUser!.isPatient() ? "médico" : "paciente"} fue vinculado \ncorrectamente.',
             () {
           Navigator.pop(context);
           Navigator.pushReplacement(
@@ -1035,7 +1038,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     pendingVinculationList = pendingResult;
                     notificationsCounter = pendingResult.length;
                     print("patients: $notificationsCounter");
-                    if (currentUser!.isPatiente()) {
+                    if (currentUser!.isPatient()) {
                       showNotificationPendingVinculation(
                           pendingVinculationList[0]);
                     }
@@ -1055,12 +1058,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (acceptedList.isEmpty) {
                       return;
                     }
-                    if (currentUser!.isPatiente()) {
+                    if (currentUser!.isPatient()) {
                       dialogSuccessDoctorAccepts(context);
                       deleteVinculation(acceptedList.first.databaseId!);
                     }
                   })
                 });
+            saveUserNameSharedPref();
           })
         });
   }
@@ -1264,5 +1268,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     ));
               });
         });
+  }
+
+  Future<void> saveUserNameSharedPref() async {
+    if (currentUser == null || currentUser!.fullName == null) {
+      return;
+    }
+    MyApp.userName = currentUser!.fullName!;
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString(PREF_USER_NAME, MyApp.userName!);
+    if (currentUser!.isPatient()) {
+      FirebaseMessaging.instance.subscribeToTopic(PUSH_TOPIC_PATIENT);
+    } else {
+      FirebaseMessaging.instance.subscribeToTopic(PUSH_TOPIC_DOCTOR);
+    }
   }
 }

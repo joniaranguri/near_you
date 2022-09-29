@@ -85,7 +85,7 @@ class PatientDetailState extends State<PatientDetail> {
 
   int todayAdherence = 0;
 
-  int adherencePrediction = 80; // TODO: Change with value from ML algorithm
+  int adherencePrediction = 0;
 
   PatientDetailState(this.detailedUser, this.isDoctorView);
 
@@ -119,8 +119,7 @@ class PatientDetailState extends State<PatientDetail> {
 
   @override
   void initState() {
-    predictionFuture =
-        AdherencePrediction.getPrediction(detailedUser!.currentTreatment);
+    predictionFuture = AdherencePrediction.getPrediction(detailedUser!);
     barchartDataFuture = getAdherenceHistory();
     currentTreatmentFuture =
         getCurrentTReatmentById(detailedUser!.currentTreatment!);
@@ -336,6 +335,7 @@ class PatientDetailState extends State<PatientDetail> {
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(100)),
                                               child: CircularPercentIndicator(
+                                                  animation: true,
                                                   backgroundColor: Colors.white,
                                                   radius: 100,
                                                   lineWidth: 15,

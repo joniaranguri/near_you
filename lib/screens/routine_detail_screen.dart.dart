@@ -1299,7 +1299,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     int a3 = int.parse(surveyData[DATA_PREGUNTA3_KEY]);
     int a4 = int.parse(surveyData[DATA_PREGUNTA4_KEY]);
     int a5 = int.parse(surveyData[DATA_PREGUNTA5_KEY]);
-    int a6 = int.parse(surveyData[DATA_PREGUNTA6_KEY]);
+    int a6 = int.parse(surveyData[DATA_PREGUNTA6_KEY]??"0");
     int sumData = smokingData +
         a1 +
         a2 +
@@ -1331,7 +1331,8 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       DATA_ACTIVIDAD_FISICA_KEY: activityData,
       DATA_EXAMENES_KEY: examsData,
       DATA_SUMA_KEY: sumData,
-      DATA_ADHERENCIA_KEY: adherenceData
+      DATA_ADHERENCIA_KEY: adherenceData,
+      TREATMENT_ID_KEY: currentTreatmentId,
     };
     db
         .collection(DATA_COLLECTION_KEY)

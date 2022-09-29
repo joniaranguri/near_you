@@ -157,7 +157,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                           showDialogVinculation(
                                               currentUser!.fullName??"Nombre",currentUser!.email!,
                                               context,
-                                              currentUser!.isPatiente(),
+                                              currentUser!.isPatient(),
                                               (){},
                                               successPendingVinculation);
                                         } else {
@@ -300,7 +300,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   bool getVinculationCondition() {
-    return !currentUser!.isPatiente() ||
+    return !currentUser!.isPatient() ||
         !isNotEmtpy(currentUser?.medicoId ?? "");
   }
 
@@ -308,6 +308,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     Navigator.pop(context);
     dialogWaitVinculation(context, () {
       Navigator.pop(context);
-    }, currentUser!.isPatiente());
+    }, currentUser!.isPatient());
   }
 }
