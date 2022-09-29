@@ -2372,9 +2372,7 @@ class PatientDetailState extends State<PatientDetail> {
       ),
     ];
 
-    return Expanded(
-      child: GroupedBarChart(barCharSeries, animate: true),
-    );
+    return GroupedBarChart(barCharSeries, animate: true);
   }
 
   List<BarCharData> getDailySeriesAdherence() {
