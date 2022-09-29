@@ -29,7 +29,7 @@ class AdherencePrediction {
         return ADHERENCE_PREDICTION_ERROR;
       }
       double adherencePredictionRaw = decoded[PREDICTIONS_KEY][0][0];
-      return (adherencePredictionRaw * 100).toInt();
+      return ((1 - adherencePredictionRaw) * 100).toInt();
     } catch (e) {
       return ADHERENCE_PREDICTION_ERROR;
     }
