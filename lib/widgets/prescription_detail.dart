@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 
 import '../model/activityPrescription.dart';
 import '../model/nutritionPrescription.dart';
-import '../model/othersPrescription.dart';
+import '../model/examsPrescription.dart';
 import '../widgets/grouped_bar_chart.dart';
 
 class PrescriptionDetail extends StatefulWidget {
@@ -47,18 +47,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   int _currentPage = 0;
   late final PageController _pageController;
   bool isDoctorView = true;
-  late Future<List<MedicationPrescription>> medicationPrescriptionFuture;
-  late final Future<List<NutritionPrescription>> nutritionPrescriptionFuture;
-  late final Future<List<ActivityPrescription>> activityPrescriptionFuture;
-  late final Future<List<OthersPrescription>> othersPrescriptionFuture;
   List<MedicationPrescription> medicationsList = <MedicationPrescription>[];
-
   List<NutritionPrescription> nutritionList = <NutritionPrescription>[];
   List<ActivityPrescription> activitiesList = <ActivityPrescription>[];
   List<NutritionPrescription> nutritionNoPermittedList = <NutritionPrescription>[];
   List<ActivityPrescription> activitiesNoPermittedList = <ActivityPrescription>[];
-  List<OthersPrescription> othersList = <OthersPrescription>[];
-  List<ExamnPrescription> examnList = <ExamnPrescription>[];
+  List<ExamsPrescription> examsList = <ExamsPrescription>[];
   final TextEditingController imcTextController = TextEditingController();
 
   bool readOnlyMedication = false;
@@ -90,21 +84,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   String? activityCaloriesValue;
   String? activityTimeNumberValue;
   String? activityTimeTypeValue;
-
-  String? othersNameValue;
-  String? othersDurationValue;
-  String? othersDurationTypeValue;
-  String? othersPeriodicityTypeValue;
-  String? othersPeriodicityValue;
-  String? othersDetailValue;
-  String? othersRecommendationValue;
-
+  
   int medicationsCount = 0;
 
   final GlobalKey<FormState> medicationFormState = GlobalKey<FormState>();
   final GlobalKey<FormState> alimentationFormState = GlobalKey<FormState>();
   final GlobalKey<FormState> phisicalActivityFormState = GlobalKey<FormState>();
-  final GlobalKey<FormState> othersFormState = GlobalKey<FormState>();
 
   bool startDateError = false;
   bool endDateError = false;
@@ -118,14 +103,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   bool editingPermittedFood = false;
   bool editingPermittedActivity = false;
-  bool editingOthers = false;
 
   int updateMedication = -1;
   int updatePermittedFood = -1;
   int updateNoPermittedFood = -1;
   int updatePermittedActivity = -1;
   int updateNoPermittedActivity = -1;
-  int updateOthers = -1;
 
   PrescriptionDetailState(this.currentTreatment, this.isDoctorView, int currentPageIndex) {
     _pageController = PageController(initialPage: currentPageIndex);
@@ -217,8 +200,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   void refreshExamnPrescription() async {
     setState(() => isExamnLoading = true);
-    final response = await getExamnPrescriptions();
-    examnList = response;
+    final response = await getExamsPrescriptions();
+    examsList = response;
     setState(() => isExamnLoading = false);
   }
 
@@ -276,13 +259,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         title = "Actividad Física";
         childView = getPhisicalActivityView();
         break;
-      case 3:
+      default:
         title = "Exámenes";
         childView = getExamnsView();
-        break;
-      default:
-        title = "Otros";
-        childView = getOthersView();
     }
     return getPrescriptionPage(i, title, childView);
   }
@@ -668,29 +647,16 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     }
     return resultList;
   }
-
-  Future<List<OthersPrescription>> getOthersPrescriptions() async {
-    List<OthersPrescription> resultList = <OthersPrescription>[];
+  
+  Future<List<ExamsPrescription>> getExamsPrescriptions() async {
+    List<ExamsPrescription> resultList = <ExamsPrescription>[];
     final db = FirebaseFirestore.instance;
     var future = await db
-        .collection(OTHERS_PRESCRIPTION_COLLECTION_KEY)
+        .collection(EXAMS_PRESCRIPTION_COLLECTION_KEY)
         .where(TREATMENT_ID_KEY, isEqualTo: currentTreatment?.databaseId)
         .get();
     for (var element in future.docs) {
-      resultList.add(OthersPrescription.fromSnapshot(element));
-    }
-    return resultList;
-  }
-
-  Future<List<ExamnPrescription>> getExamnPrescriptions() async {
-    List<ExamnPrescription> resultList = <ExamnPrescription>[];
-    final db = FirebaseFirestore.instance;
-    var future = await db
-        .collection(EXAMN_PRESCRIPTION_COLLECTION_KEY)
-        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatment?.databaseId)
-        .get();
-    for (var element in future.docs) {
-      resultList.add(ExamnPrescription.fromSnapshot(element));
+      resultList.add(ExamsPrescription.fromSnapshot(element));
     }
     return resultList;
   }
@@ -1644,7 +1610,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               padding: EdgeInsets.zero,
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: examnList.length,
+                              itemCount: examsList.length,
                               itemBuilder: (context, index) {
                                 return Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1664,7 +1630,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                         )),
                                     SizedBox(
                                         height: 35,
-                                        child: Text(examnList[index].name ?? "Exámenes",
+                                        child: Text(examsList[index].name ?? "Exámenes",
                                             textAlign: TextAlign.left,
                                             style: const TextStyle(
                                                 fontSize: 14, color: Color(0xff999999)))),
@@ -1675,7 +1641,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                         child: IconButton(
                                           padding: const EdgeInsets.only(bottom: 14),
                                           onPressed: () {
-                                            editExamn(index);
+                                            editExam(index);
                                           },
                                           icon: const Icon(Icons.edit,
                                               color: Color(
@@ -1697,7 +1663,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 );
                               })),
                       sizedBox10,
-                      getFormOrButtonExamn(),
+                      getFormOrButtonExam(),
 
                       /*  buildPhisicalActivityForm(),
                       getActivityButtons(), */
@@ -1710,7 +1676,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   bool addNewExamn = false;
   bool readOnlyExamn = false;
 
-  Widget getFormOrButtonExamn() {
+  Widget getFormOrButtonExam() {
     return Column(
       children: [
         if (editingExamn || readOnlyExamn || addNewExamn) ...[
@@ -1743,7 +1709,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
                   ))
         ],
-        getExamnButtons()
+        getExamsButtons()
       ],
     );
   }
@@ -2133,366 +2099,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     );
   }
 
-  Widget getOthersView() {
-    return FutureBuilder(
-        future: othersPrescriptionFuture,
-        builder: (context, AsyncSnapshot<List<OthersPrescription>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Container(
-              width: double.infinity,
-              height: 470,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                  child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minHeight: 200,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: const [
-                              Text("Insulina ",
-                                  style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                            ],
-                          ),
-                          sizedBox10,
-                          SizedBox(
-                              child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: othersList.length,
-                                  itemBuilder: (context, index) {
-                                    return Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        SizedBox(
-                                            height: 35,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 40),
-                                              onPressed: () {},
-                                              icon: const Icon(Icons.keyboard_arrow_down,
-                                                  size: 30,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            )),
-                                        SizedBox(
-                                            height: 35,
-                                            width: 150,
-                                            child: Text(othersList[index].name ?? "Medicacion",
-                                                textAlign: TextAlign.left,
-                                                style: const TextStyle(
-                                                    fontSize: 14, color: Color(0xff999999)))),
-                                        SizedBox(
-                                            height: 35,
-                                            width: 14,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 14),
-                                              onPressed: () {
-                                                editOthers(index);
-                                              },
-                                              icon: const Icon(Icons.edit,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            )),
-                                        SizedBox(
-                                            height: 35,
-                                            child: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 30),
-                                              onPressed: () {
-                                                deleteOthers(index);
-                                              },
-                                              icon: const Icon(Icons.delete,
-                                                  color: Color(
-                                                      0xff999999)), // myIcon is a 48px-wide widget.
-                                            ))
-                                      ],
-                                    );
-                                  })),
-                          getButtonOrOthersList(),
-                          const SizedBox(height: 2),
-                          getSelectOtherName(),
-                          //getOthersButtons()
-                        ],
-                      ))),
-            );
-          }
-          return const SizedBox(
-            height: 460,
-          );
-        });
-  }
-
-  /* getButtonAddFoodOrList() {
-    return !editingPermittedFood
-        ? GestureDetector(
-            onTap: () {
-              setState(() {
-                editingPermittedFood = true;
-              });
-            },
-            child: TextField(
-                minLines: 1,
-                maxLines: 10,
-                enabled: false,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  prefixIcon: const Icon(Icons.circle, color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xffD9D9D9),
-                  hintText: "Agregar una nueva\n prescripción",
-                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                  focusedBorder: borderGray,
-                  border: borderGray,
-                  enabledBorder: borderGray,
-                )
-                // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
-
-                ))
-        : Container(
-            //height: double.maxFinite,
-            //  width: double.infinity,
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: Color(0xffD9D9D9),
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            ),
-            child: Column(children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  SizedBox(
-                      height: durationError ? 55 : 35,
-                      width: 180,
-                      child: TextFormField(
-                        controller: TextEditingController(text: nutritionNameValue),
-                        onChanged: (value) {
-                          nutritionNameValue = value;
-                        },
-                        style: const TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                            filled: true,
-                            hintText: 'Frutas',
-                            hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                            enabledBorder: staticComponents.middleInputBorder,
-                            border: staticComponents.middleInputBorder,
-                            focusedBorder: staticComponents.middleInputBorder),
-                      )),
-                  const Flexible(
-                      child: SizedBox(
-                          height: 35,
-                          child: Icon(
-                            Icons.check,
-                            color: Color(0xff999999),
-                          )))
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Carbohidratos", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                  height: durationError ? 55 : 35,
-                  child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value == '') {
-                        setState(() {
-                          durationError = true;
-                        });
-                        return "Complete el campo";
-                      }
-                      setState(() {
-                        durationError = false;
-                      });
-                      return null;
-                    },
-                    controller: TextEditingController(text: nutritionCarboValue),
-                    onChanged: (value) {
-                      nutritionCarboValue = value;
-                    },
-                    style: const TextStyle(fontSize: 14),
-                    decoration: staticComponents.getMiddleInputDecoration('150-250 gramos'),
-                  )),
-              sizedBox10,
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Calorías máx.", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                ],
-              ),
-              sizedBox10,
-              SizedBox(
-                  height: durationError ? 55 : 35,
-                  child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value == '') {
-                        setState(() {
-                          durationError = true;
-                        });
-                        return "Complete el campo";
-                      }
-                      setState(() {
-                        durationError = false;
-                      });
-                      return null;
-                    },
-                    controller: TextEditingController(text: nutritionCaloriesValue),
-                    onChanged: (value) {
-                      nutritionCaloriesValue = value;
-                    },
-                    style: const TextStyle(fontSize: 14),
-                    decoration: staticComponents.getMiddleInputDecoration('80 Kcal'),
-                  )),
-            ]));
-  } */
-
-  /*  getButtonAddFoodOrListProhibited() {
-    return editingPermittedFood
-        ? GestureDetector(
-            onTap: () {
-              setState(() {
-                editingPermittedFood = false;
-              });
-            },
-            child: TextField(
-                minLines: 1,
-                maxLines: 10,
-                enabled: false,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  prefixIcon: const Icon(Icons.circle, color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xffD9D9D9),
-                  hintText: "Agregar alimento",
-                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                  focusedBorder: borderGray,
-                  border: borderGray,
-                  enabledBorder: borderGray,
-                )
-                // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
-
-                ))
-        : Container(
-            //height: double.maxFinite,
-            //  width: double.infinity,
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: Color(0xffD9D9D9),
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            ),
-            child: Column(children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  SizedBox(
-                      height: durationError ? 55 : 35,
-                      width: 180,
-                      child: TextFormField(
-                        controller: TextEditingController(text: nutritionNameValue),
-                        onChanged: (value) {
-                          nutritionNameValue = value;
-                        },
-                        style: const TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                            filled: true,
-                            hintText: 'Frutas',
-                            hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                            enabledBorder: staticComponents.middleInputBorder,
-                            border: staticComponents.middleInputBorder,
-                            focusedBorder: staticComponents.middleInputBorder),
-                      )),
-                  const Flexible(
-                      child: SizedBox(
-                          height: 35,
-                          child: Icon(
-                            Icons.check,
-                            color: Color(0xff999999),
-                          )))
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Carbohidratos", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                  height: durationError ? 55 : 35,
-                  child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value == '') {
-                        setState(() {
-                          durationError = true;
-                        });
-                        return "Complete el campo";
-                      }
-                      setState(() {
-                        durationError = false;
-                      });
-                      return null;
-                    },
-                    controller: TextEditingController(text: nutritionCarboValue),
-                    onChanged: (value) {
-                      nutritionCarboValue = value;
-                    },
-                    style: const TextStyle(fontSize: 14),
-                    decoration: staticComponents.getMiddleInputDecoration('150-250 gramos'),
-                  )),
-              sizedBox10,
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Calorías máx.", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                ],
-              ),
-              sizedBox10,
-              SizedBox(
-                  height: durationError ? 55 : 35,
-                  child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value == '') {
-                        setState(() {
-                          durationError = true;
-                        });
-                        return "Complete el campo";
-                      }
-                      setState(() {
-                        durationError = false;
-                      });
-                      return null;
-                    },
-                    controller: TextEditingController(text: nutritionCaloriesValue),
-                    onChanged: (value) {
-                      nutritionCaloriesValue = value;
-                    },
-                    style: const TextStyle(fontSize: 14),
-                    decoration: staticComponents.getMiddleInputDecoration('80 Kcal'),
-                  )),
-            ]));
-  } */
 
   getButtonAddRoutineOrList() {
     return !editingPermittedActivity
@@ -3130,100 +2736,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             ]));
   }
 
-  getSelectOtherName() {
-    return editingOthers
-        ? GestureDetector(
-            onTap: () {
-              setState(() {
-                editingOthers = false;
-              });
-            },
-            child: TextField(
-                minLines: 1,
-                maxLines: 10,
-                enabled: false,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                    prefixIcon: const Icon(Icons.circle, color: Colors.white),
-                    filled: true,
-                    fillColor: const Color(0xffD9D9D9),
-                    hintText: "Seleccionar nombre",
-                    hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                    focusedBorder: borderGray,
-                    border: borderGray,
-                    enabledBorder: borderGray,
-                    suffixIcon: const Icon(Icons.keyboard_arrow_down))))
-        : Container(
-            decoration: const BoxDecoration(
-              color: Color(0xffD9D9D9),
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            ),
-            child: Column(
-              children: [
-                TextField(
-                    minLines: 1,
-                    maxLines: 10,
-                    enabled: false,
-                    style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                    decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                        prefixIcon: const Icon(
-                          Icons.circle,
-                          color: Color(0xff999999),
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xffD9D9D9),
-                        hintText: "Seleccionar nombre",
-                        hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                        focusedBorder: borderGray,
-                        border: borderGray,
-                        enabledBorder: borderGray,
-                        suffixIcon: const Icon(Icons.keyboard_arrow_down))),
-                SizedBox(
-                  height: 300,
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: otherNamesList.length,
-                      //  padding: EdgeInsets.only(bottom: 60),
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {
-                            setState(() {
-                              othersNameValue = otherNamesList[index];
-                              editingOthers = true;
-                            });
-                          },
-                          child: SizedBox(
-                            height: 42,
-                            child: TextField(
-                                enabled: false,
-                                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                                decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                                  prefixIcon: const Icon(
-                                    Icons.circle,
-                                    color: Colors.white,
-                                  ),
-                                  filled: true,
-                                  fillColor: const Color(0xffD9D9D9),
-                                  hintText: otherNamesList[index],
-                                  hintStyle:
-                                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                                  focusedBorder: InputBorder.none,
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                )),
-                          ),
-                        );
-                      }),
-                )
-              ],
-            ));
-  }
-
-  getExamnButtons() {
+  getExamsButtons() {
     return isDoctorView
         ? SizedBox(
             height: 190,
@@ -3573,11 +3086,11 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
   Future<void> saveExamnInDatabase() async {
-    final currentCollection = firebase.collection(EXAMN_PRESCRIPTION_COLLECTION_KEY);
-    if (examnList.isNotEmpty) {
-      for (var index = 0; index < examnList.length; index++) {
-        String? databaseId = examnList[index].databaseId;
-        final examn = examnList[index];
+    final currentCollection = firebase.collection(EXAMS_PRESCRIPTION_COLLECTION_KEY);
+    if (examsList.isNotEmpty) {
+      for (var index = 0; index < examsList.length; index++) {
+        String? databaseId = examsList[index].databaseId;
+        final examn = examsList[index];
 
         final data = <String, String>{
           TREATMENT_ID_KEY: currentTreatmentDatabaseId,
@@ -3586,12 +3099,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
           EXAMN_END_DATE_KEY: examn.endDate ?? "",
         };
 
-        if (await docExits(databaseId, EXAMN_PRESCRIPTION_COLLECTION_KEY)) {
+        if (await docExits(databaseId, EXAMS_PRESCRIPTION_COLLECTION_KEY)) {
           currentCollection.doc(databaseId).update(data);
         } else {
           final response = await currentCollection.add(data);
           saveInPendingList(
-              PENDING_EXAMN_PRESCRIPTIONS_COLLECTION_KEY, response.id, currentTreatmentDatabaseId);
+              PENDING_EXAMS_PRESCRIPTIONS_COLLECTION_KEY, response.id, currentTreatmentDatabaseId);
         }
       }
     }
@@ -3623,12 +3136,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   void deleteExamnLocally(int index) {
     setState(() {
-      String? databaseId = examnList[index].databaseId;
+      String? databaseId = examsList[index].databaseId;
       bool exits = databaseId != null;
       if (exits) {
         tempDeletedExamnIdForLater.add(databaseId);
       }
-      examnList.removeAt(index);
+      examsList.removeAt(index);
     });
   }
 
@@ -3645,9 +3158,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   fillExamnFormWithValues(int index) {
-    examnNameFormValue.text = examnList[index].name ?? '';
-    examnDurationFormValue = examnList[index].periodicity ?? '';
-    examnEndDateFormValue = examnList[index].endDate ?? '';
+    examnNameFormValue.text = examsList[index].name ?? '';
+    examnDurationFormValue = examsList[index].periodicity ?? '';
+    examnEndDateFormValue = examsList[index].endDate ?? '';
   }
 
   clearExamnForm() {
@@ -3659,7 +3172,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   void addOrUpdateExamnLocally() {
     if (editingExamn) {
       setState(() {
-        examnList[examnIndex] = examnList[examnIndex]
+        examsList[examnIndex] = examsList[examnIndex]
           ..name = examnNameFormValue.text
           ..periodicity = examnDurationFormValue
           ..endDate = examnEndDateFormValue;
@@ -3669,7 +3182,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
         editingExamn = false;
       });
       setState(() {
-        examnList.add(ExamnPrescription(
+        examsList.add(ExamsPrescription(
             name: examnNameFormValue.text,
             periodicity: examnDurationFormValue,
             endDate: examnEndDateFormValue));
@@ -3862,249 +3375,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     };
   }
 
-  getButtonOrOthersList() {
-    return !editingOthers
-        ? GestureDetector(
-            onTap: () {
-              setState(() {
-                editingOthers = true;
-              });
-            },
-            child: TextField(
-                minLines: 1,
-                maxLines: 10,
-                enabled: false,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  prefixIcon: const Icon(Icons.circle, color: Colors.white),
-                  filled: true,
-                  fillColor: const Color(0xffD9D9D9),
-                  hintText: "Agregar otra prescripción",
-                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                  focusedBorder: borderGray,
-                  border: borderGray,
-                  enabledBorder: borderGray,
-                )
-                // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
-
-                ))
-        : Container(
-            //height: double.maxFinite,
-            //  width: double.infinity,
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: Color(0xffD9D9D9),
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            ),
-            child: Column(children: [
-              sizedBox10,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(
-                      height: durationError ? 55 : 35,
-                      child: Text(othersNameValue ?? "Nombre",
-                          style: const TextStyle(fontSize: 14, color: Color(0xFF999999))))
-                ],
-              ),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-                const SizedBox(
-                    width: 80,
-                    child:
-                        Text("Duración", style: TextStyle(fontSize: 14, color: Color(0xFF999999)))),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: SizedBox(
-                      height: durationError ? 45 : 25,
-                      width: 60,
-                      child: TextFormField(
-                        validator: (value) {
-                          if (value == null || value == '') {
-                            setState(() {
-                              durationError = true;
-                            });
-                            return "Complete el campo";
-                          }
-                          setState(() {
-                            durationError = false;
-                          });
-                          return null;
-                        },
-                        controller: TextEditingController(text: othersDurationValue),
-                        onChanged: (value) {
-                          othersDurationValue = value;
-                        },
-                        style: const TextStyle(fontSize: 14),
-                        decoration: staticComponents.getMiddleInputDecoration('-'),
-                      )),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: SizedBox(
-                      height: durationError ? 45 : 25,
-                      width: 60,
-                      child: TextFormField(
-                        validator: (value) {
-                          if (value == null || value == '') {
-                            setState(() {
-                              durationError = true;
-                            });
-                            return "Complete el campo";
-                          }
-                          setState(() {
-                            durationError = false;
-                          });
-                          return null;
-                        },
-                        controller: TextEditingController(text: othersDurationTypeValue),
-                        onChanged: (value) {
-                          othersDurationTypeValue = value;
-                        },
-                        style: const TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                            filled: true,
-                            hintText: "dias",
-                            hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                            enabledBorder: staticComponents.middleInputBorder,
-                            border: staticComponents.middleInputBorder,
-                            focusedBorder: staticComponents.middleInputBorder),
-                      )),
-                )
-              ]),
-              sizedBox10,
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-                const SizedBox(
-                    width: 80,
-                    child: Text("Periodicidad",
-                        style: TextStyle(fontSize: 14, color: Color(0xFF999999)))),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: SizedBox(
-                      height: durationError ? 45 : 25,
-                      width: 60,
-                      child: TextFormField(
-                        validator: (value) {
-                          if (value == null || value == '') {
-                            setState(() {
-                              durationError = true;
-                            });
-                            return "Complete el campo";
-                          }
-                          setState(() {
-                            durationError = false;
-                          });
-                          return null;
-                        },
-                        controller: TextEditingController(text: othersPeriodicityValue),
-                        onChanged: (value) {
-                          othersPeriodicityValue = value;
-                        },
-                        style: const TextStyle(fontSize: 14),
-                        decoration: staticComponents.getMiddleInputDecoration('-'),
-                      )),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: SizedBox(
-                      height: durationError ? 45 : 25,
-                      width: 60,
-                      child: TextFormField(
-                        validator: (value) {
-                          if (value == null || value == '') {
-                            setState(() {
-                              durationError = true;
-                            });
-                            return "Complete el campo";
-                          }
-                          setState(() {
-                            durationError = false;
-                          });
-                          return null;
-                        },
-                        controller: TextEditingController(text: othersPeriodicityTypeValue),
-                        onChanged: (value) {
-                          othersPeriodicityTypeValue = value;
-                        },
-                        style: const TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                            filled: true,
-                            hintText: "dias",
-                            hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                            enabledBorder: staticComponents.middleInputBorder,
-                            border: staticComponents.middleInputBorder,
-                            focusedBorder: staticComponents.middleInputBorder),
-                      )),
-                )
-              ]),
-              sizedBox10,
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Detalle", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                ],
-              ),
-              sizedBox10,
-              TextFormField(
-                validator: (value) {
-                  if (value == null || value == '') {
-                    setState(() {
-                      durationError = true;
-                    });
-                    return "Complete el campo";
-                  }
-                  setState(() {
-                    durationError = false;
-                  });
-                  return null;
-                },
-                controller: TextEditingController(text: othersDetailValue),
-                onChanged: (value) {
-                  othersDetailValue = value;
-                },
-                style: const TextStyle(fontSize: 14),
-                minLines: 2,
-                maxLines: 10,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: staticComponents.getBigInputDecoration('Agregar texto'),
-              ),
-              sizedBox10,
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Recomendación", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                ],
-              ),
-              sizedBox10,
-              TextFormField(
-                validator: (value) {
-                  if (value == null || value == '') {
-                    setState(() {
-                      durationError = true;
-                    });
-                    return "Complete el campo";
-                  }
-                  setState(() {
-                    durationError = false;
-                  });
-                  return null;
-                },
-                controller: TextEditingController(text: othersRecommendationValue),
-                onChanged: (value) {
-                  othersRecommendationValue = value;
-                },
-                style: const TextStyle(fontSize: 14),
-                minLines: 2,
-                maxLines: 10,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: staticComponents.getBigInputDecoration('Agregar texto'),
-              ),
-            ]));
-  }
-
   Future<void> saveInPendingList(
       String idKey, String prescriptionId, String currentTreatmentDatabaseId,
       {bool dontGoBack = false}) async {
@@ -4176,9 +3446,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   void deleteExamn(int index) {
     final db = FirebaseFirestore.instance;
-    db.collection(EXAMN_PRESCRIPTION_COLLECTION_KEY).doc(examnList[index].databaseId).delete();
+    db.collection(EXAMS_PRESCRIPTION_COLLECTION_KEY).doc(examsList[index].databaseId).delete();
     setState(() {
-      examnList.removeAt(index);
+      examsList.removeAt(index);
     });
   }
 
@@ -4199,14 +3469,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(deleteId).delete();
   }
 
-  void deleteOthers(int index) {
-    final db = FirebaseFirestore.instance;
-    db.collection(OTHERS_PRESCRIPTION_COLLECTION_KEY).doc(othersList[index].databaseId).delete();
-    setState(() {
-      othersList.removeAt(index);
-    });
-  }
-
   void editActivity(int index) {
     setState(() {
       editingActivity = true;
@@ -4219,7 +3481,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   int currentExamnIndex = 0;
 
-  void editExamn(int index) {
+  void editExam(int index) {
     setState(() {
       editingExamn = true;
       addNewExamn = false;
@@ -4245,66 +3507,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       }
     });
   }
-
-  /*  void editActivity(int index, bool permitted) {
-    setState(() {
-      editingPermittedActivity = permitted;
-      if (editingPermittedActivity) {
-        updatePermittedActivity = index;
-        activityNameValue = activitiesList[index].name ?? "";
-        activityActivityValue = activitiesList[index].activity ?? "";
-        activityTimeNumberValue = activitiesList[index].timeNumber ?? "";
-        activityCaloriesValue = activitiesList[index].calories ?? "";
-        if (isNotEmpty(activitiesList[index].periodicity)) {
-          activityPeriodicityValue = activitiesList[index].periodicity;
-        }
-        if (isNotEmpty(activitiesList[index].timeType)) {
-          activityTimeTypeValue = activitiesList[index].timeType;
-        }
-      } else {
-        updateNoPermittedActivity = index;
-        activityNameValue = activitiesNoPermittedList[index].name ?? "";
-        activityActivityValue = activitiesNoPermittedList[index].activity ?? "";
-        activityTimeNumberValue = activitiesNoPermittedList[index].timeNumber ?? "";
-        activityCaloriesValue = activitiesNoPermittedList[index].calories ?? "";
-        if (isNotEmpty(activitiesNoPermittedList[index].periodicity)) {
-          activityPeriodicityValue = activitiesNoPermittedList[index].periodicity;
-        }
-        if (isNotEmpty(activitiesNoPermittedList[index].timeType)) {
-          activityTimeTypeValue = activitiesNoPermittedList[index].timeType;
-        }
-      }
-    });
-  } */
-
-  void editOthers(int index) {
-    setState(() {
-      editingOthers = true;
-      updateOthers = index;
-      othersNameValue = othersList[index].name ?? "";
-      othersDurationValue = othersList[index].duration ?? "";
-      othersPeriodicityValue = othersList[index].periodicity ?? "";
-      othersDetailValue = othersList[index].detail ?? "";
-      othersRecommendationValue = othersList[index].recommendation ?? "";
-    });
-  }
-
-  /* void deleteActivity(int index, bool permitted) {
-    String? deleteId;
-    if (permitted) {
-      deleteId = activitiesList[index].databaseId;
-      setState(() {
-        activitiesList.removeAt(index);
-      });
-    } else {
-      deleteId = activitiesNoPermittedList[index].databaseId;
-      setState(() {
-        activitiesNoPermittedList.removeAt(index);
-      });
-    }
-    final db = FirebaseFirestore.instance;
-    db.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY).doc(deleteId).delete();
-  } */
 
   void _calculateIMC(String value) {
     if (!formKey.currentState!.validate()) return;

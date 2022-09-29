@@ -128,7 +128,7 @@ class PatientDetailState extends State<PatientDetail> {
     activityFuture = getActivityPrescriptions(detailedUser!.currentTreatment!);
     nutritionFuture =
         getNutritionPrescriptions(detailedUser!.currentTreatment!);
-    examnFuture = getExamnPrescriptions(detailedUser!.currentTreatment!);
+    examnFuture = getExamsPrescriptions(detailedUser!.currentTreatment!);
     predictionFuture.then((value) => {
           setState(() {
             adherencePrediction = value;
@@ -2252,29 +2252,15 @@ class PatientDetailState extends State<PatientDetail> {
     return result;
   }
 
-  Future<List<String>> getExamnPrescriptions(String currentTreatmentId) async {
+  Future<List<String>> getExamsPrescriptions(String currentTreatmentId) async {
     List<String> result = <String>[];
     final db = FirebaseFirestore.instance;
     var snapshot = await db
-        .collection(EXAMN_PRESCRIPTION_COLLECTION_KEY)
+        .collection(EXAMS_PRESCRIPTION_COLLECTION_KEY)
         .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
         .get();
     for (int i = 0; i < snapshot.docs.length; i++) {
       String currentValue = snapshot.docs[i][EXAMN_NAME_KEY];
-      result.add(currentValue);
-    }
-    return result;
-  }
-
-  Future<List<String>> getOthersPrescriptions(String currentTreatmentId) async {
-    List<String> result = <String>[];
-    final db = FirebaseFirestore.instance;
-    var snapshot = await db
-        .collection(OTHERS_PRESCRIPTION_COLLECTION_KEY)
-        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
-        .get();
-    for (int i = 0; i < snapshot.docs.length; i++) {
-      String currentValue = snapshot.docs[i][OTHERS_NAME_KEY];
       result.add(currentValue);
     }
     return result;

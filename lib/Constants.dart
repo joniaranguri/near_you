@@ -54,12 +54,6 @@ const String TREATMENT_STATE_KEY = "state";
 
 const String PRESCRIPTIONS_COLLECTION_KEY = "prescriptions";
 
-const String OTHERS_NAME_KEY = "name";
-const String OTHERS_DURATION_KEY = "duration";
-const String OTHERS_PERIODICITY_KEY = "periodicity";
-const String OTHERS_DETAIL_KEY = "detail";
-const String OTHERS_RECOMMENDATION_KEY = "recommendation";
-
 const String EXAMN_NAME_KEY = "name";
 const String EXAMN_PERIODICITY_KEY = "duration";
 const String EXAMN_END_DATE_KEY = "endDate";
@@ -91,8 +85,7 @@ const String NUTRITION_IMC_KEY = "imc";
 const String MEDICATION_PRESCRIPTION_COLLECTION_KEY = "medicationPrescriptions";
 const String NUTRITION_PRESCRIPTION_COLLECTION_KEY = "nutritionPrescriptions";
 const String ACTIVITY_PRESCRIPTION_COLLECTION_KEY = "activityPrescriptions";
-const String OTHERS_PRESCRIPTION_COLLECTION_KEY = "othersPrescriptions";
-const String EXAMN_PRESCRIPTION_COLLECTION_KEY = "examnPrescriptions";
+const String EXAMS_PRESCRIPTION_COLLECTION_KEY = "examnPrescriptions";
 
 
 const String PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY =
@@ -101,10 +94,8 @@ const String PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY =
     "pendingNutritionPrescriptions";
 const String PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY =
     "pendingActivityPrescriptions";
-const String PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY =
-    "pendingOthersPrescriptions";
-    const String PENDING_EXAMN_PRESCRIPTIONS_COLLECTION_KEY =
-    "pendingExamnPrescriptions";
+    const String PENDING_EXAMS_PRESCRIPTIONS_COLLECTION_KEY =
+    "pendingExamsPrescriptions";
 const String PENDING_PRESCRIPTIONS_TREATMENT_KEY = "pendingTreatmentId";
 const String PENDING_PRESCRIPTIONS_ID_KEY = "pendingPrescriptionId";
 
@@ -117,15 +108,6 @@ const String APPLICANT_VINCULATION_USER_TYPE = "applicantType";
 //TODO  Chequear el mostrar el role selection si es otro user
 
 const List<String> durationsList = ["días", "semanas", "meses", "años"];
-const List<String> otherNamesList = [
-  "Insulina",
-  "Nivel de HbA1c",
-  "LDL",
-  "HDL",
-  "Triglicérido",
-  "Colesterol",
-  "Riesgo cardiovascular"
-];
 const List<String> durationsActivityList = ["horas", "segundos", "horas"];
 const List<String> pastilleTypeList = ["Pastilla antidiabética", "Otro tipo"];
 const List<String> pastilleQuantitiesList = [

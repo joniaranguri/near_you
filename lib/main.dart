@@ -47,7 +47,7 @@ Future<void> firebaseCustomPushMessage(RemoteMessage message) async {
           //bigPicture: message.data["image"],
           notificationLayout: NotificationLayout.Default,
           payload: {
-        PUSH_PARAM_UNSUBSCRIBE: message.data[PUSH_PARAM_UNSUBSCRIBE]
+        PUSH_PARAM_UNSUBSCRIBE: message.data[PUSH_PARAM_UNSUBSCRIBE] ?? ""
       }));
 }
 
