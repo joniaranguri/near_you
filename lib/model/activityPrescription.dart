@@ -10,7 +10,6 @@ class ActivityPrescription {
   String? timeNumber;
   String? timeType;
   String? treatmentId;
-  String? permitted;
 
   ActivityPrescription(
       {this.databaseId,
@@ -20,8 +19,7 @@ class ActivityPrescription {
       this.timeNumber,
       this.timeType,
       this.periodicity,
-      this.calories,
-      this.permitted});
+      this.calories});
 
   factory ActivityPrescription.empty() {
     return ActivityPrescription(
@@ -32,8 +30,7 @@ class ActivityPrescription {
         timeNumber: "",
         timeType: "",
         periodicity: "",
-        calories: "",
-        permitted: "");
+        calories: "");
   }
 
   factory ActivityPrescription.fromSnapshot(snapshot) {
@@ -46,7 +43,6 @@ class ActivityPrescription {
         timeNumber: realData[ACTIVITY_TIME_NUMBER_KEY],
         timeType: realData[ACTIVITY_TIME_TYPE_KEY],
         periodicity: realData[ACTIVITY_PERIODICITY_KEY],
-        calories: realData[ACTIVITY_CALORIES_KEY],
-        permitted: realData[PERMITTED_KEY]);
+        calories: realData[ACTIVITY_CALORIES_KEY]);
   }
 }

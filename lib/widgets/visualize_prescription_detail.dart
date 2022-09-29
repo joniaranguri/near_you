@@ -9,7 +9,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 import '../model/activityPrescription.dart';
 import '../model/nutritionPrescription.dart';
-import '../model/othersPrescription.dart';
+import '../model/examsPrescription.dart';
 import '../widgets/grouped_bar_chart.dart';
 
 class VisualizePrescriptionDetail extends StatefulWidget {
@@ -49,13 +49,13 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
   late final Future<List<MedicationPrescription>> medicationPrescriptionFuture;
   late final Future<List<NutritionPrescription>> nutritionPrescriptionFuture;
   late final Future<List<ActivityPrescription>> activityPrescriptionFuture;
-  late final Future<List<ExamnPrescription>> examnPrescriptionFuture;
+  late final Future<List<ExamsPrescription>> examnPrescriptionFuture;
   List<MedicationPrescription> medicationsList = <MedicationPrescription>[];
   List<NutritionPrescription> nutritionList = <NutritionPrescription>[];
   List<ActivityPrescription> activitiesList = <ActivityPrescription>[];
   List<NutritionPrescription> nutritionNoPermittedList = <NutritionPrescription>[];
   List<ActivityPrescription> activitiesNoPermittedList = <ActivityPrescription>[];
-  List<ExamnPrescription> examnList = <ExamnPrescription>[];
+  List<ExamsPrescription> examsList = <ExamsPrescription>[];
 
   String? medicationStartDateValue;
   String? medicationNameValue;
@@ -78,20 +78,11 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
   String? activityTimeNumberValue;
   String? activityTimeTypeValue;
 
-  String? othersNameValue;
-  String? othersDurationValue;
-  String? othersDurationTypeValue;
-  String? othersPeriodicityTypeValue;
-  String? othersPeriodicityValue;
-  String? othersDetailValue;
-  String? othersRecommendationValue;
-
   int medicationsCount = 0;
 
   final GlobalKey<FormState> medicationFormState = GlobalKey<FormState>();
   final GlobalKey<FormState> alimentationFormState = GlobalKey<FormState>();
   final GlobalKey<FormState> phisicalActivityFormState = GlobalKey<FormState>();
-  final GlobalKey<FormState> othersFormState = GlobalKey<FormState>();
 
   bool startDateError = false;
   bool endDateError = false;
@@ -108,14 +99,12 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
   bool editingMedication = false;
   bool editingPermittedFood = false;
   bool editingPermittedActivity = false;
-  bool editingOthers = false;
 
   int updateMedication = -1;
   int updatePermittedFood = -1;
   int updateNoPermittedFood = -1;
   int updatePermittedActivity = -1;
   int updateNoPermittedActivity = -1;
-  int updateOthers = -1;
 
   VisualizePrescriptionDetailState(this.currentTreatment, this.isDoctorView, int currentPageIndex) {
     _pageController = PageController(initialPage: currentPageIndex);
@@ -164,7 +153,7 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
     medicationPrescriptionFuture = getMedicationPrescriptions();
     activityPrescriptionFuture = getActivityPrescriptions();
     nutritionPrescriptionFuture = getNutritionPrescriptions();
-    examnPrescriptionFuture = getExamnPrescriptions();
+    examnPrescriptionFuture = getExamsPrescriptions();
     medicationPrescriptionFuture.then((value) => {
           if (mounted)
             {
@@ -211,7 +200,7 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
           if (mounted)
             {
               setState(() {
-                examnList = value;
+                examsList = value;
               })
             }
         });
@@ -416,28 +405,15 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
     return resultList;
   }
 
-  Future<List<ExamnPrescription>> getExamnPrescriptions() async {
-    List<ExamnPrescription> resultList = <ExamnPrescription>[];
+  Future<List<ExamsPrescription>> getExamsPrescriptions() async {
+    List<ExamsPrescription> resultList = <ExamsPrescription>[];
     final db = FirebaseFirestore.instance;
     var future = await db
-        .collection(EXAMN_PRESCRIPTION_COLLECTION_KEY)
+        .collection(EXAMS_PRESCRIPTION_COLLECTION_KEY)
         .where(TREATMENT_ID_KEY, isEqualTo: currentTreatment?.databaseId)
         .get();
     for (var element in future.docs) {
-      resultList.add(ExamnPrescription.fromSnapshot(element));
-    }
-    return resultList;
-  }
-
-  Future<List<OthersPrescription>> getOthersPrescriptions() async {
-    List<OthersPrescription> resultList = <OthersPrescription>[];
-    final db = FirebaseFirestore.instance;
-    var future = await db
-        .collection(OTHERS_PRESCRIPTION_COLLECTION_KEY)
-        .where(TREATMENT_ID_KEY, isEqualTo: currentTreatment?.databaseId)
-        .get();
-    for (var element in future.docs) {
-      resultList.add(OthersPrescription.fromSnapshot(element));
+      resultList.add(ExamsPrescription.fromSnapshot(element));
     }
     return resultList;
   }
@@ -886,7 +862,7 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
   Widget getExamnView() {
     return FutureBuilder(
         future: examnPrescriptionFuture,
-        builder: (context, AsyncSnapshot<List<ExamnPrescription>> snapshot) {
+        builder: (context, AsyncSnapshot<List<ExamsPrescription>> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Container(
               width: double.infinity,
@@ -896,10 +872,10 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
                   padding: EdgeInsets.zero,
                   shrinkWrap: true,
                   //physics: const NeverScrollableScrollPhysics(),
-                  itemCount: examnList.length,
+                  itemCount: examsList.length,
                   itemBuilder: (context, index) {
                     return VizualizeExamnPrescriptionItem(
-                      examn: examnList[index],
+                      examn: examsList[index],
                     );
                   }),
             );
@@ -1448,140 +1424,7 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
                   )),
             ]));
   }
-
-  getButtonOrOthersList() {
-    return !editingOthers
-        ? TextField(
-            minLines: 1,
-            maxLines: 10,
-            enabled: false,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              prefixIcon: const Icon(Icons.circle, color: Colors.white),
-              filled: true,
-              fillColor: const Color(0xffD9D9D9),
-              hintText: "No aplica",
-              hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-              focusedBorder: borderGray,
-              border: borderGray,
-              enabledBorder: borderGray,
-            )
-            // staticComponents.getLittleInputDecoration('Tratamiento de de la diabetes\n con 6 meses de pre...'),
-
-            )
-        : Container(
-            //height: double.maxFinite,
-            //  width: double.infinity,
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: Color(0xffD9D9D9),
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            ),
-            child: Column(children: [
-              sizedBox10,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(
-                      height: durationError ? 55 : 35,
-                      child: Text(othersNameValue ?? "Nombre",
-                          style: const TextStyle(fontSize: 14, color: Color(0xFF999999))))
-                ],
-              ),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-                const SizedBox(
-                    width: 80,
-                    child:
-                        Text("Duración", style: TextStyle(fontSize: 14, color: Color(0xFF999999)))),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: SizedBox(
-                      height: 25,
-                      width: 60,
-                      child: TextFormField(
-                        controller: TextEditingController(text: othersDurationValue),
-                        style: const TextStyle(fontSize: 14),
-                        decoration: staticComponents.getMiddleInputDecorationDisabled(),
-                      )),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: SizedBox(
-                      height: 25,
-                      width: 60,
-                      child: TextFormField(
-                        controller: TextEditingController(text: othersDurationTypeValue),
-                        style: const TextStyle(fontSize: 14),
-                        decoration: staticComponents.getMiddleInputDecorationDisabled(),
-                      )),
-                )
-              ]),
-              sizedBox10,
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-                const SizedBox(
-                    width: 80,
-                    child: Text("Periodicidad",
-                        style: TextStyle(fontSize: 14, color: Color(0xFF999999)))),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: SizedBox(
-                      height: durationError ? 45 : 25,
-                      width: 60,
-                      child: TextFormField(
-                        controller: TextEditingController(text: othersPeriodicityValue),
-                        style: const TextStyle(fontSize: 14),
-                        decoration: staticComponents.getMiddleInputDecorationDisabled(),
-                      )),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: SizedBox(
-                      height: durationError ? 45 : 25,
-                      width: 60,
-                      child: TextFormField(
-                        controller: TextEditingController(text: othersPeriodicityTypeValue),
-                        style: const TextStyle(fontSize: 14),
-                        decoration: staticComponents.getMiddleInputDecorationDisabled(),
-                      )),
-                )
-              ]),
-              sizedBox10,
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Detalle", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                ],
-              ),
-              sizedBox10,
-              TextFormField(
-                controller: TextEditingController(text: othersDetailValue),
-                style: const TextStyle(fontSize: 14),
-                minLines: 2,
-                maxLines: 10,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: staticComponents.getBigInputDecorationDisabled(),
-              ),
-              sizedBox10,
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Recomendación", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
-                ],
-              ),
-              sizedBox10,
-              TextFormField(
-                controller: TextEditingController(text: othersRecommendationValue),
-                style: const TextStyle(fontSize: 14),
-                minLines: 2,
-                maxLines: 10,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: staticComponents.getBigInputDecorationDisabled(),
-              ),
-            ]));
-  }
-
+  
   void editMedication(int index) {
     setState(() {
       editingMedication = true;
@@ -1651,18 +1494,6 @@ class VisualizePrescriptionDetailState extends State<VisualizePrescriptionDetail
           activityTimeTypeValue = activitiesNoPermittedList[index].timeType;
         }
       }
-    });
-  }
-
-  void editOthers(int index) {
-    setState(() {
-      /* editingOthers = true;
-      updateOthers = index;
-      othersNameValue = examnList[index].name ?? "";
-      othersDurationValue = examnList[index].duration ?? "";
-      othersPeriodicityValue = examnList[index].periodicity ?? "";
-      othersDetailValue = examnList[index].detail ?? "";
-      othersRecommendationValue = examnList[index].recommendation ?? ""; */
     });
   }
 }
@@ -1951,7 +1782,7 @@ class _VizualizeActivityPrescriptionItem extends State<VizualizeActivityPrescrip
 class VizualizeExamnPrescriptionItem extends StatefulWidget {
   const VizualizeExamnPrescriptionItem({Key? key, required this.examn}) : super(key: key);
 
-  final ExamnPrescription examn;
+  final ExamsPrescription examn;
 
   @override
   State<VizualizeExamnPrescriptionItem> createState() => _VizualizeExamnPrescriptionItem();

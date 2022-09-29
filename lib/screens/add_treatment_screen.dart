@@ -62,7 +62,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
 
   String? nutritionCardLabel;
   String? activityCardLabel;
-  String? othersCardLabel;
+  String? examsCardLabel;
 
   _AddTreatmentScreenState(this.userId, this.currentTreatment) {
     isUpdate = currentTreatment != null;
@@ -756,9 +756,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        othersCardLabel == null
+                                        examsCardLabel == null
                                             ? "Haga click para una preescripción de Exámen"
-                                            : othersCardLabel!,
+                                            : examsCardLabel!,
                                         style: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.normal,
@@ -1058,7 +1058,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
 
         break;
       case 3:
-        othersCardLabel = 'Toca aquí para editar otras \nvariables';
+        examsCardLabel = 'Toca aquí para editar otras \nvariables';
         break;
     }
     setState(() {});
@@ -1073,7 +1073,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       deletePendingAndRealPrescriptions(
           PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, NUTRITION_PRESCRIPTION_COLLECTION_KEY);
       deletePendingAndRealPrescriptions(
-          PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY, OTHERS_PRESCRIPTION_COLLECTION_KEY);
+          PENDING_EXAMS_PRESCRIPTIONS_COLLECTION_KEY, EXAMS_PRESCRIPTION_COLLECTION_KEY);
       final db = FirebaseFirestore.instance;
       db
           .collection(TREATMENTS_KEY)
@@ -1114,7 +1114,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       deletePendingPrescriptions(PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY);
       deletePendingPrescriptions(PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY);
       deletePendingPrescriptions(PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY);
-      deletePendingPrescriptions(PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(PENDING_EXAMS_PRESCRIPTIONS_COLLECTION_KEY);
     } catch (ex) {}
     db.collection(USERS_COLLECTION_KEY).doc(patientUser?.userId).update({
       PATIENT_CURRENT_TREATMENT_KEY: treatId,

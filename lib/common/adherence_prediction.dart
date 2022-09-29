@@ -16,19 +16,23 @@ class AdherencePrediction {
       "http://ec2-44-208-142-128.compute-1.amazonaws.com:8501/v1/models/adherence_model:predict";
 
   static Future<int> getPrediction(user.User patient) async {
-    final uri = Uri.parse(BASE_URL);
-    LinkedHashMap<dynamic, dynamic> requestBody = await getRequestBody(patient);
-    if (requestBody.isEmpty) {
+    try {
+      final uri = Uri.parse(BASE_URL);
+      LinkedHashMap<dynamic, dynamic> requestBody =
+          await getRequestBody(patient);
+      if (requestBody.isEmpty) {
+        return ADHERENCE_PREDICTION_ERROR;
+      }
+      final response = await http.post(uri, body: jsonEncode(requestBody));
+      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode != HttpStatus.ok) {
+        return ADHERENCE_PREDICTION_ERROR;
+      }
+      double adherencePredictionRaw = decoded[PREDICTIONS_KEY][0][0];
+      return (adherencePredictionRaw * 100).toInt();
+    } catch (e) {
       return ADHERENCE_PREDICTION_ERROR;
     }
-    final response = await http.post(uri, body: jsonEncode(requestBody));
-    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    print("RESPONSE:" + response.statusCode.toString());
-    if (response.statusCode != HttpStatus.ok) {
-      return ADHERENCE_PREDICTION_ERROR;
-    }
-    double adherencePredictionRaw = decoded[PREDICTIONS_KEY][0][0];
-    return (adherencePredictionRaw * 100).toInt();
   }
 
   static getRequestBody(user.User patient) async {
