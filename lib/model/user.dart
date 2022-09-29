@@ -77,7 +77,7 @@ class User {
         medicoId: realData[MEDICO_ID_KEY]);
   }
 
-  bool isPatiente() {
+  bool isPatient() {
     return type == USER_TYPE_PACIENTE;
   }
 }

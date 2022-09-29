@@ -1,5 +1,17 @@
 const String SHOW_INTRO_SLIDE = "SHOW_INTRO_SLIDE";
 const String SHOW_ROLE_SELECTION = "SHOW_ROLE_SELECTION";
+const String PREF_USER_NAME = "PREF_USER_NAME";
+const String PREF_NEXT_SURVEY_DATE = "PREF_NEXT_SURVEY_DATE";
+const String PUSH_TOPIC_ALL = "all";
+const String PUSH_TOPIC_PATIENT = "patient";
+const String PUSH_TOPIC_DOCTOR = "doctor";
+const String PUSH_PARAM_UNSUBSCRIBE = "unsubscribe";
+const String PUSH_PARAM_TITLE = "title";
+const String PUSH_PARAM_BODY = "body";
+const String PUSH_PARAM_TYPE = "type";
+const String PUSH_PARAM_TYPE_SURVEY = "survey";
+const String PUSH_REPLACE_PACIENTE = "PACIENTE";
+const String PUSH_REPLACE_MEDICO = "MEDICO";
 
 const String EMAIL_KEY = "email";
 const String FULL_NAME_KEY = "fullName";

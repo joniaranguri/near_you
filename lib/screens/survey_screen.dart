@@ -1,11 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:near_you/common/survey_static_values.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Constants.dart';
+import '../main.dart';
 
 class SurveyScreen extends StatefulWidget {
   String userId;
@@ -385,6 +389,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
   }
 
   void saveAndGoBack() {
+    saveSharedPreferencesDate();
     final db = FirebaseFirestore.instance;
     final data = <String, String>{};
     for (int i = 0; i < surveyResults.length; i++) {
@@ -470,5 +475,13 @@ class _SurveyScreenState extends State<SurveyScreen> {
         );
       },
     );
+  }
+
+  Future<void> saveSharedPreferencesDate() async {
+    MyApp.dateNextSurvey =  DateFormat('dd-MM-yyyy').format(DateTime.now().add(const Duration(days: 7)));
+    print(MyApp.dateNextSurvey);
+    FirebaseMessaging.instance.subscribeToTopic(MyApp.dateNextSurvey!);
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString(PREF_NEXT_SURVEY_DATE,  MyApp.dateNextSurvey!);
   }
 }
