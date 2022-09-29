@@ -68,7 +68,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     "Universitaria o Técnica completa"
   ];
   static List<String> civilStatusList = [
-    "Solter",
+    "Soltero",
     "Casado",
     "Viudo o divorciado"
   ];
