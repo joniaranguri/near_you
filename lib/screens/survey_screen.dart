@@ -479,7 +479,6 @@ class _SurveyScreenState extends State<SurveyScreen> {
 
   Future<void> saveSharedPreferencesDate() async {
     MyApp.dateNextSurvey =  DateFormat('dd-MM-yyyy').format(DateTime.now().add(const Duration(days: 7)));
-    print(MyApp.dateNextSurvey);
     FirebaseMessaging.instance.subscribeToTopic(MyApp.dateNextSurvey!);
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setString(PREF_NEXT_SURVEY_DATE,  MyApp.dateNextSurvey!);

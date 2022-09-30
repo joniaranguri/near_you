@@ -12,6 +12,7 @@ import 'package:near_you/screens/routine_screen.dart';
 import 'package:near_you/screens/survey_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 import '../Constants.dart';
 import '../common/static_common_functions.dart';
@@ -419,7 +420,8 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   // bool isUserPatient = false;
   user.User? currentUser;
   Future<DocumentSnapshot>? futureUser;
@@ -430,6 +432,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<PendingVinculation>>? pendingVinculationsFuture;
 
   int notificationsCounter = 0;
+
+  bool disabledSurvey = false;
 
   @override
   void initState() {
@@ -572,11 +576,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 16.0),
             )),
         SpeedDialChild(
-            child: const Icon(Icons.playlist_add_check_outlined,
-                color: Colors.white),
-            backgroundColor: const Color(0xFF2F8F9D),
+            child: Icon(Icons.playlist_add_check_outlined, color: Colors.white),
+            backgroundColor: Color(disabledSurvey ? 0xff999999 : 0xFF2F8F9D),
             onTap: () {
-              goToSurvey();
+              if (!disabledSurvey) {
+                goToSurvey();
+              }
             },
             labelWidget: const Text(
               "Encuestas",
@@ -1023,7 +1028,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void initAllData() {
+  Future<void> initAllData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? dateNextSurveyString = pref.getString(PREF_NEXT_SURVEY_DATE);
+    DateTime dateNextSurvey =
+        DateFormat('dd-MM-yyyy').parse(dateNextSurveyString ?? "20-12-2999");
+    disabledSurvey = DateTime.now().isBefore(dateNextSurvey);
     futureUser = getUserById(FirebaseAuth.instance.currentUser!.uid);
     futureUser?.then((value) => {
           setState(() {
