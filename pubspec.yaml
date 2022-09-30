@@ -111,6 +111,7 @@ flutter:
     - assets/images/refresh_icon.svg
     - assets/images/arrow_up_red.png
     - assets/images/arrow_up_blue.png
+    - assets/images/plus_tab_unselected.svg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
