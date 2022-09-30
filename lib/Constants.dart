@@ -25,6 +25,8 @@ const String GENDER_KEY = "sex";
 const String EDUCATIONAL_LEVEL_KEY = "educationalLevel";
 const String CIVIL_STATUS_KEY = "civilStatus";
 const String SMOKING_KEY = "smoking";
+const String ADDRESS_KEY = "address";
+const String REFERENCE_KEY = "reference";
 
 const String USERS_COLLECTION_KEY = "users";
 const String PENDING_VINCULATIONS_COLLECTION_KEY = "pendingVinculations";
