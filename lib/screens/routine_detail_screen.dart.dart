@@ -1324,6 +1324,10 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       ROUTINE_ACTIVITY_PERCENTAGE_KEY: activitiesPercentage,
       ROUTINE_EXAMS_PERCENTAGE_KEY: examsPercentage,
     });
+    db
+        .collection(USERS_COLLECTION_KEY)
+        .doc(patientId)
+        .update({ADHERENCE_LEVEL_KEY: adherenceData});
   }
 
   getNutritionData(int nutritionValue, int nutritionNPValue) {

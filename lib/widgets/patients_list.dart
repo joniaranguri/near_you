@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:near_you/common/static_common_functions.dart';
 import 'package:near_you/screens/patient_detail_screen.dart';
 import 'package:near_you/widgets/dialogs.dart';
 import '../model/user.dart' as user;
@@ -138,7 +139,10 @@ class PatientListState extends State<PatientsListLayout> {
                                                   CrossAxisAlignment.start,
                                               children: <Widget>[
                                                 Text(
-                                                  "•  1 Consulta",
+                                                  isNotEmtpy(patients[index]
+                                                          .currentTreatment)
+                                                      ? "•  1 Consulta"
+                                                      : "•  0 Consultas",
                                                   style: const TextStyle(
                                                     fontSize: 10,
                                                     fontWeight:
@@ -162,8 +166,10 @@ class PatientListState extends State<PatientsListLayout> {
                                                         ),
                                                       ),
                                                       Text(
-                                                        (patients[index].adherenceLevel ??
-                                                                    0)
+                                                        ((patients[index].adherenceLevel ??
+                                                                        0) *
+                                                                    100)
+                                                                .toInt()
                                                                 .toString() +
                                                             "%",
                                                         style: TextStyle(
@@ -216,7 +222,7 @@ class PatientListState extends State<PatientsListLayout> {
 
   getAdherenceLevelColor(int index) {
     var value = 0xff47B4AC;
-    int adherenceLevel = int.parse(patients[index].adherenceLevel ?? "0");
+    double adherenceLevel = (patients[index].adherenceLevel ?? 0) * 100;
     if (adherenceLevel < 80) {
       value = 0xffF8191E;
     }
