@@ -32,7 +32,7 @@ class User {
   String? fullName;
   String? userId;
   String? email;
-  String? adherenceLevel;
+  double? adherenceLevel;
   String? birthDay;
   String? phone;
   String? medicoId;

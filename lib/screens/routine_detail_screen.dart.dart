@@ -399,17 +399,18 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     if (medicationsList.isEmpty) {
       return getEmptyView();
     }
+
     return SizedBox(
+        height: HomeScreen.screenHeight * 0.4,
         child: ListView.builder(
             padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
             itemCount: medicationsList.length,
             itemBuilder: (context, index) {
               return Column(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(bottom: 10),
                     decoration: const BoxDecoration(
                       color: Color(0xffD9D9D9),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -549,6 +550,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(bottom: 10),
                     decoration: const BoxDecoration(
                       color: Color(0xffD9D9D9),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -640,6 +642,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(bottom: 10),
                     decoration: const BoxDecoration(
                       color: Color(0xffD9D9D9),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -726,16 +729,16 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       return getEmptyView();
     }
     return SizedBox(
+        height: HomeScreen.screenHeight * 0.4,
         child: ListView.builder(
             padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
             itemCount: activitiesList.length,
             itemBuilder: (context, index) {
               return Column(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(bottom: 10),
                     decoration: const BoxDecoration(
                       color: Color(0xffD9D9D9),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -926,14 +929,13 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
             height: HomeScreen.screenHeight * 0.4,
             child: ListView.builder(
                 padding: EdgeInsets.zero,
-                // shrinkWrap: true,
-                //  physics: const NeverScrollableScrollPhysics(),
                 itemCount: examsList.length,
                 itemBuilder: (context, index) {
                   return Column(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.only(bottom: 10),
                         decoration: const BoxDecoration(
                           color: Color(0xffD9D9D9),
                           borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -1112,31 +1114,40 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     if (nutritionList.isEmpty && nutritionNoPermittedList.isEmpty) {
       return getEmptyView();
     }
-    return Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Alimentos permitidos",
-              style: TextStyle(color: Color(0xff999999), fontSize: 14),
-            )
-          ],
-        ),
-        SizedBox(height: 10),
-        getNutritionList(),
-        SizedBox(height: 10),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Alimentos no permitidos",
-                style: TextStyle(color: Color(0xff999999), fontSize: 14))
-          ],
-        ),
-        SizedBox(height: 10),
-        getNutritionListProhibited()
-      ],
-    );
+    return SizedBox(
+        height: HomeScreen.screenHeight * 0.4,
+        child: ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: 1,
+            itemBuilder: (context, index) {
+              return Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Alimentos permitidos",
+                        style:
+                            TextStyle(color: Color(0xff999999), fontSize: 14),
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  getNutritionList(),
+                  SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Alimentos no permitidos",
+                          style:
+                              TextStyle(color: Color(0xff999999), fontSize: 14))
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  getNutritionListProhibited()
+                ],
+              );
+            }));
   }
 
   void saveResultsInDatabase(
@@ -1313,6 +1324,10 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       ROUTINE_ACTIVITY_PERCENTAGE_KEY: activitiesPercentage,
       ROUTINE_EXAMS_PERCENTAGE_KEY: examsPercentage,
     });
+    db
+        .collection(USERS_COLLECTION_KEY)
+        .doc(patientId)
+        .update({ADHERENCE_LEVEL_KEY: adherenceData});
   }
 
   getNutritionData(int nutritionValue, int nutritionNPValue) {
