@@ -10,6 +10,7 @@ import '../widgets/slide_item.dart';
 
 class GettingStartedScreen extends StatefulWidget {
   static const routeName = '/getting_started';
+
   @override
   _GettingStartedScreenState createState() => _GettingStartedScreenState();
 }
@@ -44,7 +45,7 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   SlideItem(0),
-                /*  PageView.builder(
+                  /*  PageView.builder(
                       scrollDirection: Axis.horizontal,
                       controller: _pageController,
                       onPageChanged: _onPageChanged,
@@ -94,7 +95,8 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: const <Widget>[
                           Padding(
-                            padding: EdgeInsets.only(left: 20), //apply padding to all four sides
+                            padding: EdgeInsets.only(left: 20),
+                            //apply padding to all four sides
                             child: Text(
                               'Ya tengo una cuenta',
                               style: TextStyle(
@@ -120,7 +122,8 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
     if (_currentPage < 2) {
       _currentPage++;
     } else {
-      Navigator.of(context).pushNamed(SignupScreen.routeName);
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (BuildContext context) => SignupScreen()));
     }
 
     _pageController.animateToPage(
@@ -147,7 +150,10 @@ class LoginButton extends StatelessWidget {
                 style: TextStyle(fontSize: 14, color: Color(0xff3BACB6)),
               ),
               onPressed: () {
-                Navigator.of(context).pushNamed(LoginScreen.routeName);
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => LoginScreen()));
               },
             ),
             const Text(
@@ -167,7 +173,8 @@ class Circles1 extends StatelessWidget {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
-      child: SvgPicture.asset('assets/images/backgroundLogin.svg', fit: BoxFit.fill),
+      child: SvgPicture.asset('assets/images/backgroundLogin.svg',
+          fit: BoxFit.fill),
     );
   }
 }
@@ -179,7 +186,10 @@ class TreatmentAdherenceDesign extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 200, width: 273, child: SvgPicture.asset('assets/images/logo.svg')),
+        SizedBox(
+            height: 200,
+            width: 273,
+            child: SvgPicture.asset('assets/images/logo.svg')),
         SizedBox(
           width: 300,
           height: 60,

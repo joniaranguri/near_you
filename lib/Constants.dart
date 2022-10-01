@@ -168,3 +168,4 @@ const String PREDICTIONS_KEY = "predictions";
 const int ADHERENCE_PREDICTION_ERROR = -1;
 const String NOT_SPECIFIED_VALUE = "no especificado";
 const String VINCULATED_KEY = "vinculado";
+const String SURVEY_DISABLED_DEFAULT_DATE = "01-01-1800";
