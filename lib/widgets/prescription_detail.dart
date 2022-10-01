@@ -3513,7 +3513,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     double height = double.parse(heightController.text.isEmpty ? '0.0' : heightController.text);
     double weight = double.parse(weightController.text.isEmpty ? '0.0' : weightController.text);
     if (height != 0.0 && weight != 0.0) {
-      imcTextController.text = (weight / (pow(height, 2))).toString();
+      imcTextController.text = (weight / (pow(height, 2))).toStringAsFixed(2);
     }
   }
 }
