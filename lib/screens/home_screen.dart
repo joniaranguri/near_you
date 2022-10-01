@@ -1031,8 +1031,8 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> initAllData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? dateNextSurveyString = pref.getString(PREF_NEXT_SURVEY_DATE);
-    DateTime dateNextSurvey =
-        DateFormat('dd-MM-yyyy').parse(dateNextSurveyString ?? "20-12-2999");
+    DateTime dateNextSurvey = DateFormat('dd-MM-yyyy')
+        .parse(dateNextSurveyString ?? SURVEY_DISABLED_DEFAULT_DATE);
     disabledSurvey = DateTime.now().isBefore(dateNextSurvey);
     futureUser = getUserById(FirebaseAuth.instance.currentUser!.uid);
     futureUser?.then((value) => {
