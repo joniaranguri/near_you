@@ -1,12 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:near_you/common/survey_static_values.dart';
 import 'package:near_you/screens/home_screen.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Constants.dart';
+import '../main.dart';
+import 'home_screen.dart';
 
 class SurveyScreen extends StatefulWidget {
   String userId;
@@ -68,7 +73,9 @@ class _SurveyScreenState extends State<SurveyScreen> {
                   padding: EdgeInsets.only(top: 40),
                   child: Text('Encuestas',
                       style: TextStyle(
-                          color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold))),
+                          color: Colors.white,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold))),
               elevation: 0,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -88,7 +95,8 @@ class _SurveyScreenState extends State<SurveyScreen> {
           Scaffold(
               backgroundColor: Colors.transparent,
               body: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints viewportConstraints) {
+                builder:
+                    (BuildContext context, BoxConstraints viewportConstraints) {
                   return SizedBox(
                     width: double.infinity,
                     child: SingleChildScrollView(
@@ -107,7 +115,8 @@ class _SurveyScreenState extends State<SurveyScreen> {
                               future: futureSurvey,
                               builder: (context, AsyncSnapshot snapshot) {
                                 //patientUser = user.User.fromSnapshot(snapshot.data);
-                                if (snapshot.connectionState == ConnectionState.done) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
                                   return getScreenType();
                                 }
                                 return const CircularProgressIndicator();
@@ -125,38 +134,6 @@ class _SurveyScreenState extends State<SurveyScreen> {
     ]);
   }
 
-  Widget _buildBottomBar() {
-    return Container(
-      child: Material(
-        elevation: 0.0,
-        color: Colors.white,
-        child: BottomNavigationBar(
-          elevation: 0,
-          onTap: (index) {
-            _currentIndex = index;
-          },
-          backgroundColor: Colors.transparent,
-          currentIndex: _currentIndex,
-          type: BottomNavigationBarType.fixed,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: [
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_metrics_unselected.svg',
-                ),
-                label: ""),
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_person_unselected.svg',
-                ),
-                label: "")
-          ],
-        ),
-      ),
-    );
-  }
-
   getScreenType() {
     if (surveyList.isEmpty) {
       return noSurveyView();
@@ -165,8 +142,11 @@ class _SurveyScreenState extends State<SurveyScreen> {
       width: HomeScreen.screenWidth,
       height: HomeScreen.screenHeight,
       child: Padding(
-          padding: const EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 10),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+          padding:
+              const EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 10),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
+                  Widget>[
             GFProgressBar(
               percentage: percentageProgress,
               lineHeight: 17,
@@ -234,13 +214,16 @@ class _SurveyScreenState extends State<SurveyScreen> {
                                   child: ListView.builder(
                                       padding: EdgeInsets.zero,
                                       shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       itemCount: surveyList.length,
                                       itemBuilder: (context, index) {
                                         return Column(children: [
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: <Widget>[
                                               Flexible(
                                                   child: Text(
@@ -248,7 +231,8 @@ class _SurveyScreenState extends State<SurveyScreen> {
                                                 style: const TextStyle(
                                                     color: Color(0xff67757F),
                                                     fontSize: 14,
-                                                    fontWeight: FontWeight.w600),
+                                                    fontWeight:
+                                                        FontWeight.w600),
                                               ))
                                             ],
                                           ),
@@ -256,50 +240,75 @@ class _SurveyScreenState extends State<SurveyScreen> {
                                             child: ListView.builder(
                                                 padding: EdgeInsets.zero,
                                                 shrinkWrap: true,
-                                                physics: const NeverScrollableScrollPhysics(),
-                                                itemCount: surveyList[index].options.length,
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                itemCount: surveyList[index]
+                                                    .options
+                                                    .length,
                                                 itemBuilder: (context, i) {
                                                   return ListTile(
                                                       dense: true,
                                                       leading: Radio<String>(
-                                                        visualDensity: const VisualDensity(
-                                                          horizontal: VisualDensity.minimumDensity,
-                                                          vertical: VisualDensity.minimumDensity,
+                                                        visualDensity:
+                                                            const VisualDensity(
+                                                          horizontal:
+                                                              VisualDensity
+                                                                  .minimumDensity,
+                                                          vertical: VisualDensity
+                                                              .minimumDensity,
                                                         ),
                                                         fillColor:
-                                                            MaterialStateProperty.resolveWith<
-                                                                Color>((Set<MaterialState> states) {
-                                                          return const Color(0xff999999);
+                                                            MaterialStateProperty
+                                                                .resolveWith<
+                                                                    Color>((Set<
+                                                                        MaterialState>
+                                                                    states) {
+                                                          return const Color(
+                                                              0xff999999);
                                                         }),
                                                         value: i.toString(),
-                                                       /*  value: (surveyList[index].options.length -
+                                                        /*  value: (surveyList[index].options.length -
                                                                 i -
                                                                 1)
                                                             .toString(), */
-                                                        groupValue: surveyResults[index],
+                                                        groupValue:
+                                                            surveyResults[
+                                                                index],
                                                         onChanged: (value) {
                                                           setState(() {
-                                                            surveyResults[index] = value!;
-                                                            int currentTotal = 0;
+                                                            surveyResults[
+                                                                index] = value!;
+                                                            int currentTotal =
+                                                                0;
                                                             for (int j = 0;
-                                                                j < surveyResults.length;
+                                                                j <
+                                                                    surveyResults
+                                                                        .length;
                                                                 j++) {
-                                                              if (surveyResults[j] != null) {
+                                                              if (surveyResults[
+                                                                      j] !=
+                                                                  null) {
                                                                 currentTotal++;
                                                               }
                                                             }
                                                             percentageProgress =
-                                                                currentTotal / surveyResults.length;
+                                                                currentTotal /
+                                                                    surveyResults
+                                                                        .length;
                                                           });
                                                         },
                                                       ),
                                                       title: Text(
                                                         "${surveyList[index].options.length - i}.- ${surveyList[index].options[i]}",
                                                         style: const TextStyle(
-                                                            color: Color(0xff67757F),
+                                                            color: Color(
+                                                                0xff67757F),
                                                             fontSize: 14,
-                                                            fontWeight: FontWeight.w600),
-                                                        textAlign: TextAlign.left,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600),
+                                                        textAlign:
+                                                            TextAlign.left,
                                                       ));
                                                 }),
                                           ),
@@ -316,7 +325,9 @@ class _SurveyScreenState extends State<SurveyScreen> {
                                     ),
                                     color: const Color(0xff2F8F9D),
                                     textColor: Colors.white,
-                                    onPressed: percentageProgress == 1 ? saveAndGoBack : null,
+                                    onPressed: percentageProgress == 1
+                                        ? saveAndGoBack
+                                        : null,
                                     child: const Text(
                                       'Enviar',
                                       style: TextStyle(
@@ -348,31 +359,34 @@ class _SurveyScreenState extends State<SurveyScreen> {
       height: 470,
       child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: const <Widget>[
-            SizedBox(
-              height: 200,
-            ),
-            Text(
-              'Ya has completado  \nla encuesta',
-              textAlign: TextAlign.center,
-              maxLines: 5,
-              style: TextStyle(
-                fontSize: 16,
-                color: Color(0xff999999),
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            SizedBox(
-              height: 100,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-          ])),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: const <Widget>[
+                SizedBox(
+                  height: 200,
+                ),
+                Text(
+                  'Ya has completado  \nla encuesta',
+                  textAlign: TextAlign.center,
+                  maxLines: 5,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xff999999),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                SizedBox(
+                  height: 100,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+              ])),
     );
   }
 
   void saveAndGoBack() {
+    saveSharedPreferencesDate();
     final db = FirebaseFirestore.instance;
     final data = <String, String>{};
     for (int i = 0; i < surveyResults.length; i++) {
@@ -417,40 +431,52 @@ class _SurveyScreenState extends State<SurveyScreen> {
                       const Text('Encuesta\n completada',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 25, fontWeight: FontWeight.bold, color: Color(0xff67757F))),
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff67757F))),
                       const SizedBox(
                         height: 20,
                       ),
-                      const Text('¡Gracias por completar el\nprogreso de su adherencia',
+                      const Text(
+                          '¡Gracias por completar el\nprogreso de su adherencia',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xff999999))),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff999999))),
                       const SizedBox(
                         height: 20,
                       ),
-                      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-                        const SizedBox(
-                          height: 17,
-                        ),
-                        FlatButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          padding: const EdgeInsets.all(15),
-                          color: const Color(0xff3BACB6),
-                          textColor: Colors.white,
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          },
-                          child: const Text(
-                            'Aceptar',
-                            style: TextStyle(
-                              fontSize: 16,
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 17,
                             ),
-                          ),
-                        )
-                      ])
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.all(15),
+                              color: const Color(0xff3BACB6),
+                              textColor: Colors.white,
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            HomeScreen()));
+                              },
+                              child: const Text(
+                                'Aceptar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            )
+                          ])
                     ],
                   ))
             ])
@@ -458,5 +484,13 @@ class _SurveyScreenState extends State<SurveyScreen> {
         );
       },
     );
+  }
+
+  Future<void> saveSharedPreferencesDate() async {
+    MyApp.dateNextSurvey = DateFormat('dd-MM-yyyy')
+        .format(DateTime.now().add(const Duration(days: 7)));
+    FirebaseMessaging.instance.subscribeToTopic(MyApp.dateNextSurvey!);
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString(PREF_NEXT_SURVEY_DATE, MyApp.dateNextSurvey!);
   }
 }

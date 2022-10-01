@@ -24,6 +24,8 @@ class User {
       required this.currentTreatment,
       required this.attachedPatients,
       required this.adherenceLevel,
+      required this.address,
+      required this.reference,
       required this.medicoId});
 
   String? attachedPatients;
@@ -74,10 +76,12 @@ class User {
         currentTreatment: realData[PATIENT_CURRENT_TREATMENT_KEY],
         attachedPatients: realData[ATTACHED_PATIENTS],
         adherenceLevel: realData[ADHERENCE_LEVEL_KEY],
+        address: realData[ADDRESS_KEY],
+        reference: realData[REFERENCE_KEY],
         medicoId: realData[MEDICO_ID_KEY]);
   }
 
-  bool isPatiente() {
+  bool isPatient() {
     return type == USER_TYPE_PACIENTE;
   }
 }

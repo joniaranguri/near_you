@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:age_calculator/age_calculator.dart';
 import 'package:near_you/common/static_common_functions.dart';
+import 'package:near_you/screens/home_screen.dart';
 import '../model/user.dart' as user;
 import 'package:intl/intl.dart';
 
@@ -12,7 +13,7 @@ import '../Constants.dart';
 import '../model/activityPrescription.dart';
 import '../model/medicationPrescription.dart';
 import '../model/nutritionPrescription.dart';
-import '../model/othersPrescription.dart';
+import '../model/examsPrescription.dart';
 import '../widgets/firebase_utils.dart';
 import '../widgets/static_components.dart';
 
@@ -32,16 +33,16 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   late final Future<List<MedicationPrescription>> medicationPrescriptionFuture;
   late final Future<List<NutritionPrescription>> nutritionPrescriptionFuture;
   late final Future<List<ActivityPrescription>> activityPrescriptionFuture;
-  late final Future<List<OthersPrescription>> othersPrescriptionFuture;
+  late final Future<List<ExamsPrescription>> examsPrescriptionFuture;
+  late final Future<Map<String, int>> previousResultsFuture;
 
+  Map<String, int> previousResults = {};
   List<MedicationPrescription> medicationsList = <MedicationPrescription>[];
   List<NutritionPrescription> nutritionList = <NutritionPrescription>[];
   List<ActivityPrescription> activitiesList = <ActivityPrescription>[];
   List<NutritionPrescription> nutritionNoPermittedList =
       <NutritionPrescription>[];
-  List<ActivityPrescription> activitiesNoPermittedList =
-      <ActivityPrescription>[];
-  List<OthersPrescription> othersList = <OthersPrescription>[];
+  List<ExamsPrescription> examsList = <ExamsPrescription>[];
   var currentRoutineIndex = 0;
   int totalPrescriptions = 0;
   double percentageProgress = 0;
@@ -59,64 +60,16 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
 
   @override
   void initState() {
+    previousResultsFuture = getPreviousResults();
     medicationPrescriptionFuture =
         getMedicationPrescriptions(currentTreatmentId);
     activityPrescriptionFuture = getActivityPrescriptions(currentTreatmentId);
     nutritionPrescriptionFuture = getNutritionPrescriptions(currentTreatmentId);
-    othersPrescriptionFuture = getOthersPrescriptions(currentTreatmentId);
-    medicationPrescriptionFuture.then((value) => {
-          if (mounted)
-            {
-              setState(() {
-                medicationsList = value;
-                totalPrescriptions = getTotalPrescriptionsSize();
-              })
-            }
-        });
-    nutritionPrescriptionFuture.then((value) => {
-          if (mounted)
-            {
-              setState(() {
-                nutritionList = [];
-                nutritionNoPermittedList = [];
-                for (int i = 0; i < value.length; i++) {
-                  if (value[i].permitted == YES_KEY) {
-                    nutritionList.add(value[i]);
-                  } else {
-                    nutritionNoPermittedList.add(value[i]);
-                  }
-                  totalPrescriptions = getTotalPrescriptionsSize();
-                }
-              })
-            }
-        });
-    activityPrescriptionFuture.then((value) => {
-          if (mounted)
-            {
-              setState(() {
-                activitiesList = [];
-                activitiesNoPermittedList = [];
-                for (int i = 0; i < value.length; i++) {
-                  if (value[i].permitted == YES_KEY) {
-                    activitiesList.add(value[i]);
-                  } else {
-                    activitiesNoPermittedList.add(value[i]);
-                  }
-                  totalPrescriptions = getTotalPrescriptionsSize();
-                }
-              })
-            }
-        });
-    othersPrescriptionFuture.then((value) => {
-          if (mounted)
-            {
-              setState(() {
-                othersList = value;
-                totalPrescriptions = getTotalPrescriptionsSize();
-              })
-            }
-        });
-
+    examsPrescriptionFuture = getExamsPrescriptions(currentTreatmentId);
+    previousResultsFuture.then((value) => setState(() {
+          previousResults = value;
+          initAllData();
+        }));
     super.initState();
   }
 
@@ -903,7 +856,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   Widget getExamsList() {
-    if (othersList.isEmpty) {
+    if (examsList.isEmpty) {
       return getEmptyView();
     }
     return Column(
@@ -935,6 +888,9 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                   height: 25,
                                   width: screenWidth * 0.2,
                                   child: TextFormField(
+                                    onChanged: (value) {
+                                      examsGlucosaLevelValue = value;
+                                    },
                                     controller: TextEditingController(
                                         text: examsGlucosaLevelValue),
                                     style: const TextStyle(
@@ -967,11 +923,12 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         ),
         SizedBox(height: 10),
         SizedBox(
+            height: HomeScreen.screenHeight * 0.4,
             child: ListView.builder(
                 padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: othersList.length,
+                // shrinkWrap: true,
+                //  physics: const NeverScrollableScrollPhysics(),
+                itemCount: examsList.length,
                 itemBuilder: (context, index) {
                   return Column(
                     children: [
@@ -984,7 +941,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                         child: Column(
                           children: [
                             Text(
-                              "¿Pasaste tu examen de tolerancia oral a la glucosa?",
+                              "¿Pasaste tu examen de ${examsList[index].name}?",
                               textAlign: TextAlign.center,
                               style: TextStyle(color: Color(0xff808080)),
                             ),
@@ -1000,10 +957,10 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                           Radio<int>(
                                               value: 1,
                                               groupValue:
-                                                  othersList[index].state,
+                                                  examsList[index].state,
                                               onChanged: (value) {
                                                 setState(() {
-                                                  othersList[index].state =
+                                                  examsList[index].state =
                                                       value!;
                                                   updatePercentageProgress();
                                                 });
@@ -1026,10 +983,10 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                           Radio<int>(
                                               value: 0,
                                               groupValue:
-                                                  othersList[index].state,
+                                                  examsList[index].state,
                                               onChanged: (value) {
                                                 setState(() {
-                                                  othersList[index].state =
+                                                  examsList[index].state =
                                                       value!;
                                                   updatePercentageProgress();
                                                 });
@@ -1071,17 +1028,17 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     }
   }
 
-  void updatePercentageProgress() {
+  void updatePercentageProgress({onlyUpdate = false}) {
     int total = medicationsList.length +
         activitiesList.length +
         nutritionNoPermittedList.length +
         nutritionList.length +
-        othersList.length;
+        examsList.length;
     int medicationCompleted = 0;
     int activityCompleted = 0;
     int nutritionCompleted = 0;
     int nutritionNotPermittedCompleted = 0;
-    int othersCompleted = 0;
+    int examsCompleted = 0;
     int nutritionValue = 0;
     int nutritionNPValue = 0;
     int examsValue = 0;
@@ -1090,56 +1047,62 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       medicationCompleted += element.state ?? 0;
       if (isNotEmtpy(element.name)) {
         // TODO validate not empty prescriptions names
-        data.addAll({element.name!: element.state ?? 0});
+        data.addAll({element.name!: element.state ?? -1});
       }
     }
     for (var element in activitiesList) {
       activityCompleted += element.state ?? 0;
       if (isNotEmtpy(element.name)) {
-        data.addAll({element.name!: element.state ?? 0});
+        data.addAll({element.name!: element.state ?? -1});
       }
     }
     for (var element in nutritionList) {
       if (element.state != null) {
         nutritionCompleted++;
-        nutritionValue += element.state!; //NO is 0, Yes is 1
+        nutritionValue += element.state!; //NO is 0, Yes is 1, no selected -1
       }
       if (isNotEmtpy(element.name)) {
-        data.addAll({element.name!: element.state ?? 0});
+        data.addAll({element.name!: element.state ?? -1});
       }
     }
     for (var element in nutritionNoPermittedList) {
       if (element.state != null) {
         nutritionNotPermittedCompleted++;
-        nutritionNPValue += element.state!; //NO is 0, Yes is 1
+        nutritionNPValue += element.state!; //NO is 0, Yes is 1, no selected -1
       }
       if (isNotEmtpy(element.name)) {
-        data.addAll({element.name!: element.state ?? 0});
+        data.addAll({element.name!: element.state ?? -1});
       }
     }
-    for (var element in othersList) {
+    for (var element in examsList) {
       if (element.state != null) {
-        othersCompleted++;
-        examsValue += element.state!; //NO is 0, Yes is 1
+        examsCompleted++;
+        examsValue += element.state!; //NO is 0, Yes is 1, no selected -1
       }
       if (isNotEmtpy(element.name)) {
-        data.addAll({element.name!: element.state ?? 0});
+        data.addAll({element.name!: element.state ?? -1});
       }
     }
     int currentCompleted = medicationCompleted +
         nutritionCompleted +
         nutritionNotPermittedCompleted +
-        othersCompleted +
+        examsCompleted +
         activityCompleted;
     percentageProgress = currentCompleted / total;
-    data.addAll({ROUTINE_TOTAL_PERCENTAGE_KEY: percentageProgress});
+    if (onlyUpdate) {
+      return;
+    }
+    data.addAll({
+      ROUTINE_TOTAL_PERCENTAGE_KEY: percentageProgress,
+      ROUTINE_EXAM_GLUCOSA_LEVEL: examsGlucosaLevelValue ?? ""
+    });
     saveResultsInDatabase(
         data,
         medicationCompleted,
         nutritionCompleted,
         nutritionNotPermittedCompleted,
         activityCompleted,
-        othersCompleted,
+        examsCompleted,
         nutritionValue,
         nutritionNPValue,
         examsValue);
@@ -1182,18 +1145,17 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       int nutritionCompleted,
       int nutritionNotPermittedCompleted,
       int activityCompleted,
-      int othersCompleted,
+      int examsCompleted,
       int nutritionValue,
       int nutritionNPValue,
       int examsValue) async {
     final db = FirebaseFirestore.instance;
-    String todayFormattedDate =
-        DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    String todayFormattedDate = getTodayFormattedDate();
     final int medicationListSize = medicationsList.length;
     final int activitiesListSize = activitiesList.length;
     final int nutritionsListSize =
         nutritionList.length + nutritionNoPermittedList.length;
-    final int examsListSize = othersList.length;
+    final int examsListSize = examsList.length;
 
     double medicationPercentage =
         medicationListSize > 0 ? medicationCompleted / medicationListSize : 0;
@@ -1204,7 +1166,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
             nutritionsListSize
         : 0;
     double examsPercentage =
-        examsListSize > 0 ? othersCompleted / examsListSize : 0;
+        examsListSize > 0 ? examsCompleted / examsListSize : 0;
     final Map<String, Object> routineData = {
       ROUTINE_MEDICATION_PERCENTAGE_KEY: medicationPercentage,
       ROUTINE_ACTIVITY_PERCENTAGE_KEY: activitiesPercentage,
@@ -1231,11 +1193,12 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   int getTotalPrescriptionsSize() {
+    updatePercentageProgress(onlyUpdate: true);
     return medicationsList.length +
         activitiesList.length +
         nutritionList.length +
         nutritionNoPermittedList.length +
-        othersList.length;
+        examsList.length;
   }
 
   getDataValue(double percentage) {
@@ -1299,7 +1262,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     int a3 = int.parse(surveyData[DATA_PREGUNTA3_KEY]);
     int a4 = int.parse(surveyData[DATA_PREGUNTA4_KEY]);
     int a5 = int.parse(surveyData[DATA_PREGUNTA5_KEY]);
-    int a6 = int.parse(surveyData[DATA_PREGUNTA6_KEY]);
+    int a6 = int.parse(surveyData[DATA_PREGUNTA6_KEY] ?? "0");
     int sumData = smokingData +
         a1 +
         a2 +
@@ -1331,7 +1294,8 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       DATA_ACTIVIDAD_FISICA_KEY: activityData,
       DATA_EXAMENES_KEY: examsData,
       DATA_SUMA_KEY: sumData,
-      DATA_ADHERENCIA_KEY: adherenceData
+      DATA_ADHERENCIA_KEY: adherenceData,
+      TREATMENT_ID_KEY: currentTreatmentId,
     };
     db
         .collection(DATA_COLLECTION_KEY)
@@ -1367,9 +1331,9 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   getExamsData(int examsValue) {
-    int examsTotal = othersList.length - examsValue;
+    int examsTotal = examsList.length - examsValue;
     double examsPercentage =
-        othersList.isNotEmpty ? examsTotal / othersList.length : 0;
+        examsList.isNotEmpty ? examsTotal / examsList.length : 0;
     return getNutritionOrExamDataValue(examsPercentage * 100);
   }
 
@@ -1381,5 +1345,94 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       return 1;
     }
     return 0;
+  }
+
+  String getTodayFormattedDate() {
+    return DateFormat('dd-MMM-yyyy').format(DateTime.now());
+  }
+
+  void initAllData() {
+    medicationPrescriptionFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                medicationsList = value;
+                for (int i = 0; i < medicationsList.length; i++) {
+                  int? newState = previousResults[medicationsList[i].name];
+                  medicationsList[i].state = newState == -1 ? null : newState;
+                }
+                totalPrescriptions = getTotalPrescriptionsSize();
+              })
+            }
+        });
+    nutritionPrescriptionFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                nutritionList = [];
+                nutritionNoPermittedList = [];
+                for (int i = 0; i < value.length; i++) {
+                  int? newState = previousResults[value[i].name];
+                  value[i].state = newState == -1 ? null : newState;
+                  if (value[i].permitted == YES_KEY) {
+                    nutritionList.add(value[i]);
+                  } else {
+                    nutritionNoPermittedList.add(value[i]);
+                  }
+                  totalPrescriptions = getTotalPrescriptionsSize();
+                }
+              })
+            }
+        });
+    activityPrescriptionFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                activitiesList = value;
+                for (int i = 0; i < activitiesList.length; i++) {
+                  int? newState = previousResults[activitiesList[i].name];
+                  activitiesList[i].state = newState == -1 ? null : newState;
+                }
+                totalPrescriptions = getTotalPrescriptionsSize();
+              })
+            }
+        });
+    examsPrescriptionFuture.then((value) => {
+          if (mounted)
+            {
+              setState(() {
+                examsList = value;
+                for (int i = 0; i < examsList.length; i++) {
+                  int? newState = previousResults[examsList[i].name];
+                  examsList[i].state = newState == -1 ? null : newState;
+                }
+                totalPrescriptions = getTotalPrescriptionsSize();
+              })
+            }
+        });
+  }
+
+  Future<Map<String, int>> getPreviousResults() async {
+    Map<String, int> resultMap = {};
+    try {
+      final db = FirebaseFirestore.instance;
+      var results = await db
+          .collection(ROUTINES_COLLECTION_KEY)
+          .doc(currentTreatmentId)
+          .collection(ROUTINES_RESULTS_KEY)
+          .doc(getTodayFormattedDate())
+          .get();
+      var data = results.data();
+      if (data != null && data.isNotEmpty) {
+        for (String key in data.keys) {
+          if (key == ROUTINE_EXAM_GLUCOSA_LEVEL) {
+            examsGlucosaLevelValue = data[key];
+          } else if (key != ROUTINE_HOUR_COMPLETED_KEY) {
+            resultMap.addAll({key: data[key].toInt()});
+          }
+        }
+      }
+    } catch (e) {}
+    return resultMap;
   }
 }

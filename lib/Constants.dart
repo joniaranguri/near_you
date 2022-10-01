@@ -1,5 +1,17 @@
 const String SHOW_INTRO_SLIDE = "SHOW_INTRO_SLIDE";
 const String SHOW_ROLE_SELECTION = "SHOW_ROLE_SELECTION";
+const String PREF_USER_NAME = "PREF_USER_NAME";
+const String PREF_NEXT_SURVEY_DATE = "PREF_NEXT_SURVEY_DATE";
+const String PUSH_TOPIC_ALL = "all";
+const String PUSH_TOPIC_PATIENT = "patient";
+const String PUSH_TOPIC_DOCTOR = "doctor";
+const String PUSH_PARAM_UNSUBSCRIBE = "unsubscribe";
+const String PUSH_PARAM_TITLE = "title";
+const String PUSH_PARAM_BODY = "body";
+const String PUSH_PARAM_TYPE = "type";
+const String PUSH_PARAM_TYPE_SURVEY = "survey";
+const String PUSH_REPLACE_PACIENTE = "PACIENTE";
+const String PUSH_REPLACE_MEDICO = "MEDICO";
 
 const String EMAIL_KEY = "email";
 const String FULL_NAME_KEY = "fullName";
@@ -13,6 +25,8 @@ const String GENDER_KEY = "sex";
 const String EDUCATIONAL_LEVEL_KEY = "educationalLevel";
 const String CIVIL_STATUS_KEY = "civilStatus";
 const String SMOKING_KEY = "smoking";
+const String ADDRESS_KEY = "address";
+const String REFERENCE_KEY = "reference";
 
 const String USERS_COLLECTION_KEY = "users";
 const String PENDING_VINCULATIONS_COLLECTION_KEY = "pendingVinculations";
@@ -41,12 +55,6 @@ const String TREATMENT_PRESCRIPTIONS_KEY = "prescriptions";
 const String TREATMENT_STATE_KEY = "state";
 
 const String PRESCRIPTIONS_COLLECTION_KEY = "prescriptions";
-
-const String OTHERS_NAME_KEY = "name";
-const String OTHERS_DURATION_KEY = "duration";
-const String OTHERS_PERIODICITY_KEY = "periodicity";
-const String OTHERS_DETAIL_KEY = "detail";
-const String OTHERS_RECOMMENDATION_KEY = "recommendation";
 
 const String EXAMN_NAME_KEY = "name";
 const String EXAMN_PERIODICITY_KEY = "duration";
@@ -79,8 +87,7 @@ const String NUTRITION_IMC_KEY = "imc";
 const String MEDICATION_PRESCRIPTION_COLLECTION_KEY = "medicationPrescriptions";
 const String NUTRITION_PRESCRIPTION_COLLECTION_KEY = "nutritionPrescriptions";
 const String ACTIVITY_PRESCRIPTION_COLLECTION_KEY = "activityPrescriptions";
-const String OTHERS_PRESCRIPTION_COLLECTION_KEY = "othersPrescriptions";
-const String EXAMN_PRESCRIPTION_COLLECTION_KEY = "examnPrescriptions";
+const String EXAMS_PRESCRIPTION_COLLECTION_KEY = "examnPrescriptions";
 
 
 const String PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY =
@@ -89,10 +96,8 @@ const String PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY =
     "pendingNutritionPrescriptions";
 const String PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY =
     "pendingActivityPrescriptions";
-const String PENDING_Others_PRESCRIPTIONS_COLLECTION_KEY =
-    "pendingOthersPrescriptions";
-    const String PENDING_EXAMN_PRESCRIPTIONS_COLLECTION_KEY =
-    "pendingExamnPrescriptions";
+    const String PENDING_EXAMS_PRESCRIPTIONS_COLLECTION_KEY =
+    "pendingExamsPrescriptions";
 const String PENDING_PRESCRIPTIONS_TREATMENT_KEY = "pendingTreatmentId";
 const String PENDING_PRESCRIPTIONS_ID_KEY = "pendingPrescriptionId";
 
@@ -105,15 +110,6 @@ const String APPLICANT_VINCULATION_USER_TYPE = "applicantType";
 //TODO  Chequear el mostrar el role selection si es otro user
 
 const List<String> durationsList = ["días", "semanas", "meses", "años"];
-const List<String> otherNamesList = [
-  "Insulina",
-  "Nivel de HbA1c",
-  "LDL",
-  "HDL",
-  "Triglicérido",
-  "Colesterol",
-  "Riesgo cardiovascular"
-];
 const List<String> durationsActivityList = ["horas", "segundos", "horas"];
 const List<String> pastilleTypeList = ["Pastilla antidiabética", "Otro tipo"];
 const List<String> pastilleQuantitiesList = [
@@ -141,6 +137,7 @@ const String ROUTINE_ACTIVITY_PERCENTAGE_KEY = "activityPercentage";
 const String ROUTINE_EXAMS_PERCENTAGE_KEY = "examsPercentage";
 const String ROUTINE_TOTAL_PERCENTAGE_KEY = "totalPercentage";
 const String ROUTINE_HOUR_COMPLETED_KEY = "hourCompleted";
+const String ROUTINE_EXAM_GLUCOSA_LEVEL = "glucosaLevel";
 
 const String ROUTINES_COLLECTION_KEY = "routines";
 const String ROUTINES_RESULTS_KEY = "routinesResults";
@@ -170,3 +167,6 @@ const String REGEX_PASSWORD = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[#?!@\$%^&*-]).{7,
 const String REGEX_EMAIL = "^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+.[a-zA-Z]+";
 const String PREDICTIONS_KEY = "predictions";
 const int ADHERENCE_PREDICTION_ERROR = -1;
+const String NOT_SPECIFIED_VALUE = "no especificado";
+const String VINCULATED_KEY = "vinculado";
+const String SURVEY_DISABLED_DEFAULT_DATE = "01-01-1800";

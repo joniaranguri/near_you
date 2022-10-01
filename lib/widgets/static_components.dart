@@ -19,15 +19,14 @@ class StaticComponents {
 
   getInputDecoration(String hint) {
     return InputDecoration(
-      filled: true,
-      fillColor: Colors.white,
-      hintText: hint,
-      hintStyle: const TextStyle(fontSize: 14, color: Color(0xffCECECE)),
-      contentPadding: const EdgeInsets.all(15),
-      enabledBorder: inputBorder,
-      border: inputBorder,
-      errorMaxLines: 3
-    );
+        filled: true,
+        fillColor: Colors.white,
+        hintText: hint,
+        hintStyle: const TextStyle(fontSize: 14, color: Color(0xffCECECE)),
+        contentPadding: const EdgeInsets.all(15),
+        enabledBorder: inputBorder,
+        border: inputBorder,
+        errorMaxLines: 3);
   }
 
   getLittleInputDecoration(String hint) {
@@ -54,6 +53,16 @@ class StaticComponents {
     );
   }
 
+  getProfileInputDecorationDisabled() {
+    return const InputDecoration(
+        contentPadding: EdgeInsets.all(14),
+        filled: true,
+        fillColor: Colors.transparent,
+        enabled: false,
+        disabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF999999), width: 1.0)));
+  }
+
   getMiddleInputDecorationDisabled() {
     return InputDecoration(
         contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
@@ -78,7 +87,8 @@ class StaticComponents {
 
   getBigInputDecoration(String hint) {
     return InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         filled: true,
         fillColor: Colors.white,
         hintText: hint,
@@ -90,7 +100,8 @@ class StaticComponents {
 
   getBigInputDecorationDisabled() {
     return InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         filled: true,
         enabled: false,
         enabledBorder: middleInputBorder,
@@ -100,7 +111,8 @@ class StaticComponents {
 
   getBigInputDecorationDisabledRoutine() {
     return InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         filled: true,
         enabled: false,
         fillColor: const Color(0xffF1F1F1),
@@ -109,7 +121,33 @@ class StaticComponents {
         focusedBorder: middleInputBorder);
   }
 }
-final  List<String> daysList = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-final  List<String> weeksList = ["1ra Semana", "2da Semana", "3ra Semana", "4ta Semana"];
-final  List<String> monthsList = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
+final List<String> daysList = [
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+  "Domingo"
+];
+final List<String> weeksList = [
+  "1ra Semana",
+  "2da Semana",
+  "3ra Semana",
+  "4ta Semana"
+];
+final List<String> monthsList = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre"
+];

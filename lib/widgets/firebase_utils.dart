@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import '../model/activityPrescription.dart';
 import '../model/medicationPrescription.dart';
 import '../model/nutritionPrescription.dart';
-import '../model/othersPrescription.dart';
-import '../model/user.dart' as user;
+import '../model/examsPrescription.dart';
 
 import '../Constants.dart';
 import 'dialogs.dart';
@@ -133,16 +132,16 @@ Future<List<NutritionPrescription>> getNutritionPrescriptions(
   return resultList;
 }
 
-Future<List<OthersPrescription>> getOthersPrescriptions(
+Future<List<ExamsPrescription>> getExamsPrescriptions(
     String currentTreatmentId) async {
-  List<OthersPrescription> resultList = <OthersPrescription>[];
+  List<ExamsPrescription> resultList = <ExamsPrescription>[];
   final db = FirebaseFirestore.instance;
   var future = await db
-      .collection(OTHERS_PRESCRIPTION_COLLECTION_KEY)
+      .collection(EXAMS_PRESCRIPTION_COLLECTION_KEY)
       .where(TREATMENT_ID_KEY, isEqualTo: currentTreatmentId)
       .get();
   for (var element in future.docs) {
-    resultList.add(OthersPrescription.fromSnapshot(element));
+    resultList.add(ExamsPrescription.fromSnapshot(element));
   }
   return resultList;
 }

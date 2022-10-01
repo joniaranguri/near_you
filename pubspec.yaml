@@ -41,6 +41,9 @@ dependencies:
   age_calculator: ^1.0.0
   device_preview: 1.1.0
   http: ^0.13.5
+  firebase_messaging: ^13.0.3
+  awesome_notifications: ^0.6.19
+  flutter_html: ^2.2.1
 
 dev_dependencies:
   flutter_test:
@@ -109,6 +112,7 @@ flutter:
     - assets/images/refresh_icon.svg
     - assets/images/arrow_up_red.png
     - assets/images/arrow_up_blue.png
+    - assets/images/plus_tab_unselected.svg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

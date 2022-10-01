@@ -1,35 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../model/slide.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../widgets/slide_dots.dart';
-import '../widgets/slide_item.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 class GettingStartedScreen extends StatefulWidget {
   static const routeName = '/getting_started';
+
   @override
   _GettingStartedScreenState createState() => _GettingStartedScreenState();
 }
 
 class _GettingStartedScreenState extends State<GettingStartedScreen> {
-  int _currentPage = 0;
-  final PageController _pageController = PageController(initialPage: 0);
-
-  @override
-  void dispose() {
-    super.dispose();
-    _pageController.dispose();
-  }
-
-  _onPageChanged(int index) {
-    setState(() {
-      _currentPage = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,33 +27,40 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  SlideItem(0),
-                /*  PageView.builder(
-                      scrollDirection: Axis.horizontal,
-                      controller: _pageController,
-                      onPageChanged: _onPageChanged,
-                      itemCount: slideList.length,
-                      itemBuilder: (ctx, i) => SlideItem(i),
-                    ),
-                    Stack(
-                      alignment: AlignmentDirectional.topStart,
-                      children: <Widget>[
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 35),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              for(int i = 0; i<slideList.length; i++)
-                                if( i == _currentPage )
-                                  SlideDots(true)
-                                else
-                                  SlideDots(false)
-                            ],
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(0, 100, 0, 20),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                              width: double.maxFinite,
+                              height: 255,
+                              child:
+                                  SvgPicture.asset('assets/images/logo.svg')),
+                          SizedBox(
+                            height: 40,
                           ),
-                        )
-                      ],
-                    ), */
+                          Padding(
+                            padding: EdgeInsets.only(right: 60, left: 60),
+                            child: Html(
+                              data:
+                                  'Monitorea <span style="color:#2F8F9D">el seguimiento a la<br> adherencia con</span> una rutina diaria.',
+                              style: {
+                                "body": Style(
+                                  fontSize: FontSize(14),
+                                  textAlign: TextAlign.center,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xffd555555),
+                                ),
+                              },
+                            ),
+                          )
+                        ],
+                      )),
+                  SizedBox(
+                    height: 40,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
@@ -94,7 +85,8 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: const <Widget>[
                           Padding(
-                            padding: EdgeInsets.only(left: 20), //apply padding to all four sides
+                            padding: EdgeInsets.only(left: 20),
+                            //apply padding to all four sides
                             child: Text(
                               'Ya tengo una cuenta',
                               style: TextStyle(
@@ -117,17 +109,8 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
   }
 
   void onClickStart() {
-    if (_currentPage < 2) {
-      _currentPage++;
-    } else {
-      Navigator.of(context).pushNamed(SignupScreen.routeName);
-    }
-
-    _pageController.animateToPage(
-      _currentPage,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeIn,
-    );
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (BuildContext context) => SignupScreen()));
   }
 }
 
@@ -147,7 +130,10 @@ class LoginButton extends StatelessWidget {
                 style: TextStyle(fontSize: 14, color: Color(0xff3BACB6)),
               ),
               onPressed: () {
-                Navigator.of(context).pushNamed(LoginScreen.routeName);
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => LoginScreen()));
               },
             ),
             const Text(
@@ -167,7 +153,8 @@ class Circles1 extends StatelessWidget {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
-      child: SvgPicture.asset('assets/images/backgroundLogin.svg', fit: BoxFit.fill),
+      child: SvgPicture.asset('assets/images/backgroundLogin.svg',
+          fit: BoxFit.fill),
     );
   }
 }
@@ -179,7 +166,10 @@ class TreatmentAdherenceDesign extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 200, width: 273, child: SvgPicture.asset('assets/images/logo.svg')),
+        SizedBox(
+            height: 200,
+            width: 273,
+            child: SvgPicture.asset('assets/images/logo.svg')),
         SizedBox(
           width: 300,
           height: 60,
