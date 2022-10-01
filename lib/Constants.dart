@@ -137,6 +137,7 @@ const String ROUTINE_ACTIVITY_PERCENTAGE_KEY = "activityPercentage";
 const String ROUTINE_EXAMS_PERCENTAGE_KEY = "examsPercentage";
 const String ROUTINE_TOTAL_PERCENTAGE_KEY = "totalPercentage";
 const String ROUTINE_HOUR_COMPLETED_KEY = "hourCompleted";
+const String ROUTINE_EXAM_GLUCOSA_LEVEL = "glucosaLevel";
 
 const String ROUTINES_COLLECTION_KEY = "routines";
 const String ROUTINES_RESULTS_KEY = "routinesResults";
