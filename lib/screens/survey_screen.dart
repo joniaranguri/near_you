@@ -129,57 +129,8 @@ class _SurveyScreenState extends State<SurveyScreen> {
                 },
               ))
         ]),
-        bottomNavigationBar: _buildBottomBar(),
-        //TODO : REVIEW THIS
-        floatingActionButton: keyboardIsOpened
-            ? null
-            : GestureDetector(
-                child: Container(
-                  padding: const EdgeInsets.only(top: 40),
-                  child:
-                      SvgPicture.asset('assets/images/tab_plus_selected.svg'),
-                ),
-                onTap: () {
-                  setState(() {
-                    //mostrar menu
-                  });
-                },
-              ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       )
     ]);
-  }
-
-  Widget _buildBottomBar() {
-    return Container(
-      child: Material(
-        elevation: 0.0,
-        color: Colors.white,
-        child: BottomNavigationBar(
-          elevation: 0,
-          onTap: (index) {
-            _currentIndex = index;
-          },
-          backgroundColor: Colors.transparent,
-          currentIndex: _currentIndex,
-          type: BottomNavigationBarType.fixed,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: [
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_metrics_unselected.svg',
-                ),
-                label: ""),
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_person_unselected.svg',
-                ),
-                label: "")
-          ],
-        ),
-      ),
-    );
   }
 
   getScreenType() {
@@ -188,7 +139,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
     }
     return SizedBox(
       width: 400,
-      height: 600,
+      height: HomeScreen.screenHeight,
       child: Padding(
           padding:
               const EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 10),
@@ -233,7 +184,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
                 horizontal: 20,
               ),
               width: double.infinity,
-              height: 520,
+              height: HomeScreen.screenHeight * 0.8,
               child: SingleChildScrollView(
                   child: ConstrainedBox(
                       constraints: const BoxConstraints(
@@ -383,6 +334,9 @@ class _SurveyScreenState extends State<SurveyScreen> {
                                       ),
                                     ),
                                   ),
+                                  SizedBox(
+                                    height: 40,
+                                  )
                                 ],
                               )
                             ],
