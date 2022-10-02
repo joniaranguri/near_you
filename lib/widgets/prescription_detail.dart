@@ -2,17 +2,16 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:near_you/Constants.dart';
 import 'package:near_you/model/medicationPrescription.dart';
 import 'package:near_you/model/treatment.dart';
 import 'package:near_you/widgets/static_components.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-import 'package:intl/intl.dart';
 
 import '../model/activityPrescription.dart';
-import '../model/nutritionPrescription.dart';
 import '../model/examsPrescription.dart';
-import '../widgets/grouped_bar_chart.dart';
+import '../model/nutritionPrescription.dart';
+import '../screens/home_screen.dart';
 
 class PrescriptionDetail extends StatefulWidget {
   final bool isDoctorView;
@@ -23,7 +22,8 @@ class PrescriptionDetail extends StatefulWidget {
   PrescriptionDetail(this.currentTreatment,
       {required this.isDoctorView, required this.currentPageIndex});
 
-  factory PrescriptionDetail.forDoctorView(Treatment? paramTreatment, int currentPageIndex) {
+  factory PrescriptionDetail.forDoctorView(
+      Treatment? paramTreatment, int currentPageIndex) {
     return PrescriptionDetail(paramTreatment,
         isDoctorView: true, currentPageIndex: currentPageIndex);
   }
@@ -50,8 +50,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   List<MedicationPrescription> medicationsList = <MedicationPrescription>[];
   List<NutritionPrescription> nutritionList = <NutritionPrescription>[];
   List<ActivityPrescription> activitiesList = <ActivityPrescription>[];
-  List<NutritionPrescription> nutritionNoPermittedList = <NutritionPrescription>[];
-  List<ActivityPrescription> activitiesNoPermittedList = <ActivityPrescription>[];
+  List<NutritionPrescription> nutritionNoPermittedList =
+      <NutritionPrescription>[];
+  List<ActivityPrescription> activitiesNoPermittedList =
+      <ActivityPrescription>[];
   List<ExamsPrescription> examsList = <ExamsPrescription>[];
   final TextEditingController imcTextController = TextEditingController();
 
@@ -62,6 +64,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   bool isExamnLoading = false;
 
   String? medicationStartDateValue;
+
   //String? medicationNameValue;
   String? medicationDurationNumberValue;
   String? medicationDurationTypeValue;
@@ -74,8 +77,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   String? nutritionNameValue;
   String? nutritionCarboValue;
   String? nutritionCaloriesValue;
+
   //String? heightValue;
   String? imcValue;
+
   //String? weightValue;
 
   String? activityNameValue;
@@ -84,7 +89,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   String? activityCaloriesValue;
   String? activityTimeNumberValue;
   String? activityTimeTypeValue;
-  
+
   int medicationsCount = 0;
 
   final GlobalKey<FormState> medicationFormState = GlobalKey<FormState>();
@@ -99,6 +104,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   bool descriptionError = false;
 
   bool editingMedication = false;
+
   //bool editingExamn = false;
 
   bool editingPermittedFood = false;
@@ -110,7 +116,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   int updatePermittedActivity = -1;
   int updateNoPermittedActivity = -1;
 
-  PrescriptionDetailState(this.currentTreatment, this.isDoctorView, int currentPageIndex) {
+  PrescriptionDetailState(
+      this.currentTreatment, this.isDoctorView, int currentPageIndex) {
     _pageController = PageController(initialPage: currentPageIndex);
     _currentPage = currentPageIndex;
   }
@@ -148,7 +155,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       borderRadius: BorderRadius.circular(5));
 
   get borderWhite => OutlineInputBorder(
-      borderSide: const BorderSide(color: Colors.white), borderRadius: BorderRadius.circular(5));
+      borderSide: const BorderSide(color: Colors.white),
+      borderRadius: BorderRadius.circular(5));
 
   get sizedBox10 => const SizedBox(height: 10);
 
@@ -219,7 +227,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return SizedBox(
-      height: 580,
+      height: HomeScreen.screenHeight * 0.8,
       width: screenWidth,
       child: PageView.builder(
           scrollDirection: Axis.horizontal,
@@ -296,49 +304,55 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                  IconButton(
-                    icon: Icon(index == 0 ? null : Icons.chevron_left,
-                        size: 30, color: const Color(0xff2F8F9D)),
-                    onPressed: () {
-                      if (index > 0) {
-                        goBack();
-                      }
-                    },
-                  ),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff2F8F9D),
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(index == 0 ? null : Icons.chevron_left,
+                                size: 30, color: const Color(0xff2F8F9D)),
+                            onPressed: () {
+                              if (index > 0) {
+                                goBack();
+                              }
+                            },
+                          ),
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff2F8F9D),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(index == 3 ? null : Icons.chevron_right,
+                                size: 30, color: const Color(0xff2F8F9D)),
+                            onPressed: () {
+                              if (index < 3) {
+                                goAhead();
+                              }
+                            },
+                          )
+                        ]),
+                    const SizedBox(
+                      height: 10,
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(index == 3 ? null : Icons.chevron_right,
-                        size: 30, color: const Color(0xff2F8F9D)),
-                    onPressed: () {
-                      if (index < 3) {
-                        goAhead();
-                      }
-                    },
-                  )
-                ]),
-                const SizedBox(
-                  height: 10,
-                ),
-                childView
-              ]),
+                    childView
+                  ]),
               const SizedBox(
                 height: 20,
               ),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-                index == 0 ? blueIndicator : grayIndicator,
-                index == 1 ? blueIndicator : grayIndicator,
-                index == 2 ? blueIndicator : grayIndicator,
-                index == 3 ? blueIndicator : grayIndicator,
-              ]),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    index == 0 ? blueIndicator : grayIndicator,
+                    index == 1 ? blueIndicator : grayIndicator,
+                    index == 2 ? blueIndicator : grayIndicator,
+                    index == 3 ? blueIndicator : grayIndicator,
+                  ]),
               //SizedBox
             ],
           ), //Column
@@ -353,55 +367,59 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             height: 190,
             child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-                  const SizedBox(
-                    height: 17,
-                  ),
-                  SizedBox(
-                    height: 27,
-                    child: FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 17,
                       ),
-                      color: const Color(0xff2F8F9D),
-                      textColor: Colors.white,
-                      onPressed: () async {
-                        await saveMedicationInDatabase();
-                      },
-                      child: const Text(
-                        'Guardar',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
-                      height: 27,
-                      child: FlatButton(
+                      SizedBox(
                         height: 27,
-                        shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                                color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-                            borderRadius: BorderRadius.circular(30)),
-                        textColor: const Color(0xff9D9CB5),
-                        onPressed: () {
-                          Navigator.pop(context, _currentPage);
-                        },
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(
-                            fontSize: 14,
+                        child: FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          color: const Color(0xff2F8F9D),
+                          textColor: Colors.white,
+                          onPressed: () async {
+                            await saveMedicationInDatabase();
+                          },
+                          child: const Text(
+                            'Guardar',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
                           ),
                         ),
-                      )),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                ])),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                          height: 27,
+                          child: FlatButton(
+                            height: 27,
+                            shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(30)),
+                            textColor: const Color(0xff9D9CB5),
+                            onPressed: () {
+                              Navigator.pop(context, _currentPage);
+                            },
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          )),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ])),
           )
         : const SizedBox(height: 0);
   }
@@ -412,53 +430,57 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             height: 190,
             child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-                  const SizedBox(
-                    height: 17,
-                  ),
-                  SizedBox(
-                    height: 27,
-                    child: FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 17,
                       ),
-                      color: const Color(0xff2F8F9D),
-                      textColor: Colors.white,
-                      onPressed: saveEachFoodInDatabase,
-                      child: const Text(
-                        'Guardar',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
-                      height: 27,
-                      child: FlatButton(
+                      SizedBox(
                         height: 27,
-                        shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                                color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-                            borderRadius: BorderRadius.circular(30)),
-                        textColor: const Color(0xff9D9CB5),
-                        onPressed: () {
-                          Navigator.pop(context, _currentPage);
-                        },
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(
-                            fontSize: 14,
+                        child: FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          color: const Color(0xff2F8F9D),
+                          textColor: Colors.white,
+                          onPressed: saveEachFoodInDatabase,
+                          child: const Text(
+                            'Guardar',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
                           ),
                         ),
-                      )),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                ])),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                          height: 27,
+                          child: FlatButton(
+                            height: 27,
+                            shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(30)),
+                            textColor: const Color(0xff9D9CB5),
+                            onPressed: () {
+                              Navigator.pop(context, _currentPage);
+                            },
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          )),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ])),
           )
         : const SizedBox(height: 0);
   }
@@ -469,55 +491,59 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             height: 190,
             child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-                  const SizedBox(
-                    height: 17,
-                  ),
-                  SizedBox(
-                    height: 27,
-                    child: FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 17,
                       ),
-                      color: const Color(0xff2F8F9D),
-                      textColor: Colors.white,
-                      onPressed: () async {
-                        await saveActivityInDatabase();
-                      },
-                      child: const Text(
-                        'Guardar',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
-                      height: 27,
-                      child: FlatButton(
+                      SizedBox(
                         height: 27,
-                        shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                                color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-                            borderRadius: BorderRadius.circular(30)),
-                        textColor: const Color(0xff9D9CB5),
-                        onPressed: () {
-                          Navigator.pop(context, _currentPage);
-                        },
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(
-                            fontSize: 14,
+                        child: FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          color: const Color(0xff2F8F9D),
+                          textColor: Colors.white,
+                          onPressed: () async {
+                            await saveActivityInDatabase();
+                          },
+                          child: const Text(
+                            'Guardar',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
                           ),
                         ),
-                      )),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                ])),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                          height: 27,
+                          child: FlatButton(
+                            height: 27,
+                            shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(30)),
+                            textColor: const Color(0xff9D9CB5),
+                            onPressed: () {
+                              Navigator.pop(context, _currentPage);
+                            },
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          )),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ])),
           )
         : const SizedBox(height: 0);
   }
@@ -525,7 +551,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   getMedicationView() {
     return SizedBox(
       width: double.infinity,
-      height: 470,
+      height: HomeScreen.screenHeight * 0.65,
       child: isMedicationLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -540,7 +566,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: const [
                           Text("Medicamentos ",
-                              style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                              style: TextStyle(
+                                  fontSize: 14, color: Color(0xff999999)))
                         ],
                       ),
                       sizedBox10,
@@ -552,17 +579,20 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               itemCount: medicationsList.length,
                               itemBuilder: (context, index) {
                                 return Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     SizedBox(
                                         height: 35,
                                         child: IconButton(
-                                          padding: const EdgeInsets.only(bottom: 40),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 40),
                                           onPressed: () {
                                             showReadOnlyMedication(index);
                                           },
-                                          icon: const Icon(Icons.keyboard_arrow_down,
+                                          icon: const Icon(
+                                              Icons.keyboard_arrow_down,
                                               size: 30,
                                               color: Color(
                                                   0xff999999)), // myIcon is a 48px-wide widget.
@@ -570,15 +600,19 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                     SizedBox(
                                         height: 35,
                                         width: 150,
-                                        child: Text(medicationsList[index].name ?? "Medicacion",
+                                        child: Text(
+                                            medicationsList[index].name ??
+                                                "Medicacion",
                                             textAlign: TextAlign.left,
                                             style: const TextStyle(
-                                                fontSize: 14, color: Color(0xff999999)))),
+                                                fontSize: 14,
+                                                color: Color(0xff999999)))),
                                     SizedBox(
                                         height: 35,
                                         width: 14,
                                         child: IconButton(
-                                          padding: const EdgeInsets.only(bottom: 14),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 14),
                                           onPressed: () {
                                             showEditMedicationForm(index);
                                           },
@@ -589,7 +623,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                     SizedBox(
                                         height: 35,
                                         child: IconButton(
-                                          padding: const EdgeInsets.only(bottom: 30),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 30),
                                           onPressed: () {
                                             //deleteMedication(index);
                                             deleteMedicationLocally(index);
@@ -647,7 +682,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     }
     return resultList;
   }
-  
+
   Future<List<ExamsPrescription>> getExamsPrescriptions() async {
     List<ExamsPrescription> resultList = <ExamsPrescription>[];
     final db = FirebaseFirestore.instance;
@@ -682,39 +717,45 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       const Text('Operación\nExitosa',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 25, fontWeight: FontWeight.w600, color: Color(0xff67757F))),
+                              fontSize: 25,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xff67757F))),
                       const SizedBox(
                         height: 20,
                       ),
                       const Text('Se eliminó correctamente el\ntratamiento.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xff67757F))),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff67757F))),
                       const SizedBox(
                         height: 10,
                       ),
-                      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-                        const SizedBox(
-                          height: 17,
-                        ),
-                        FlatButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          padding: const EdgeInsets.all(15),
-                          color: const Color(0xff3BACB6),
-                          textColor: Colors.white,
-                          onPressed: () {
-                            goBackScreen();
-                          },
-                          child: const Text(
-                            'Aceptar',
-                            style: TextStyle(
-                              fontSize: 16,
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 17,
                             ),
-                          ),
-                        )
-                      ]),
+                            FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.all(15),
+                              color: const Color(0xff3BACB6),
+                              textColor: Colors.white,
+                              onPressed: () {
+                                goBackScreen();
+                              },
+                              child: const Text(
+                                'Aceptar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            )
+                          ]),
                       const SizedBox(
                         height: 15,
                       )
@@ -970,7 +1011,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 filled: true,
                 fillColor: const Color(0xffD9D9D9),
                 hintText: "Agregar medicamento",
-                hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                hintStyle:
+                    const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                 focusedBorder: borderGray,
                 border: borderGray,
                 enabledBorder: borderGray,
@@ -1009,8 +1051,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       child: TextFormField(
                           controller: medicationNameValue,
                           style: const TextStyle(fontSize: 14),
-                          decoration:
-                              staticComponents.getMiddleInputDecoration('Nombre del medicamento')),
+                          decoration: staticComponents.getMiddleInputDecoration(
+                              'Nombre del medicamento')),
                     ),
                   ),
                 ),
@@ -1030,7 +1072,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text("Periodicidad", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                Text("Periodicidad",
+                    style: TextStyle(fontSize: 14, color: Color(0xff999999)))
               ],
             ),
             sizedBox10,
@@ -1040,10 +1083,11 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(
-                      color: stateError ? Colors.red : const Color(0xFF999999), width: 1),
-                  borderRadius:
-                      const BorderRadius.all(Radius.circular(10) //         <--- border radius here
-                          ),
+                      color: stateError ? Colors.red : const Color(0xFF999999),
+                      width: 1),
+                  borderRadius: const BorderRadius.all(
+                      Radius.circular(10) //         <--- border radius here
+                      ),
                 ),
                 child: SizedBox(
                   height: 35,
@@ -1052,20 +1096,21 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     child: ButtonTheme(
                       alignedDropdown: true,
                       child: DropdownButton<String>(
-                        hint: const Text(
-                          'Seleccionar',
-                          style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                        hint: Text(
+                          medicationPeriodicityValue ?? 'Seleccionar',
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.black),
                         ),
                         dropdownColor: Colors.white,
-                        value: medicationPeriodicityValue,
                         icon: const Padding(
                           padding: EdgeInsetsDirectional.only(end: 12.0),
                           child: Icon(Icons.keyboard_arrow_down,
-                              color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                              color: Color(
+                                  0xff999999)), // myIcon is a 48px-wide widget.
                         ),
                         onChanged: (newValue) {
                           setState(() {
-                            medicationPeriodicityValue = newValue.toString();
+                            medicationPeriodicityValue = newValue;
                           });
                         },
                         items: periodicityList.map((String item) {
@@ -1087,7 +1132,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text("Descripción", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                Text("Descripción",
+                    style: TextStyle(fontSize: 14, color: Color(0xff999999)))
               ],
             ),
             sizedBox10,
@@ -1106,7 +1152,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   });
                   return null;
                 },
-                controller: TextEditingController(text: medicationRecommendationValue),
+                controller:
+                    TextEditingController(text: medicationRecommendationValue),
                 onChanged: (value) {
                   medicationRecommendationValue = value;
                 },
@@ -1114,7 +1161,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 minLines: 2,
                 maxLines: 10,
                 textAlignVertical: TextAlignVertical.center,
-                decoration: staticComponents.getBigInputDecoration('Agregar texto'),
+                decoration:
+                    staticComponents.getBigInputDecoration('Agregar texto'),
               ),
             ),
             const SizedBox(
@@ -1137,7 +1185,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   Widget getAlimentationView() {
     return Container(
       width: double.infinity,
-      height: 470,
+      height: HomeScreen.screenHeight * 0.65,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: isNutritionLoading
           ? const Center(child: CircularProgressIndicator())
@@ -1153,7 +1201,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
-                            Text("Peso", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                            Text("Peso",
+                                style: TextStyle(
+                                    fontSize: 14, color: Color(0xff999999)))
                           ],
                         ),
                         sizedBox10,
@@ -1174,16 +1224,19 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               onChanged: _calculateIMC,
                               controller: weightController,
                               decoration: InputDecoration(
-                                contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 10),
                                 filled: true,
                                 isDense: true,
                                 fillColor: Colors.white,
                                 hintText: '1.2',
-                                hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                                enabledBorder: StaticComponents().middleInputBorder,
+                                hintStyle: const TextStyle(
+                                    fontSize: 14, color: Color(0xFF999999)),
+                                enabledBorder:
+                                    StaticComponents().middleInputBorder,
                                 border: StaticComponents().middleInputBorder,
-                                focusedBorder: StaticComponents().middleInputBorder,
+                                focusedBorder:
+                                    StaticComponents().middleInputBorder,
                               ),
                               keyboardType: TextInputType.number,
                               onFieldSubmitted: _calculateIMC,
@@ -1194,7 +1247,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 padding: EdgeInsets.all(10),
                                 child: Text(
                                   'Kg',
-                                  style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xFF999999)),
                                 ))
                           ],
                         ),
@@ -1203,7 +1257,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
                             Text("Estatura",
-                                style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                                style: TextStyle(
+                                    fontSize: 14, color: Color(0xff999999)))
                           ],
                         ),
                         sizedBox10,
@@ -1235,17 +1290,20 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                   onFieldSubmitted: _calculateIMC,
                                   style: const TextStyle(fontSize: 14),
                                   decoration: InputDecoration(
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 10),
                                     filled: true,
                                     isDense: true,
                                     fillColor: Colors.white,
                                     hintText: '1.65',
-                                    hintStyle:
-                                        const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                                    enabledBorder: StaticComponents().middleInputBorder,
-                                    border: StaticComponents().middleInputBorder,
-                                    focusedBorder: StaticComponents().middleInputBorder,
+                                    hintStyle: const TextStyle(
+                                        fontSize: 14, color: Color(0xFF999999)),
+                                    enabledBorder:
+                                        StaticComponents().middleInputBorder,
+                                    border:
+                                        StaticComponents().middleInputBorder,
+                                    focusedBorder:
+                                        StaticComponents().middleInputBorder,
                                   ),
                                   keyboardType: TextInputType.number,
                                   //inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -1256,7 +1314,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 padding: EdgeInsets.all(10),
                                 child: Text(
                                   'm',
-                                  style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xFF999999)),
                                 ))
                           ],
                         ),
@@ -1265,7 +1324,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: const [
-                            Text("IMC ", style: TextStyle(fontSize: 14, color: Color(0xff999999))),
+                            Text("IMC ",
+                                style: TextStyle(
+                                    fontSize: 14, color: Color(0xff999999))),
                             Icon(Icons.info, size: 18, color: Color(0xff999999))
                           ],
                         ),
@@ -1277,23 +1338,26 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               controller: imcTextController,
                               style: const TextStyle(fontSize: 14),
                               decoration: InputDecoration(
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 0, horizontal: 10),
                                   filled: true,
                                   fillColor: const Color(0xffD9D9D9),
                                   hintText: '17.5',
-                                  hintStyle:
-                                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                                  enabledBorder: StaticComponents().middleInputBorder,
+                                  hintStyle: const TextStyle(
+                                      fontSize: 14, color: Color(0xFF999999)),
+                                  enabledBorder:
+                                      StaticComponents().middleInputBorder,
                                   border: StaticComponents().middleInputBorder,
-                                  focusedBorder: StaticComponents().middleInputBorder),
+                                  focusedBorder:
+                                      StaticComponents().middleInputBorder),
                             )),
                         sizedBox10,
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: const [
                             Text("Alimentos permitidos ",
-                                style: TextStyle(fontSize: 14, color: Color(0xff999999))),
+                                style: TextStyle(
+                                    fontSize: 14, color: Color(0xff999999))),
                           ],
                         ),
                         const SizedBox(height: 10),
@@ -1305,7 +1369,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: const [
                             Text("Alimentos no permitidos ",
-                                style: TextStyle(fontSize: 14, color: Color(0xff999999))),
+                                style: TextStyle(
+                                    fontSize: 14, color: Color(0xff999999))),
                           ],
                         ),
                         const SizedBox(height: 10),
@@ -1326,14 +1391,14 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       children: [
         ConstrainedBox(
             constraints: const BoxConstraints(
-              maxHeight: 100,
+              minHeight: 100,
             ),
             //height: nutritionList.isNotEmpty ? 100 : null,
             child: Scrollbar(
               child: ListView.builder(
                   padding: EdgeInsets.zero,
                   shrinkWrap: true,
-                  // physics: const NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: nutritionList.length,
                   itemBuilder: (context, index) {
                     return Row(
@@ -1351,14 +1416,16 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               },
                               icon: const Icon(Icons.keyboard_arrow_down,
                                   size: 30,
-                                  color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                                  color: Color(
+                                      0xff999999)), // myIcon is a 48px-wide widget.
                             )),
                         const SizedBox(width: 10),
                         SizedBox(
                             height: 35,
                             child: Text(nutritionList[index].name ?? "Alimento",
                                 textAlign: TextAlign.left,
-                                style: const TextStyle(fontSize: 14, color: Color(0xff999999)))),
+                                style: const TextStyle(
+                                    fontSize: 14, color: Color(0xff999999)))),
                         const Spacer(),
                         SizedBox(
                             height: 35,
@@ -1369,7 +1436,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 showPermittedFoodForm(index);
                               },
                               icon: const Icon(Icons.edit,
-                                  color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                                  color: Color(
+                                      0xff999999)), // myIcon is a 48px-wide widget.
                             )),
                         const SizedBox(width: 10),
                         SizedBox(
@@ -1380,7 +1448,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 deletePermittedFoodLocally(index);
                               },
                               icon: const Icon(Icons.delete,
-                                  color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                                  color: Color(
+                                      0xff999999)), // myIcon is a 48px-wide widget.
                             ))
                       ],
                     );
@@ -1416,7 +1485,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       child: TextFormField(
                           controller: foodPermittedFormValue,
                           style: const TextStyle(fontSize: 14),
-                          decoration: staticComponents.getMiddleInputDecoration('Frutas')),
+                          decoration: staticComponents
+                              .getMiddleInputDecoration('Frutas')),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -1447,7 +1517,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   filled: true,
                   fillColor: const Color(0xffD9D9D9),
                   hintText: "Agregar alimento",
-                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  hintStyle:
+                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                   focusedBorder: borderGray,
                   border: borderGray,
                   enabledBorder: borderGray,
@@ -1466,7 +1537,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       children: [
         ConstrainedBox(
           constraints: const BoxConstraints(
-            maxHeight: 100,
+            minHeight: 100,
           ),
           child: Scrollbar(
             child: ListView.builder(
@@ -1486,14 +1557,18 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             onPressed: () {},
                             icon: const Icon(Icons.keyboard_arrow_down,
                                 size: 30,
-                                color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                                color: Color(
+                                    0xff999999)), // myIcon is a 48px-wide widget.
                           )),
                       const SizedBox(width: 10),
                       SizedBox(
                           height: 35,
-                          child: Text(nutritionNoPermittedList[index].name ?? "Actividad",
+                          child: Text(
+                              nutritionNoPermittedList[index].name ??
+                                  "Actividad",
                               textAlign: TextAlign.left,
-                              style: const TextStyle(fontSize: 14, color: Color(0xff999999)))),
+                              style: const TextStyle(
+                                  fontSize: 14, color: Color(0xff999999)))),
                       const Spacer(),
                       SizedBox(
                           height: 35,
@@ -1504,7 +1579,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               showNotPermittedFoodForm(index);
                             },
                             icon: const Icon(Icons.edit,
-                                color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                                color: Color(
+                                    0xff999999)), // myIcon is a 48px-wide widget.
                           )),
                       const SizedBox(width: 10),
                       SizedBox(
@@ -1515,7 +1591,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               deleteNotPermittedFoodLocally(index);
                             },
                             icon: const Icon(Icons.delete,
-                                color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                                color: Color(
+                                    0xff999999)), // myIcon is a 48px-wide widget.
                           ))
                     ],
                   );
@@ -1552,7 +1629,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       child: TextFormField(
                           controller: foodNotPermittedForm,
                           style: const TextStyle(fontSize: 14),
-                          decoration: staticComponents.getMiddleInputDecoration('Dulces')),
+                          decoration: staticComponents
+                              .getMiddleInputDecoration('Dulces')),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -1581,7 +1659,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   filled: true,
                   fillColor: const Color(0xffD9D9D9),
                   hintText: "Agregar alimento",
-                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  hintStyle:
+                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                   focusedBorder: borderGray,
                   border: borderGray,
                   enabledBorder: borderGray,
@@ -1594,7 +1673,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   getExamnsView() {
     return Container(
       width: double.infinity,
-      height: 470,
+      height: HomeScreen.screenHeight * 0.65,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: isPhisicalActivityLoading
           ? const Center(child: CircularProgressIndicator())
@@ -1613,33 +1692,39 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               itemCount: examsList.length,
                               itemBuilder: (context, index) {
                                 return Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     SizedBox(
                                         height: 35,
                                         child: IconButton(
-                                          padding: const EdgeInsets.only(bottom: 40),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 40),
                                           onPressed: () {
                                             showReadOnlyExamn(index);
                                           },
-                                          icon: const Icon(Icons.keyboard_arrow_down,
+                                          icon: const Icon(
+                                              Icons.keyboard_arrow_down,
                                               size: 30,
                                               color: Color(
                                                   0xff999999)), // myIcon is a 48px-wide widget.
                                         )),
                                     SizedBox(
                                         height: 35,
-                                        child: Text(examsList[index].name ?? "Exámenes",
+                                        child: Text(
+                                            examsList[index].name ?? "Exámenes",
                                             textAlign: TextAlign.left,
                                             style: const TextStyle(
-                                                fontSize: 14, color: Color(0xff999999)))),
+                                                fontSize: 14,
+                                                color: Color(0xff999999)))),
                                     const Spacer(),
                                     SizedBox(
                                         height: 35,
                                         width: 14,
                                         child: IconButton(
-                                          padding: const EdgeInsets.only(bottom: 14),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 14),
                                           onPressed: () {
                                             editExam(index);
                                           },
@@ -1651,7 +1736,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                     SizedBox(
                                         height: 35,
                                         child: IconButton(
-                                          padding: const EdgeInsets.only(bottom: 30),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 30),
                                           onPressed: () {
                                             deleteExamnLocally(index);
                                           },
@@ -1693,14 +1779,16 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   minLines: 1,
                   maxLines: 10,
                   enabled: false,
-                  style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  style:
+                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     prefixIcon: const Icon(Icons.circle, color: Colors.white),
                     filled: true,
                     fillColor: const Color(0xffD9D9D9),
                     hintText: "Agregar Exámen",
-                    hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                    hintStyle:
+                        const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                     focusedBorder: borderGray,
                     border: borderGray,
                     enabledBorder: borderGray,
@@ -1739,7 +1827,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     child: TextFormField(
                       controller: examnNameFormValue,
                       style: const TextStyle(fontSize: 14),
-                      decoration: staticComponents.getMiddleInputDecoration('Nombre del Exámen'),
+                      decoration: staticComponents
+                          .getMiddleInputDecoration('Nombre del Exámen'),
                     ),
                   ),
                 ),
@@ -1755,7 +1844,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text("Periocidad", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                Text("Periocidad",
+                    style: TextStyle(fontSize: 14, color: Color(0xff999999)))
               ],
             ),
             const SizedBox(
@@ -1768,10 +1858,13 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(
-                    color: durationTypeError ? Colors.red : const Color(0xFF999999), width: 1),
-                borderRadius:
-                    const BorderRadius.all(Radius.circular(10) //         <--- border radius here
-                        ),
+                    color: durationTypeError
+                        ? Colors.red
+                        : const Color(0xFF999999),
+                    width: 1),
+                borderRadius: const BorderRadius.all(
+                    Radius.circular(10) //         <--- border radius here
+                    ),
               ),
               child: DropdownButtonHideUnderline(
                 child: ButtonTheme(
@@ -1782,8 +1875,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       style: const TextStyle(fontSize: 14, color: Colors.black),
                     ),
                     dropdownColor: Colors.white,
-                    value: activityDurationFormValue,
-                    icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xff999999)),
+                    icon: const Icon(Icons.keyboard_arrow_down,
+                        color: Color(0xff999999)),
                     onChanged: (newValue) {
                       setState(() {
                         examnDurationFormValue = newValue;
@@ -1822,7 +1915,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                     return null;
                   }, */
                   readOnly: true,
-                  controller: TextEditingController(text: examnEndDateFormValue),
+                  controller:
+                      TextEditingController(text: examnEndDateFormValue),
                   onTap: () {
                     selectDateForNextExamn(context);
                   },
@@ -1833,10 +1927,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         padding: const EdgeInsets.only(bottom: 5),
                         onPressed: () {},
                         icon: const Icon(Icons.calendar_today_outlined,
-                            color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                            color: Color(
+                                0xff999999)), // myIcon is a 48px-wide widget.
                       ),
                       hintText: '18 - Jul 2022  15:00',
-                      hintStyle: const TextStyle(fontSize: 14, color: Color(0xff999999)),
+                      hintStyle: const TextStyle(
+                          fontSize: 14, color: Color(0xff999999)),
                       contentPadding: EdgeInsets.zero,
                       fillColor: Colors.white,
                       enabledBorder: staticComponents.middleInputBorder,
@@ -1852,7 +1948,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   getPhisicalActivityView() {
     return Container(
       width: double.infinity,
-      height: 470,
+      height: HomeScreen.screenHeight * 0.65,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: isPhisicalActivityLoading
           ? const Center(child: CircularProgressIndicator())
@@ -1871,33 +1967,40 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                               itemCount: activitiesList.length,
                               itemBuilder: (context, index) {
                                 return Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     SizedBox(
                                         height: 35,
                                         child: IconButton(
-                                          padding: const EdgeInsets.only(bottom: 40),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 40),
                                           onPressed: () {
                                             showReadOnlyActivity(index);
                                           },
-                                          icon: const Icon(Icons.keyboard_arrow_down,
+                                          icon: const Icon(
+                                              Icons.keyboard_arrow_down,
                                               size: 30,
                                               color: Color(
                                                   0xff999999)), // myIcon is a 48px-wide widget.
                                         )),
                                     SizedBox(
                                         height: 35,
-                                        child: Text(activitiesList[index].name ?? "Actividad",
+                                        child: Text(
+                                            activitiesList[index].name ??
+                                                "Actividad",
                                             textAlign: TextAlign.left,
                                             style: const TextStyle(
-                                                fontSize: 14, color: Color(0xff999999)))),
+                                                fontSize: 14,
+                                                color: Color(0xff999999)))),
                                     const Spacer(),
                                     SizedBox(
                                         height: 35,
                                         width: 14,
                                         child: IconButton(
-                                          padding: const EdgeInsets.only(bottom: 14),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 14),
                                           onPressed: () {
                                             editActivity(index);
                                           },
@@ -1909,7 +2012,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                     SizedBox(
                                         height: 35,
                                         child: IconButton(
-                                          padding: const EdgeInsets.only(bottom: 30),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 30),
                                           onPressed: () {
                                             deleteActivityLocally(index);
                                           },
@@ -1938,7 +2042,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     return Column(
       children: [
         if (editingActivity || readOnlyActivity || addNewActivity) ...[
-          DisableWidget(isDisable: readOnlyActivity, child: buildPhisicalActivityForm()),
+          DisableWidget(
+              isDisable: readOnlyActivity, child: buildPhisicalActivityForm()),
         ] else ...[
           GestureDetector(
             onTap: () {
@@ -1958,7 +2063,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   filled: true,
                   fillColor: const Color(0xffD9D9D9),
                   hintText: "Agregar Actividad",
-                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  hintStyle:
+                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                   focusedBorder: borderGray,
                   border: borderGray,
                   enabledBorder: borderGray,
@@ -1998,8 +2104,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                           activityNameFormValue = value;
                         }, */
                         style: const TextStyle(fontSize: 14),
-                        decoration:
-                            staticComponents.getMiddleInputDecoration('Nombre de la actividad')),
+                        decoration: staticComponents.getMiddleInputDecoration(
+                            'Nombre de la actividad')),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -2016,7 +2122,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text("Tiempo", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                Text("Tiempo",
+                    style: TextStyle(fontSize: 14, color: Color(0xff999999)))
               ],
             ),
             const SizedBox(
@@ -2036,7 +2143,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         activityTimeFormValue = value;
                       }, */
                       style: const TextStyle(fontSize: 14),
-                      decoration: staticComponents.getMiddleInputDecoration('2'),
+                      decoration:
+                          staticComponents.getMiddleInputDecoration('2'),
                       keyboardType: TextInputType.number,
                     ),
                   ),
@@ -2050,10 +2158,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         border: Border.all(
-                            color: durationTypeError ? Colors.red : const Color(0xFF999999),
+                            color: durationTypeError
+                                ? Colors.red
+                                : const Color(0xFF999999),
                             width: 1),
-                        borderRadius: const BorderRadius.all(
-                            Radius.circular(10) //         <--- border radius here
+                        borderRadius: const BorderRadius.all(Radius.circular(
+                                10) //         <--- border radius here
                             ),
                       ),
                       child: SizedBox(
@@ -2063,19 +2173,16 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             child: DropdownButton<String>(
                               hint: Text(
                                 activityDurationFormValue ?? 'Horas',
-                                style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.black),
                               ),
                               dropdownColor: Colors.white,
-                              value: activityDurationFormValue,
-                              icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xff999999)),
+                              icon: const Icon(Icons.keyboard_arrow_down,
+                                  color: Color(0xff999999)),
                               onChanged: (newValue) {
                                 setState(() {
                                   activityDurationFormValue = newValue;
                                 });
-
-                                /* setState(() {
-                                  //durationTypeValue = newValue.toString();
-                                }); */
                               },
                               items: ['Horas', 'Minutos'].map((String item) {
                                 return DropdownMenuItem(
@@ -2099,7 +2206,6 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     );
   }
 
-
   getButtonAddRoutineOrList() {
     return !editingPermittedActivity
         ? GestureDetector(
@@ -2119,7 +2225,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   filled: true,
                   fillColor: const Color(0xffD9D9D9),
                   hintText: "Agregar rutina física",
-                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  hintStyle:
+                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                   focusedBorder: borderGray,
                   border: borderGray,
                   enabledBorder: borderGray,
@@ -2144,16 +2251,19 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       height: durationError ? 55 : 35,
                       width: 180,
                       child: TextFormField(
-                        controller: TextEditingController(text: activityNameValue),
+                        controller:
+                            TextEditingController(text: activityNameValue),
                         onChanged: (value) {
                           activityNameValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 0, horizontal: 10),
                             filled: true,
                             hintText: 'Caminar',
-                            hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                            hintStyle: const TextStyle(
+                                fontSize: 14, color: Color(0xFF999999)),
                             enabledBorder: staticComponents.middleInputBorder,
                             border: staticComponents.middleInputBorder,
                             focusedBorder: staticComponents.middleInputBorder),
@@ -2171,83 +2281,93 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text("Actividad", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                  Text("Actividad",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
                 ],
               ),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                    child: SizedBox(
-                        width: 61,
-                        child: FlatButton(
-                          shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                                color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          height: 25,
-                          onPressed: () {
-                            // _signInWithEmailAndPassword();
-                          },
-                          child: const Text(
-                            'L',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xff999999),
-                            ),
-                          ),
-                        ))),
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                    child: SizedBox(
-                        width: 61,
-                        child: FlatButton(
-                          shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                                color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          height: 25,
-                          onPressed: () {
-                            // _signInWithEmailAndPassword();
-                          },
-                          color: Colors.white,
-                          child: const Text(
-                            'M',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xff999999),
-                            ),
-                          ),
-                        ))),
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                    child: SizedBox(
-                        width: 61,
-                        child: FlatButton(
-                          shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                                color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          height: 25,
-                          onPressed: () {
-                            // _signInWithEmailAndPassword();
-                          },
-                          child: const Text(
-                            'I',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xff999999),
-                            ),
-                          ),
-                        ))),
-              ]),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1),
+                        child: SizedBox(
+                            width: 61,
+                            child: FlatButton(
+                              shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              height: 25,
+                              onPressed: () {
+                                // _signInWithEmailAndPassword();
+                              },
+                              child: const Text(
+                                'L',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xff999999),
+                                ),
+                              ),
+                            ))),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1),
+                        child: SizedBox(
+                            width: 61,
+                            child: FlatButton(
+                              shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              height: 25,
+                              onPressed: () {
+                                // _signInWithEmailAndPassword();
+                              },
+                              color: Colors.white,
+                              child: const Text(
+                                'M',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xff999999),
+                                ),
+                              ),
+                            ))),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1),
+                        child: SizedBox(
+                            width: 61,
+                            child: FlatButton(
+                              shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              height: 25,
+                              onPressed: () {
+                                // _signInWithEmailAndPassword();
+                              },
+                              child: const Text(
+                                'I',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xff999999),
+                                ),
+                              ),
+                            ))),
+                  ]),
               sizedBox10,
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text("Tiempo", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                  Text("Tiempo",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
                 ],
               ),
               sizedBox10,
@@ -2272,12 +2392,14 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             });
                             return null;
                           },
-                          controller: TextEditingController(text: activityTimeNumberValue),
+                          controller: TextEditingController(
+                              text: activityTimeNumberValue),
                           onChanged: (value) {
                             activityTimeNumberValue = value;
                           },
                           style: const TextStyle(fontSize: 14),
-                          decoration: staticComponents.getMiddleInputDecoration('3'),
+                          decoration:
+                              staticComponents.getMiddleInputDecoration('3'),
                         )),
                   ),
                   SizedBox(
@@ -2287,10 +2409,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                              color: durationTypeError ? Colors.red : const Color(0xFF999999),
+                              color: durationTypeError
+                                  ? Colors.red
+                                  : const Color(0xFF999999),
                               width: 1),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(10) //         <--- border radius here
+                          borderRadius: const BorderRadius.all(Radius.circular(
+                                  10) //         <--- border radius here
                               ),
                         ),
                         child: Container(
@@ -2301,14 +2425,17 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 isExpanded: true,
                                 hint: const Text(
                                   'Seleccionar',
-                                  style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xFF999999)),
                                 ),
                                 dropdownColor: Colors.white,
                                 value: activityTimeTypeValue,
                                 icon: const Padding(
-                                  padding: EdgeInsetsDirectional.only(end: 12.0),
+                                  padding:
+                                      EdgeInsetsDirectional.only(end: 12.0),
                                   child: Icon(Icons.keyboard_arrow_down,
-                                      color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                                      color: Color(
+                                          0xff999999)), // myIcon is a 48px-wide widget.
                                 ),
                                 onChanged: (newValue) {
                                   setState(() {
@@ -2335,7 +2462,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text("Periodicidad", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                  Text("Periodicidad",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
                 ],
               ),
               sizedBox10,
@@ -2343,10 +2471,11 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(
-                      color: stateError ? Colors.red : const Color(0xFF999999), width: 1),
-                  borderRadius:
-                      const BorderRadius.all(Radius.circular(10) //         <--- border radius here
-                          ),
+                      color: stateError ? Colors.red : const Color(0xFF999999),
+                      width: 1),
+                  borderRadius: const BorderRadius.all(
+                      Radius.circular(10) //         <--- border radius here
+                      ),
                 ),
                 child: SizedBox(
                   height: 35,
@@ -2357,14 +2486,16 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       child: DropdownButton<String>(
                         hint: const Text(
                           'Seleccionar',
-                          style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                          style:
+                              TextStyle(fontSize: 14, color: Color(0xFF999999)),
                         ),
                         dropdownColor: Colors.white,
                         value: activityPeriodicityValue,
                         icon: const Padding(
                           padding: EdgeInsetsDirectional.only(end: 12.0),
                           child: Icon(Icons.keyboard_arrow_down,
-                              color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                              color: Color(
+                                  0xff999999)), // myIcon is a 48px-wide widget.
                         ),
                         onChanged: (newValue) {
                           setState(() {
@@ -2389,7 +2520,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text("Calorías", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                  Text("Calorías",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
                 ],
               ),
               sizedBox10,
@@ -2408,12 +2540,14 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       });
                       return null;
                     },
-                    controller: TextEditingController(text: activityCaloriesValue),
+                    controller:
+                        TextEditingController(text: activityCaloriesValue),
                     onChanged: (value) {
                       activityCaloriesValue = value;
                     },
                     style: const TextStyle(fontSize: 14),
-                    decoration: staticComponents.getMiddleInputDecoration('15 Kcal'),
+                    decoration:
+                        staticComponents.getMiddleInputDecoration('15 Kcal'),
                   )),
             ]));
   }
@@ -2437,7 +2571,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                   filled: true,
                   fillColor: const Color(0xffD9D9D9),
                   hintText: "Agregar rutina física",
-                  hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                  hintStyle:
+                      const TextStyle(fontSize: 14, color: Color(0xFF999999)),
                   focusedBorder: borderGray,
                   border: borderGray,
                   enabledBorder: borderGray,
@@ -2462,16 +2597,19 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       height: durationError ? 55 : 35,
                       width: 180,
                       child: TextFormField(
-                        controller: TextEditingController(text: activityNameValue),
+                        controller:
+                            TextEditingController(text: activityNameValue),
                         onChanged: (value) {
                           activityNameValue = value;
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 0, horizontal: 10),
                             filled: true,
                             hintText: 'Caminar',
-                            hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                            hintStyle: const TextStyle(
+                                fontSize: 14, color: Color(0xFF999999)),
                             enabledBorder: staticComponents.middleInputBorder,
                             border: staticComponents.middleInputBorder,
                             focusedBorder: staticComponents.middleInputBorder),
@@ -2489,83 +2627,93 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text("Actividad", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                  Text("Actividad",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
                 ],
               ),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                    child: SizedBox(
-                        width: 61,
-                        child: FlatButton(
-                          shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                                color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          height: 25,
-                          onPressed: () {
-                            // _signInWithEmailAndPassword();
-                          },
-                          child: const Text(
-                            'L',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xff999999),
-                            ),
-                          ),
-                        ))),
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                    child: SizedBox(
-                        width: 61,
-                        child: FlatButton(
-                          shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                                color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          height: 25,
-                          onPressed: () {
-                            // _signInWithEmailAndPassword();
-                          },
-                          color: Colors.white,
-                          child: const Text(
-                            'M',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xff999999),
-                            ),
-                          ),
-                        ))),
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                    child: SizedBox(
-                        width: 61,
-                        child: FlatButton(
-                          shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                                color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          height: 25,
-                          onPressed: () {
-                            // _signInWithEmailAndPassword();
-                          },
-                          child: const Text(
-                            'I',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xff999999),
-                            ),
-                          ),
-                        ))),
-              ]),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1),
+                        child: SizedBox(
+                            width: 61,
+                            child: FlatButton(
+                              shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              height: 25,
+                              onPressed: () {
+                                // _signInWithEmailAndPassword();
+                              },
+                              child: const Text(
+                                'L',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xff999999),
+                                ),
+                              ),
+                            ))),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1),
+                        child: SizedBox(
+                            width: 61,
+                            child: FlatButton(
+                              shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              height: 25,
+                              onPressed: () {
+                                // _signInWithEmailAndPassword();
+                              },
+                              color: Colors.white,
+                              child: const Text(
+                                'M',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xff999999),
+                                ),
+                              ),
+                            ))),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1),
+                        child: SizedBox(
+                            width: 61,
+                            child: FlatButton(
+                              shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              height: 25,
+                              onPressed: () {
+                                // _signInWithEmailAndPassword();
+                              },
+                              child: const Text(
+                                'I',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xff999999),
+                                ),
+                              ),
+                            ))),
+                  ]),
               sizedBox10,
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text("Tiempo", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                  Text("Tiempo",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
                 ],
               ),
               sizedBox10,
@@ -2590,12 +2738,14 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                             });
                             return null;
                           },
-                          controller: TextEditingController(text: activityTimeNumberValue),
+                          controller: TextEditingController(
+                              text: activityTimeNumberValue),
                           onChanged: (value) {
                             activityTimeNumberValue = value;
                           },
                           style: const TextStyle(fontSize: 14),
-                          decoration: staticComponents.getMiddleInputDecoration('3'),
+                          decoration:
+                              staticComponents.getMiddleInputDecoration('3'),
                         )),
                   ),
                   SizedBox(
@@ -2605,10 +2755,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                              color: durationTypeError ? Colors.red : const Color(0xFF999999),
+                              color: durationTypeError
+                                  ? Colors.red
+                                  : const Color(0xFF999999),
                               width: 1),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(10) //         <--- border radius here
+                          borderRadius: const BorderRadius.all(Radius.circular(
+                                  10) //         <--- border radius here
                               ),
                         ),
                         child: Container(
@@ -2619,14 +2771,17 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                                 isExpanded: true,
                                 hint: const Text(
                                   'Seleccionar',
-                                  style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                                  style: TextStyle(
+                                      fontSize: 14, color: Color(0xFF999999)),
                                 ),
                                 dropdownColor: Colors.white,
                                 value: activityTimeTypeValue,
                                 icon: const Padding(
-                                  padding: EdgeInsetsDirectional.only(end: 12.0),
+                                  padding:
+                                      EdgeInsetsDirectional.only(end: 12.0),
                                   child: Icon(Icons.keyboard_arrow_down,
-                                      color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                                      color: Color(
+                                          0xff999999)), // myIcon is a 48px-wide widget.
                                 ),
                                 onChanged: (newValue) {
                                   setState(() {
@@ -2653,7 +2808,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text("Periodicidad", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                  Text("Periodicidad",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
                 ],
               ),
               sizedBox10,
@@ -2661,10 +2817,11 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(
-                      color: stateError ? Colors.red : const Color(0xFF999999), width: 1),
-                  borderRadius:
-                      const BorderRadius.all(Radius.circular(10) //         <--- border radius here
-                          ),
+                      color: stateError ? Colors.red : const Color(0xFF999999),
+                      width: 1),
+                  borderRadius: const BorderRadius.all(
+                      Radius.circular(10) //         <--- border radius here
+                      ),
                 ),
                 child: SizedBox(
                   height: 35,
@@ -2675,14 +2832,16 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       child: DropdownButton<String>(
                         hint: const Text(
                           'Seleccionar',
-                          style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                          style:
+                              TextStyle(fontSize: 14, color: Color(0xFF999999)),
                         ),
                         dropdownColor: Colors.white,
                         value: activityPeriodicityValue,
                         icon: const Padding(
                           padding: EdgeInsetsDirectional.only(end: 12.0),
                           child: Icon(Icons.keyboard_arrow_down,
-                              color: Color(0xff999999)), // myIcon is a 48px-wide widget.
+                              color: Color(
+                                  0xff999999)), // myIcon is a 48px-wide widget.
                         ),
                         onChanged: (newValue) {
                           setState(() {
@@ -2707,7 +2866,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text("Calorías", style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                  Text("Calorías",
+                      style: TextStyle(fontSize: 14, color: Color(0xff999999)))
                 ],
               ),
               sizedBox10,
@@ -2726,12 +2886,14 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
                       });
                       return null;
                     },
-                    controller: TextEditingController(text: activityCaloriesValue),
+                    controller:
+                        TextEditingController(text: activityCaloriesValue),
                     onChanged: (value) {
                       activityCaloriesValue = value;
                     },
                     style: const TextStyle(fontSize: 14),
-                    decoration: staticComponents.getMiddleInputDecoration('15 Kcal'),
+                    decoration:
+                        staticComponents.getMiddleInputDecoration('15 Kcal'),
                   )),
             ]));
   }
@@ -2742,55 +2904,59 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
             height: 190,
             child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-                  const SizedBox(
-                    height: 17,
-                  ),
-                  SizedBox(
-                    height: 27,
-                    child: FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 17,
                       ),
-                      color: const Color(0xff2F8F9D),
-                      textColor: Colors.white,
-                      onPressed: () async {
-                        await saveExamnInDatabase();
-                      },
-                      child: const Text(
-                        'Guardar',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
-                      height: 27,
-                      child: FlatButton(
+                      SizedBox(
                         height: 27,
-                        shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                                color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-                            borderRadius: BorderRadius.circular(30)),
-                        textColor: const Color(0xff9D9CB5),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(
-                            fontSize: 14,
+                        child: FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          color: const Color(0xff2F8F9D),
+                          textColor: Colors.white,
+                          onPressed: () async {
+                            await saveExamnInDatabase();
+                          },
+                          child: const Text(
+                            'Guardar',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
                           ),
                         ),
-                      )),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                ])),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                          height: 27,
+                          child: FlatButton(
+                            height: 27,
+                            shape: RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: Color(0xff9D9CB5),
+                                    width: 1,
+                                    style: BorderStyle.solid),
+                                borderRadius: BorderRadius.circular(30)),
+                            textColor: const Color(0xff9D9CB5),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          )),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ])),
           )
         : const SizedBox(height: 0);
   }
@@ -2864,10 +3030,12 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   get firebase => FirebaseFirestore.instance;
+
   String get currentTreatmentDatabaseId => currentTreatment!.databaseId!;
 
   Future<void> saveMedicationInDatabase() async {
-    final currentCollection = firebase.collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY);
+    final currentCollection =
+        firebase.collection(MEDICATION_PRESCRIPTION_COLLECTION_KEY);
     if (medicationsList.isNotEmpty) {
       for (var index = 0; index < medicationsList.length; index++) {
         String? databaseId = medicationsList[index].databaseId;
@@ -2880,12 +3048,13 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
           MEDICATION_RECOMMENDATION_KEY: medication.recomendation ?? ""
         };
 
-        if (await docExits(databaseId, MEDICATION_PRESCRIPTION_COLLECTION_KEY)) {
+        if (await docExits(
+            databaseId, MEDICATION_PRESCRIPTION_COLLECTION_KEY)) {
           currentCollection.doc(databaseId).update(data);
         } else {
           final response = await currentCollection.add(data);
-          saveInPendingList(PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY, response.id,
-              currentTreatmentDatabaseId);
+          saveInPendingList(PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY,
+              response.id, currentTreatmentDatabaseId);
         }
       }
     }
@@ -2926,7 +3095,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   Future<bool> docExits(String? id, String collectionId) async {
-    var document = await FirebaseFirestore.instance.collection(collectionId).doc(id).get();
+    var document =
+        await FirebaseFirestore.instance.collection(collectionId).doc(id).get();
     return document.exists;
   }
 
@@ -2968,14 +3138,15 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   void fillMedicationFormWithValues(int index) {
     medicationNameValue.text = medicationsList[index].name ?? "";
-    medicationPeriodicityValue = medicationsList[index].periodicity;
+    medicationPeriodicityValue = medicationsList[index].periodicity ?? "";
     medicationRecommendationValue = medicationsList[index].recomendation ?? "";
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   Future<void> saveActivityInDatabase() async {
-    final currentCollection = firebase.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY);
+    final currentCollection =
+        firebase.collection(ACTIVITY_PRESCRIPTION_COLLECTION_KEY);
     if (activitiesList.isNotEmpty) {
       for (var index = 0; index < activitiesList.length; index++) {
         String? databaseId = activitiesList[index].databaseId;
@@ -2992,8 +3163,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
           currentCollection.doc(databaseId).update(data);
         } else {
           final response = await currentCollection.add(data);
-          saveInPendingList(PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY, response.id,
-              currentTreatmentDatabaseId);
+          saveInPendingList(PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY,
+              response.id, currentTreatmentDatabaseId);
         }
       }
     }
@@ -3086,7 +3257,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
   Future<void> saveExamnInDatabase() async {
-    final currentCollection = firebase.collection(EXAMS_PRESCRIPTION_COLLECTION_KEY);
+    final currentCollection =
+        firebase.collection(EXAMS_PRESCRIPTION_COLLECTION_KEY);
     if (examsList.isNotEmpty) {
       for (var index = 0; index < examsList.length; index++) {
         String? databaseId = examsList[index].databaseId;
@@ -3103,8 +3275,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
           currentCollection.doc(databaseId).update(data);
         } else {
           final response = await currentCollection.add(data);
-          saveInPendingList(
-              PENDING_EXAMS_PRESCRIPTIONS_COLLECTION_KEY, response.id, currentTreatmentDatabaseId);
+          saveInPendingList(PENDING_EXAMS_PRESCRIPTIONS_COLLECTION_KEY,
+              response.id, currentTreatmentDatabaseId);
         }
       }
     }
@@ -3159,7 +3331,7 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   fillExamnFormWithValues(int index) {
     examnNameFormValue.text = examsList[index].name ?? '';
-    examnDurationFormValue = examsList[index].periodicity ?? '';
+    examnDurationFormValue = examsList[index].periodicity ?? "";
     examnEndDateFormValue = examsList[index].endDate ?? '';
   }
 
@@ -3198,8 +3370,9 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   void addOrUpdatePermittedFoodLocally() {
     if (editPermittedFood) {
       setState(() {
-        nutritionList[currentPermitedFoodIndex] = nutritionList[currentPermitedFoodIndex]
-          ..name = foodPermittedFormValue.text;
+        nutritionList[currentPermitedFoodIndex] =
+            nutritionList[currentPermitedFoodIndex]
+              ..name = foodPermittedFormValue.text;
       });
     } else {
       setState(() {
@@ -3247,7 +3420,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     if (editNotPermittedFood) {
       setState(() {
         nutritionNoPermittedList[currentNotPermitedFoodIndex] =
-            nutritionNoPermittedList[currentNotPermitedFoodIndex]..name = foodNotPermittedForm.text;
+            nutritionNoPermittedList[currentNotPermitedFoodIndex]
+              ..name = foodNotPermittedForm.text;
       });
     } else {
       setState(() {
@@ -3300,7 +3474,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     if (tempDeletedPermittedFoodForLater.isNotEmpty) {
       for (var i = 0; i < tempDeletedPermittedFoodForLater.length; i++) {
         String id = tempDeletedPermittedFoodForLater[i];
-        firebase.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(id).delete();
+        firebase
+            .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
+            .doc(id)
+            .delete();
       }
     }
 
@@ -3313,7 +3490,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
     if (tempDeletedNotPermittedFoodForLater.isNotEmpty) {
       for (var i = 0; i < tempDeletedNotPermittedFoodForLater.length; i++) {
         String id = tempDeletedNotPermittedFoodForLater[i];
-        firebase.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(id).delete();
+        firebase
+            .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
+            .doc(id)
+            .delete();
       }
     }
 
@@ -3325,7 +3505,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   //databaseID = FoW5LrG3K132gAYKEdeS
   Future<void> saveFoodInDatabase(NutritionPrescription food) async {
     String? databaseId = food.databaseId;
-    final currentCollection = firebase.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY);
+    final currentCollection =
+        firebase.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY);
     final data = {
       TREATMENT_ID_KEY: currentTreatmentDatabaseId,
       NUTRITION_NAME_KEY: food.name ?? "",
@@ -3339,12 +3520,13 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       currentCollection.doc(databaseId).update(data);
     } else {
       final response = await currentCollection.add(data);
-      saveInPendingList(
-          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, response.id, currentTreatmentDatabaseId);
+      saveInPendingList(PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY,
+          response.id, currentTreatmentDatabaseId);
     }
   }
 
-  Future<void> updateFoodInDatabase(String? foodName, bool isPermitted, int index) async {
+  Future<void> updateFoodInDatabase(
+      String? foodName, bool isPermitted, int index) async {
     //final String treatmentId = currentTreatment!.databaseId!;
     String? databaseid;
     if (isPermitted) {
@@ -3360,11 +3542,16 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       NUTRITION_WEIGHT_KEY: weightController.text,
       NUTRITION_IMC_KEY: imcTextController.text,
     };
-    await db.collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY).doc(databaseid).update(data);
+    await db
+        .collection(NUTRITION_PRESCRIPTION_COLLECTION_KEY)
+        .doc(databaseid)
+        .update(data);
   }
+
   //krxDLN2L3HBFlQHw9adS
 
-  Map<String, String> makeFoodStructure(String? foodName, bool isPermitted, String treatmentId) {
+  Map<String, String> makeFoodStructure(
+      String? foodName, bool isPermitted, String treatmentId) {
     return {
       TREATMENT_ID_KEY: treatmentId,
       NUTRITION_NAME_KEY: foodName ?? "",
@@ -3396,7 +3583,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       lastDate: DateTime(21001, 1, 1),
     );
 
-    final TimeOfDay? time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    final TimeOfDay? time =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (d != null && time != null) {
       setState(() {
         medicationStartDateValue =
@@ -3413,7 +3601,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       lastDate: DateTime(21001, 1, 1),
     );
 
-    final TimeOfDay? time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    final TimeOfDay? time =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (d != null && time != null) {
       setState(() {
         examnEndDateFormValue =
@@ -3446,7 +3635,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 
   void deleteExamn(int index) {
     final db = FirebaseFirestore.instance;
-    db.collection(EXAMS_PRESCRIPTION_COLLECTION_KEY).doc(examsList[index].databaseId).delete();
+    db
+        .collection(EXAMS_PRESCRIPTION_COLLECTION_KEY)
+        .doc(examsList[index].databaseId)
+        .delete();
     setState(() {
       examsList.removeAt(index);
     });
@@ -3502,16 +3694,20 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
       } else {
         updateNoPermittedFood = index;
         nutritionNameValue = nutritionNoPermittedList[index].name ?? "";
-        nutritionCarboValue = nutritionNoPermittedList[index].carbohydrates ?? "";
-        nutritionCaloriesValue = nutritionNoPermittedList[index].maxCalories ?? "";
+        nutritionCarboValue =
+            nutritionNoPermittedList[index].carbohydrates ?? "";
+        nutritionCaloriesValue =
+            nutritionNoPermittedList[index].maxCalories ?? "";
       }
     });
   }
 
   void _calculateIMC(String value) {
     if (!formKey.currentState!.validate()) return;
-    double height = double.parse(heightController.text.isEmpty ? '0.0' : heightController.text);
-    double weight = double.parse(weightController.text.isEmpty ? '0.0' : weightController.text);
+    double height = double.parse(
+        heightController.text.isEmpty ? '0.0' : heightController.text);
+    double weight = double.parse(
+        weightController.text.isEmpty ? '0.0' : weightController.text);
     if (height != 0.0 && weight != 0.0) {
       imcTextController.text = (weight / (pow(height, 2))).toStringAsFixed(2);
     }
@@ -3519,7 +3715,8 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
 }
 
 class DisableWidget extends StatelessWidget {
-  const DisableWidget({Key? key, this.isDisable = false, required this.child}) : super(key: key);
+  const DisableWidget({Key? key, this.isDisable = false, required this.child})
+      : super(key: key);
 
   final bool isDisable;
   final Widget child;
@@ -3527,7 +3724,8 @@ class DisableWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
-        ignoring: isDisable, child: Opacity(opacity: isDisable ? 0.5 : 1, child: child));
+        ignoring: isDisable,
+        child: Opacity(opacity: isDisable ? 0.5 : 1, child: child));
   }
 }
 
@@ -3543,7 +3741,8 @@ class CheckButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: const BoxDecoration(
-            color: Color(0xff6EC6A4), borderRadius: BorderRadius.all(Radius.circular(15))),
+            color: Color(0xff6EC6A4),
+            borderRadius: BorderRadius.all(Radius.circular(15))),
         height: 30,
         width: 30,
         child: const Icon(Icons.check, color: Colors.white),

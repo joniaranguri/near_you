@@ -12,6 +12,7 @@ import '../Constants.dart';
 import '../common/static_common_functions.dart';
 import '../model/user.dart' as user;
 import '../widgets/firebase_utils.dart';
+import 'home_screen.dart';
 
 class AddTreatmentScreen extends StatefulWidget {
   String userId;
@@ -22,7 +23,8 @@ class AddTreatmentScreen extends StatefulWidget {
   static const routeName = '/add_treatment';
 
   @override
-  _AddTreatmentScreenState createState() => _AddTreatmentScreenState(userId, currentTreatment);
+  _AddTreatmentScreenState createState() =>
+      _AddTreatmentScreenState(userId, currentTreatment);
 }
 
 class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
@@ -69,7 +71,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   }
 
   get borderWhite => OutlineInputBorder(
-      borderSide: const BorderSide(color: Colors.white), borderRadius: BorderRadius.circular(5));
+      borderSide: const BorderSide(color: Colors.white),
+      borderRadius: BorderRadius.circular(5));
 
   get borderGray => OutlineInputBorder(
       borderSide: const BorderSide(color: Color(0xffD9D9D9)),
@@ -110,7 +113,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                   padding: const EdgeInsets.only(top: 40),
                   child: Text(isUpdate ? 'Actualizar Tratamiento' : 'Consulta',
                       style: const TextStyle(
-                          color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold))),
+                          color: Colors.white,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold))),
               elevation: 0,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -130,27 +135,36 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           Scaffold(
               backgroundColor: Colors.transparent,
               body: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints viewportConstraints) {
+                builder:
+                    (BuildContext context, BoxConstraints viewportConstraints) {
                   return SizedBox(
                     child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          FutureBuilder(
-                            future: futureUser,
-                            builder: (context, AsyncSnapshot snapshot) {
-                              //patientUser = user.User.fromSnapshot(snapshot.data);
-                              if (snapshot.connectionState == ConnectionState.done) {
-                                return getScreenType();
-                              }
-                              return const CircularProgressIndicator();
-                            },
-                          ),
-                        ],
+                      child: FutureBuilder(
+                        future: futureUser,
+                        builder: (context, AsyncSnapshot snapshot) {
+                          //patientUser = user.User.fromSnapshot(snapshot.data);
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                getScreenType()
+                              ],
+                            );
+                          }
+                          return Container(
+                            height: HomeScreen.screenHeight,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [CircularProgressIndicator()],
+                            ),
+                          );
+                        },
                       ),
                     ),
                   );
@@ -225,17 +239,20 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: const <Widget>[
-                  Text(
-                    'Completa las casillas',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff2F8F9D),
-                    ),
-                  )
-                ]),
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
+                  Widget>[
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const <Widget>[
+                      Text(
+                        'Completa las casillas',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff2F8F9D),
+                        ),
+                      )
+                    ]),
                 const SizedBox(
                   height: 10,
                 ),
@@ -254,11 +271,15 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                               child: Column(
                                 children: [
                                   Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         Container(
                                             padding: const EdgeInsets.only(
-                                                top: 5, left: 15, right: 15, bottom: 5),
+                                                top: 5,
+                                                left: 15,
+                                                right: 15,
+                                                bottom: 5),
                                             child: const Text(
                                               "ID Tratamiento",
                                               style: TextStyle(
@@ -268,12 +289,18 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                             )),
                                         Container(
                                             padding: const EdgeInsets.only(
-                                                top: 5, left: 20, right: 20, bottom: 5),
+                                                top: 5,
+                                                left: 20,
+                                                right: 20,
+                                                bottom: 5),
                                             decoration: BoxDecoration(
                                                 color: const Color(0xff2F8F9D),
                                                 border: Border.all(
-                                                    width: 1, color: const Color(0xff2F8F9D)),
-                                                borderRadius: BorderRadius.circular(5),
+                                                    width: 1,
+                                                    color: const Color(
+                                                        0xff2F8F9D)),
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
                                                 shape: BoxShape.rectangle),
                                             child: const Text(
                                               "#T00003",
@@ -287,10 +314,13 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                     height: 10,
                                   ),
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: const [
                                       Text("Fecha de inicio",
-                                          style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xff999999)))
                                     ],
                                   ),
                                   const SizedBox(
@@ -312,7 +342,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                           return null;
                                         },
                                         readOnly: true,
-                                        controller: TextEditingController(text: startDateValue),
+                                        controller: TextEditingController(
+                                            text: startDateValue),
                                         onTap: () {
                                           selectStartDate(context);
                                         },
@@ -320,37 +351,48 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                         decoration: InputDecoration(
                                             filled: true,
                                             prefixIcon: IconButton(
-                                              padding: const EdgeInsets.only(bottom: 5),
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 5),
                                               onPressed: () {},
-                                              icon: const Icon(Icons.calendar_today_outlined,
+                                              icon: const Icon(
+                                                  Icons.calendar_today_outlined,
                                                   color: Color(
                                                       0xff999999)), // myIcon is a 48px-wide widget.
                                             ),
                                             hintText: '18 - Jul 2022  15:00',
                                             hintStyle: const TextStyle(
-                                                fontSize: 14, color: Color(0xff999999)),
+                                                fontSize: 14,
+                                                color: Color(0xff999999)),
                                             contentPadding: EdgeInsets.zero,
                                             fillColor: Colors.white,
-                                            enabledBorder: staticComponents.middleInputBorder,
-                                            border: staticComponents.middleInputBorder,
-                                            focusedBorder: staticComponents.middleInputBorder),
+                                            enabledBorder: staticComponents
+                                                .middleInputBorder,
+                                            border: staticComponents
+                                                .middleInputBorder,
+                                            focusedBorder: staticComponents
+                                                .middleInputBorder),
                                       )),
                                   const SizedBox(
                                     height: 10,
                                   ),
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: const [
                                       Text("Duración",
-                                          style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xff999999)))
                                     ],
                                   ),
                                   const SizedBox(
                                     height: 10,
                                   ),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Flexible(
                                           child: SizedBox(
@@ -360,31 +402,40 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                                   border: Border.all(
                                                       color: durationTypeError
                                                           ? Colors.red
-                                                          : const Color(0xFF999999),
+                                                          : const Color(
+                                                              0xFF999999),
                                                       width: 1),
-                                                  borderRadius: const BorderRadius.all(
+                                                  borderRadius: const BorderRadius
+                                                          .all(
                                                       Radius.circular(
                                                           10) //         <--- border radius here
                                                       ),
                                                 ),
                                                 child: SizedBox(
                                                   width: 150,
-                                                  child: DropdownButtonHideUnderline(
+                                                  child:
+                                                      DropdownButtonHideUnderline(
                                                     child: ButtonTheme(
                                                       alignedDropdown: true,
-                                                      child: DropdownButton<String>(
+                                                      child: DropdownButton<
+                                                          String>(
                                                         hint: Text(
-                                                          durationValue ?? 'Cantidad',
+                                                          durationValue ??
+                                                              'Cantidad',
                                                           style: const TextStyle(
                                                               fontSize: 14,
-                                                              color: Color(0xFF999999)),
+                                                              color: Color(
+                                                                  0xFF999999)),
                                                         ),
-                                                        dropdownColor: Colors.white,
+                                                        dropdownColor:
+                                                            Colors.white,
                                                         value: durationValue,
                                                         icon: null,
                                                         onChanged: (newValue) {
                                                           setState(() {
-                                                            durationValue = newValue.toString();
+                                                            durationValue =
+                                                                newValue
+                                                                    .toString();
                                                           });
                                                         },
                                                         items: [
@@ -405,7 +456,10 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                                             value: item,
                                                             child: Text(
                                                               item,
-                                                              style: const TextStyle(fontSize: 14),
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          14),
                                                             ),
                                                           );
                                                         }).toList(),
@@ -450,46 +504,64 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                                   border: Border.all(
                                                       color: durationTypeError
                                                           ? Colors.red
-                                                          : const Color(0xFF999999),
+                                                          : const Color(
+                                                              0xFF999999),
                                                       width: 1),
-                                                  borderRadius: const BorderRadius.all(
+                                                  borderRadius: const BorderRadius
+                                                          .all(
                                                       Radius.circular(
                                                           10) //         <--- border radius here
                                                       ),
                                                 ),
                                                 child: SizedBox(
                                                   width: 150,
-                                                  child: DropdownButtonHideUnderline(
+                                                  child:
+                                                      DropdownButtonHideUnderline(
                                                     child: ButtonTheme(
                                                       alignedDropdown: true,
-                                                      child: DropdownButton<String>(
+                                                      child: DropdownButton<
+                                                          String>(
                                                         hint: const Text(
                                                           'Seleccionar',
                                                           style: TextStyle(
                                                               fontSize: 14,
-                                                              color: Color(0xFF999999)),
+                                                              color: Color(
+                                                                  0xFF999999)),
                                                         ),
-                                                        dropdownColor: Colors.white,
-                                                        value: durationTypeValue,
+                                                        dropdownColor:
+                                                            Colors.white,
+                                                        value:
+                                                            durationTypeValue,
                                                         icon: const Padding(
                                                           padding:
-                                                              EdgeInsetsDirectional.only(end: 5.0),
-                                                          child: Icon(Icons.keyboard_arrow_down,
+                                                              EdgeInsetsDirectional
+                                                                  .only(
+                                                                      end: 5.0),
+                                                          child: Icon(
+                                                              Icons
+                                                                  .keyboard_arrow_down,
                                                               color: Color(
                                                                   0xff999999)), // myIcon is a 48px-wide widget.
                                                         ),
                                                         onChanged: (newValue) {
                                                           setState(() {
-                                                            durationTypeValue = newValue.toString();
+                                                            durationTypeValue =
+                                                                newValue
+                                                                    .toString();
                                                           });
                                                         },
-                                                        items:
-                                                            ['Horas', 'Minutos'].map((String item) {
+                                                        items: [
+                                                          'Horas',
+                                                          'Minutos'
+                                                        ].map((String item) {
                                                           return DropdownMenuItem(
                                                             value: item,
                                                             child: Text(
                                                               item,
-                                                              style: const TextStyle(fontSize: 14),
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          14),
                                                             ),
                                                           );
                                                         }).toList(),
@@ -504,24 +576,29 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                     height: 10,
                                   ),
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: const [
                                       Text("Fecha de la proxima consulta",
-                                          style: TextStyle(fontSize: 14, color: Color(0xff999999)))
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xff999999)))
                                     ],
                                   ),
                                   const SizedBox(
                                     height: 10,
                                   ),
                                   Opacity(
-                                    opacity: validInitDateTime == null ? 0.5 : 1,
+                                    opacity:
+                                        validInitDateTime == null ? 0.5 : 1,
                                     child: IgnorePointer(
                                       ignoring: validInitDateTime == null,
                                       child: SizedBox(
                                           height: startDateError ? 55 : 35,
                                           child: TextFormField(
                                             validator: (value) {
-                                              if (value == null || value == '') {
+                                              if (value == null ||
+                                                  value == '') {
                                                 setState(() {
                                                   endDateError = true;
                                                 });
@@ -533,28 +610,39 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                               return null;
                                             },
                                             readOnly: true,
-                                            controller: TextEditingController(text: endDateValue),
+                                            controller: TextEditingController(
+                                                text: endDateValue),
                                             onTap: () {
                                               selectEndDate(context);
                                             },
-                                            style: const TextStyle(fontSize: 14),
+                                            style:
+                                                const TextStyle(fontSize: 14),
                                             decoration: InputDecoration(
                                                 filled: true,
                                                 prefixIcon: IconButton(
-                                                  padding: const EdgeInsets.only(bottom: 5),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 5),
                                                   onPressed: () {},
-                                                  icon: const Icon(Icons.calendar_today_outlined,
+                                                  icon: const Icon(
+                                                      Icons
+                                                          .calendar_today_outlined,
                                                       color: Color(
                                                           0xff999999)), // myIcon is a 48px-wide widget.
                                                 ),
-                                                hintText: '18 - Jul 2022  15:00',
+                                                hintText:
+                                                    '18 - Jul 2022  15:00',
                                                 hintStyle: const TextStyle(
-                                                    fontSize: 14, color: Color(0xff999999)),
+                                                    fontSize: 14,
+                                                    color: Color(0xff999999)),
                                                 contentPadding: EdgeInsets.zero,
                                                 fillColor: Colors.white,
-                                                enabledBorder: staticComponents.middleInputBorder,
-                                                border: staticComponents.middleInputBorder,
-                                                focusedBorder: staticComponents.middleInputBorder),
+                                                enabledBorder: staticComponents
+                                                    .middleInputBorder,
+                                                border: staticComponents
+                                                    .middleInputBorder,
+                                                focusedBorder: staticComponents
+                                                    .middleInputBorder),
                                           )),
                                     ),
                                   ),
@@ -586,15 +674,18 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           margin: const EdgeInsets.only(top: 10, bottom: 10),
           child: ClipPath(
             clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3))),
             child: Container(
                 height: 75,
                 decoration: const BoxDecoration(
-                    border: Border(left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                    border: Border(
+                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
                 child: Column(
                   children: [
                     Padding(
-                        padding: const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        padding:
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const <Widget>[
@@ -608,7 +699,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                               )
                             ])),
                     Padding(
-                      padding: const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                      padding:
+                          const EdgeInsets.only(left: 25, top: 7, bottom: 7),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -634,7 +726,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                 child: SizedBox(
                                     width: 24,
                                     height: 24,
-                                    child: Icon(Icons.chevron_right, color: Color(0xff2F8F9D))))
+                                    child: Icon(Icons.chevron_right,
+                                        color: Color(0xff2F8F9D))))
                           ]),
                     )
                     //SizedBox
@@ -654,15 +747,18 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           margin: const EdgeInsets.only(top: 10, bottom: 10),
           child: ClipPath(
             clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3))),
             child: Container(
                 height: 75,
                 decoration: const BoxDecoration(
-                    border: Border(left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                    border: Border(
+                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
                 child: Column(
                   children: [
                     Padding(
-                        padding: const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        padding:
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const <Widget>[
@@ -676,14 +772,16 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                               )
                             ])),
                     Padding(
-                        padding: const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                        padding:
+                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Flexible(
                                 child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
                                         nutritionCardLabel == null
@@ -702,7 +800,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                   child: SizedBox(
                                       width: 24,
                                       height: 24,
-                                      child: Icon(Icons.chevron_right, color: Color(0xff2F8F9D))))
+                                      child: Icon(Icons.chevron_right,
+                                          color: Color(0xff2F8F9D))))
                             ]))
                     //SizedBox
                   ],
@@ -724,15 +823,18 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           margin: const EdgeInsets.only(top: 10, bottom: 10),
           child: ClipPath(
             clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3))),
             child: Container(
                 height: 75,
                 decoration: const BoxDecoration(
-                    border: Border(left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                    border: Border(
+                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
                 child: Column(
                   children: [
                     Padding(
-                        padding: const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        padding:
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const <Widget>[
@@ -746,14 +848,16 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                               )
                             ])),
                     Padding(
-                        padding: const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                        padding:
+                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Flexible(
                                 child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
                                         examsCardLabel == null
@@ -772,7 +876,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                   child: SizedBox(
                                       width: 24,
                                       height: 24,
-                                      child: Icon(Icons.chevron_right, color: Color(0xff2F8F9D))))
+                                      child: Icon(Icons.chevron_right,
+                                          color: Color(0xff2F8F9D))))
                             ]))
                     //SizedBox
                   ],
@@ -794,15 +899,18 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           margin: const EdgeInsets.only(top: 10, bottom: 10),
           child: ClipPath(
             clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3))),
             child: Container(
                 height: 75,
                 decoration: const BoxDecoration(
-                    border: Border(left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
+                    border: Border(
+                        left: BorderSide(color: Color(0xff2F8F9D), width: 5))),
                 child: Column(
                   children: [
                     Padding(
-                        padding: const EdgeInsets.only(left: 12, top: 5, right: 12),
+                        padding:
+                            const EdgeInsets.only(left: 12, top: 5, right: 12),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const <Widget>[
@@ -816,14 +924,16 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                               )
                             ])),
                     Padding(
-                        padding: const EdgeInsets.only(left: 25, top: 7, bottom: 7),
+                        padding:
+                            const EdgeInsets.only(left: 25, top: 7, bottom: 7),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Flexible(
                                 child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
                                         activityCardLabel == null
@@ -842,7 +952,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                   child: SizedBox(
                                       width: 24,
                                       height: 24,
-                                      child: Icon(Icons.chevron_right, color: Color(0xff2F8F9D))))
+                                      child: Icon(Icons.chevron_right,
+                                          color: Color(0xff2F8F9D))))
                             ]))
                     //SizedBox
                   ],
@@ -855,43 +966,48 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   }
 
   getTreatmentButtons() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[
-      const SizedBox(
-        height: 17,
-      ),
-      FlatButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        color: const Color(0xff2F8F9D),
-        textColor: Colors.white,
-        onPressed: validateAndSave,
-        child: const Text(
-          'Guardar',
-          style: TextStyle(
-            fontSize: 16,
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          const SizedBox(
+            height: 17,
           ),
-        ),
-      ),
-      FlatButton(
-        shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Color(0xff9D9CB5), width: 1, style: BorderStyle.solid),
-            borderRadius: BorderRadius.circular(30)),
-        textColor: const Color(0xff9D9CB5),
-        onPressed: () {
-          discardChangesAndGoBack();
-        },
-        child: const Text(
-          'Cancelar',
-          style: TextStyle(
-            fontSize: 16,
+          FlatButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            color: const Color(0xff2F8F9D),
+            textColor: Colors.white,
+            onPressed: validateAndSave,
+            child: const Text(
+              'Guardar',
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
           ),
-        ),
-      ),
-      const SizedBox(
-        height: 10,
-      ),
-    ]);
+          FlatButton(
+            shape: RoundedRectangleBorder(
+                side: const BorderSide(
+                    color: Color(0xff9D9CB5),
+                    width: 1,
+                    style: BorderStyle.solid),
+                borderRadius: BorderRadius.circular(30)),
+            textColor: const Color(0xff9D9CB5),
+            onPressed: () {
+              discardChangesAndGoBack();
+            },
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 40,
+          ),
+        ]);
   }
 
   void startPatientVinculation() {}
@@ -918,10 +1034,12 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       lastDate: DateTime(21001, 1, 1),
     );
 
-    final TimeOfDay? time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    final TimeOfDay? time =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (d != null && time != null) {
       setState(() {
-        endDateValue = '${DateFormat('dd - MMM yyyy ').format(d)}${time.hour}:${time.minute}';
+        endDateValue =
+            '${DateFormat('dd - MMM yyyy ').format(d)}${time.hour}:${time.minute}';
       });
     }
   }
@@ -938,10 +1056,12 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       validInitDateTime = d;
     });
 
-    final TimeOfDay? time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    final TimeOfDay? time =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (d != null && time != null) {
       setState(() {
-        startDateValue = '${DateFormat('dd - MMM yyyy ').format(d)}${time.hour}:${time.minute}';
+        startDateValue =
+            '${DateFormat('dd - MMM yyyy ').format(d)}${time.hour}:${time.minute}';
       });
     }
   }
@@ -962,9 +1082,16 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     if (isUpdate || hasPendingTreatment) {
       final String? treatmentToUpdate =
           isUpdate ? patientUser?.currentTreatment : pendingTreatmentId;
-      db.collection(TREATMENTS_KEY).doc(treatmentToUpdate).set(newTreatment).then((value) => {
-            if (isUpdate) {goBackScreen()} else {savePendingTreatmentAndGoBack(pendingTreatmentId!)}
-          });
+      db
+          .collection(TREATMENTS_KEY)
+          .doc(treatmentToUpdate)
+          .set(newTreatment)
+          .then((value) => {
+                if (isUpdate)
+                  {goBackScreen()}
+                else
+                  {savePendingTreatmentAndGoBack(pendingTreatmentId!)}
+              });
     } else {
       db
           .collection(TREATMENTS_KEY)
@@ -978,7 +1105,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (BuildContext context) => PatientDetailScreen(patientUser!.userId!)));
+            builder: (BuildContext context) =>
+                PatientDetailScreen(patientUser!.userId!)));
   }
 
   void goToAddPrescription(int currentIndex) {
@@ -991,7 +1119,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       }).then((treatment) => savePendingTreatment(treatment, currentIndex));
     } else {
       String? currentTreatmentId;
-      if (patientUser?.currentTreatment == null || patientUser!.currentTreatment!.isEmpty) {
+      if (patientUser?.currentTreatment == null ||
+          patientUser!.currentTreatment!.isEmpty) {
         currentTreatmentId = pendingTreatmentId;
       } else {
         currentTreatmentId = patientUser?.currentTreatment;
@@ -1013,12 +1142,17 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   getAddPrescriptionCards() {
     return Column(
       children: [
-        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: const <Widget>[
-          Text(
-            "Prescripción",
-            style: TextStyle(color: Color(0xff2F8F9D), fontWeight: FontWeight.normal, fontSize: 14),
-          )
-        ]),
+        Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: const <Widget>[
+              Text(
+                "Prescripción",
+                style: TextStyle(
+                    color: Color(0xff2F8F9D),
+                    fontWeight: FontWeight.normal,
+                    fontSize: 14),
+              )
+            ]),
         const SizedBox(
           height: 10,
         ),
@@ -1030,8 +1164,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     );
   }
 
-  //Cczun85DPGtFITsn0rjH
-  savePendingTreatment(DocumentReference<Map<String, dynamic>> treatment, int currentIndex) {
+  savePendingTreatment(
+      DocumentReference<Map<String, dynamic>> treatment, int currentIndex) {
     hasPendingTreatment = true;
     pendingTreatmentId = treatment.id;
     navigateWithResult(pendingTreatmentId, currentIndex);
@@ -1067,13 +1201,17 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   void discardChangesAndGoBack() {
     if (hasPendingTreatment) {
       deletePendingAndRealPrescriptions(
-          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY, MEDICATION_PRESCRIPTION_COLLECTION_KEY);
+          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY,
+          MEDICATION_PRESCRIPTION_COLLECTION_KEY);
       deletePendingAndRealPrescriptions(
-          PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY, ACTIVITY_PRESCRIPTION_COLLECTION_KEY);
+          PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY,
+          ACTIVITY_PRESCRIPTION_COLLECTION_KEY);
       deletePendingAndRealPrescriptions(
-          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY, NUTRITION_PRESCRIPTION_COLLECTION_KEY);
+          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY,
+          NUTRITION_PRESCRIPTION_COLLECTION_KEY);
       deletePendingAndRealPrescriptions(
-          PENDING_EXAMS_PRESCRIPTIONS_COLLECTION_KEY, EXAMS_PRESCRIPTION_COLLECTION_KEY);
+          PENDING_EXAMS_PRESCRIPTIONS_COLLECTION_KEY,
+          EXAMS_PRESCRIPTION_COLLECTION_KEY);
       final db = FirebaseFirestore.instance;
       db
           .collection(TREATMENTS_KEY)
@@ -1089,18 +1227,22 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     final db = FirebaseFirestore.instance;
     db
         .collection(collectionId)
-        .where(PENDING_PRESCRIPTIONS_TREATMENT_KEY, isEqualTo: pendingTreatmentId)
+        .where(PENDING_PRESCRIPTIONS_TREATMENT_KEY,
+            isEqualTo: pendingTreatmentId)
         .get()
         .then((value) => {
-              for (int i = 0; i < value.docs.length; i++) {value.docs[i].reference.delete()}
+              for (int i = 0; i < value.docs.length; i++)
+                {value.docs[i].reference.delete()}
             });
   }
 
-  void deletePendingAndRealPrescriptions(String collectionPendingId, String collectionId) {
+  void deletePendingAndRealPrescriptions(
+      String collectionPendingId, String collectionId) {
     final db = FirebaseFirestore.instance;
     db
         .collection(collectionPendingId)
-        .where(PENDING_PRESCRIPTIONS_TREATMENT_KEY, isEqualTo: pendingTreatmentId)
+        .where(PENDING_PRESCRIPTIONS_TREATMENT_KEY,
+            isEqualTo: pendingTreatmentId)
         .get()
         .then((value) => {
               for (int i = 0; i < value.docs.length; i++)
@@ -1111,9 +1253,11 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   savePendingTreatmentAndGoBack(String treatId) {
     final db = FirebaseFirestore.instance;
     try {
-      deletePendingPrescriptions(PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(
+          PENDING_MEDICATION_PRESCRIPTIONS_COLLECTION_KEY);
       deletePendingPrescriptions(PENDING_ACTIVITY_PRESCRIPTIONS_COLLECTION_KEY);
-      deletePendingPrescriptions(PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY);
+      deletePendingPrescriptions(
+          PENDING_NUTRITION_PRESCRIPTIONS_COLLECTION_KEY);
       deletePendingPrescriptions(PENDING_EXAMS_PRESCRIPTIONS_COLLECTION_KEY);
     } catch (ex) {}
     db.collection(USERS_COLLECTION_KEY).doc(patientUser?.userId).update({
@@ -1121,9 +1265,13 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     }).then((value) => goBackScreen());
   }
 
-  deleteRealPrescriptions(QueryDocumentSnapshot<Map<String, dynamic>> doc, String collectionId) {
+  deleteRealPrescriptions(
+      QueryDocumentSnapshot<Map<String, dynamic>> doc, String collectionId) {
     final db = FirebaseFirestore.instance;
-    db.collection(collectionId).doc(doc.data()[PENDING_PRESCRIPTIONS_ID_KEY]).delete();
+    db
+        .collection(collectionId)
+        .doc(doc.data()[PENDING_PRESCRIPTIONS_ID_KEY])
+        .delete();
     doc.reference.delete();
   }
 }

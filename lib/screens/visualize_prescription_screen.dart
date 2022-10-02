@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:near_you/model/treatment.dart';
+import 'package:near_you/screens/home_screen.dart';
 import 'package:near_you/widgets/patient_detail.dart';
 import 'package:near_you/widgets/visualize_prescription_detail.dart';
 
@@ -110,7 +111,14 @@ class _VisualizePrescriptionScreenState
                                     ConnectionState.done) {
                                   return getScreenType();
                                 }
-                                return const CircularProgressIndicator();
+                                return Container(
+                                  height: HomeScreen.screenHeight,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [CircularProgressIndicator()],
+                                  ),
+                                );
                               },
                             ),
                           ],
@@ -120,66 +128,15 @@ class _VisualizePrescriptionScreenState
                   );
                 },
               ))
-        ]),
-        bottomNavigationBar: _buildBottomBar(),
-        //TODO : REVIEW THIS
-        floatingActionButton: keyboardIsOpened
-            ? null
-            : GestureDetector(
-                child: Container(
-                  padding: EdgeInsets.only(top: 40),
-                  child:
-                      SvgPicture.asset('assets/images/tab_plus_selected.svg'),
-                ),
-                onTap: () {
-                  setState(() {
-                    startPatientVinculation();
-                  });
-                },
-              ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        ])
       )
     ]);
   }
 
-  Widget _buildBottomBar() {
-    return Container(
-      child: Material(
-        elevation: 0.0,
-        color: Colors.white,
-        child: BottomNavigationBar(
-          elevation: 0,
-          onTap: (index) {
-            _currentIndex = index;
-          },
-          backgroundColor: Colors.transparent,
-          currentIndex: _currentIndex,
-          type: BottomNavigationBarType.fixed,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: [
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_metrics_unselected.svg',
-                ),
-                label: ""),
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_person_unselected.svg',
-                ),
-                label: "")
-          ],
-        ),
-      ),
-    );
-  }
-
   getScreenType() {
     if (currentTreatment == null) {
-      return CircularProgressIndicator();
+      return const CircularProgressIndicator();
     }
     return VisualizePrescriptionDetail.forDoctorView(currentTreatment, currentPageIndex);
   }
-
-  void startPatientVinculation() {}
 }
