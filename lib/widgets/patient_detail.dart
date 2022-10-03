@@ -1723,13 +1723,13 @@ class PatientDetailState extends State<PatientDetail> {
           final color = ((barChartData.adherence ?? 0) >= 0.8)
               ? charts.Color.fromHex(code: "#6EC6A4")
               : charts.Color.fromHex(code: "#F8191E");
-          return charts.TextStyleSpec(color: color);
+          return charts.TextStyleSpec(color: color, fontSize: 10);
         },
         outsideLabelStyleAccessorFn: (BarCharData barChartData, _) {
           final color = ((barChartData.adherence ?? 0) >= 0.8)
               ? charts.Color.fromHex(code: "#6EC6A4")
               : charts.Color.fromHex(code: "#F8191E");
-          return charts.TextStyleSpec(color: color);
+          return charts.TextStyleSpec(color: color, fontSize: 10);
         },
         data: seriesData,
       ),
