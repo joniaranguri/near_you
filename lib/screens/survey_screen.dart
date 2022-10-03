@@ -184,7 +184,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
                 horizontal: 20,
               ),
               width: double.infinity,
-              height: HomeScreen.screenHeight * 0.8,
+              height: HomeScreen.screenHeight * 0.7,
               child: SingleChildScrollView(
                   child: ConstrainedBox(
                       constraints: const BoxConstraints(

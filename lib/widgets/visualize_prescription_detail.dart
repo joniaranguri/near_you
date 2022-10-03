@@ -674,7 +674,7 @@ class VisualizePrescriptionDetailState
           if (snapshot.connectionState == ConnectionState.done) {
             return Container(
               width: double.infinity,
-              height: HomeScreen.screenHeight*0.65,
+              height: HomeScreen.screenHeight*0.6,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: SingleChildScrollView(
                   child: ConstrainedBox(

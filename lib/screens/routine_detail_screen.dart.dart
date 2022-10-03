@@ -46,8 +46,6 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   var currentRoutineIndex = 0;
   int totalPrescriptions = 0;
   double percentageProgress = 0;
-  double screenWidth = 0;
-  double screenHeight = 0;
   static StaticComponents staticComponents = StaticComponents();
 
   String currentTreatmentId;
@@ -75,15 +73,13 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
     return Stack(children: <Widget>[
       Scaffold(
         appBar: PreferredSize(
-            preferredSize: Size.fromHeight(screenHeight / 10),
+            preferredSize: Size.fromHeight(HomeScreen.screenHeight / 10),
             // here the desired height
             child: AppBar(
-              toolbarHeight: screenHeight / 10,
+              toolbarHeight: HomeScreen.screenHeight / 10,
               backgroundColor: Color(0xff2F8F9D),
               centerTitle: true,
               title: Text(getAppbarTitle(),
@@ -250,7 +246,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                                         ),
                                         Container(
                                           width: double.infinity,
-                                          height: screenHeight * 0.55,
+                                          height: HomeScreen.screenHeight * 0.5,
                                           child: getCurrrentSectionList(),
                                         )
                                       ]);
@@ -324,29 +320,10 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     ]);
   }
 
-  /*Future<List<RoutineDetailData>> getRoutineDetailQuestions() async {
-    return StaticRoutineDetail.RoutineDetailStaticList;
-  }
-*/
-
-  void saveAndGoBack() {
-    /*  final db = FirebaseFirestore.instance;
-    final data = <String, String>{};
-    for (int i = 0; i < RoutineDetailResults.length; i++) {
-      data.putIfAbsent((i + 1).toString(), () => RoutineDetailResults[i]!);
-    }
-    db
-        .collection(USERS_COLLECTION_KEY)
-        .doc(FirebaseAuth.instance.currentUser?.uid)
-        .collection(RoutineDetailS_COLLECTION_KEY)
-        .add(data)
-        .then((value) => dialogSuccess());*/
-  }
-
   Widget getEmptyView() {
     return Container(
       width: double.infinity,
-      height: screenHeight * 0.55,
+      height: HomeScreen.screenHeight * 0.55,
       child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 40),
           child: Column(
@@ -497,7 +474,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                               Flexible(
                                   child: SizedBox(
                                       height: 25,
-                                      width: screenWidth * 0.4,
+                                      width: HomeScreen.screenWidth * 0.4,
                                       child: TextFormField(
                                         controller: TextEditingController(
                                             text: medicationsList[index]
@@ -824,7 +801,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                               Flexible(
                                   child: SizedBox(
                                       height: 25,
-                                      width: screenWidth * 0.27,
+                                      width: HomeScreen.screenWidth * 0.27,
                                       child: TextFormField(
                                         controller: TextEditingController(
                                             text: activitiesList[index]
@@ -838,7 +815,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                               Flexible(
                                   child: SizedBox(
                                       height: 25,
-                                      width: screenWidth * 0.27,
+                                      width: HomeScreen.screenWidth * 0.27,
                                       child: TextFormField(
                                         controller: TextEditingController(
                                             text:
@@ -889,7 +866,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                           Flexible(
                               child: SizedBox(
                                   height: 25,
-                                  width: screenWidth * 0.2,
+                                  width: HomeScreen.screenWidth * 0.2,
                                   child: TextFormField(
                                     onChanged: (value) {
                                       examsGlucosaLevelValue = value;
@@ -926,7 +903,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         ),
         SizedBox(height: 10),
         SizedBox(
-            height: HomeScreen.screenHeight * 0.4,
+            height: HomeScreen.screenHeight * 0.3,
             child: ListView.builder(
                 padding: EdgeInsets.zero,
                 itemCount: examsList.length,

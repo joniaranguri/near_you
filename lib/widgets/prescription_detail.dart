@@ -549,9 +549,10 @@ class PrescriptionDetailState extends State<PrescriptionDetail> {
   }
 
   getMedicationView() {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: HomeScreen.screenHeight * 0.65,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: isMedicationLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

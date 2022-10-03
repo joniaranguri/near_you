@@ -43,136 +43,85 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
     bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Stack(children: <Widget>[
       Scaffold(
-        appBar: PreferredSize(
-            preferredSize: Size.fromHeight(80), // here the desired height
-            child: AppBar(
-              backgroundColor: Color(0xff2F8F9D),
-              centerTitle: true,
-              title: Padding(
-                  padding: EdgeInsets.only(top: 40),
-                  child: Text(
-                      patientUser != null
-                          ? patientUser?.fullName ??
-                              patientUser?.type ??
-                              "Nombre"
-                          : "Nombre",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold))),
-              elevation: 0,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            )),
-        body: Stack(children: <Widget>[
-          Container(
-              width: double.maxFinite,
-              height: double.maxFinite,
-              child: FittedBox(
-                fit: BoxFit.none,
-                child: SvgPicture.asset('assets/images/backgroundHome.svg'),
+          appBar: PreferredSize(
+              preferredSize: Size.fromHeight(80), // here the desired height
+              child: AppBar(
+                backgroundColor: Color(0xff2F8F9D),
+                centerTitle: true,
+                title: Padding(
+                    padding: EdgeInsets.only(top: 40),
+                    child: Text(
+                        patientUser != null
+                            ? patientUser?.fullName ??
+                                patientUser?.type ??
+                                "Nombre"
+                            : "Nombre",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold))),
+                elevation: 0,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
               )),
-          Scaffold(
-              backgroundColor: Colors.transparent,
-              body: LayoutBuilder(
-                builder:
-                    (BuildContext context, BoxConstraints viewportConstraints) {
-                  return Container(
-                    width: double.infinity,
-                    child: SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: viewportConstraints.maxHeight,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            SizedBox(
-                              height: 10,
-                            ),
-                            FutureBuilder(
-                              future: futureUser,
-                              builder: (context, AsyncSnapshot snapshot) {
-                                //patientUser = user.User.fromSnapshot(snapshot.data);
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  return getScreenType();
-                                }
-                                return CircularProgressIndicator();
-                              },
-                            ),
-                          ],
+          body: Stack(children: <Widget>[
+            Container(
+                width: double.maxFinite,
+                height: double.maxFinite,
+                child: FittedBox(
+                  fit: BoxFit.none,
+                  child: SvgPicture.asset('assets/images/backgroundHome.svg'),
+                )),
+            Scaffold(
+                backgroundColor: Colors.transparent,
+                body: LayoutBuilder(
+                  builder: (BuildContext context,
+                      BoxConstraints viewportConstraints) {
+                    return Container(
+                      width: double.infinity,
+                      child: SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: viewportConstraints.maxHeight,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              SizedBox(
+                                height: 10,
+                              ),
+                              FutureBuilder(
+                                future: futureUser,
+                                builder: (context, AsyncSnapshot snapshot) {
+                                  //patientUser = user.User.fromSnapshot(snapshot.data);
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    return getScreenType();
+                                  }
+                                  return CircularProgressIndicator();
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ))
-        ]),
-        bottomNavigationBar: _buildBottomBar(),
-        //TODO : REVIEW THIS
-        floatingActionButton: keyboardIsOpened
-            ? null
-            : GestureDetector(
-                child: Container(
-                  padding: EdgeInsets.only(top: 40),
-                  child:
-                      SvgPicture.asset('assets/images/tab_plus_selected.svg'),
-                ),
-                onTap: () {
-                  setState(() {
-                    startPatientVinculation();
-                  });
-                },
-              ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      )
+                    );
+                  },
+                ))
+          ]))
     ]);
-  }
-
-  Widget _buildBottomBar() {
-    return Container(
-      child: Material(
-        elevation: 0.0,
-        color: Colors.white,
-        child: BottomNavigationBar(
-          elevation: 0,
-          onTap: (index) {
-            _currentIndex = index;
-          },
-          backgroundColor: Colors.transparent,
-          currentIndex: _currentIndex,
-          type: BottomNavigationBarType.fixed,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: [
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_metrics_unselected.svg',
-                ),
-                label: ""),
-            BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/tab_person_unselected.svg',
-                ),
-                label: "")
-          ],
-        ),
-      ),
-    );
   }
 
   getScreenType() {
     if (patientUser == null) {
-      return CircularProgressIndicator();
+      return const CircularProgressIndicator();
     }
     return PatientDetail.forDoctorView(patientUser);
   }
 
-  void startPatientVinculation() {}
 }
