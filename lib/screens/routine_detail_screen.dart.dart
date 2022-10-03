@@ -1240,9 +1240,11 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     final user.User userData = user.User.fromSnapshot(userSnapshot);
     String? birthday = userData.birthDay;
     // Get Aggregated data
-    int medicationData = getDataValue(medicationPercentage * 100);
+    int medicationData =
+        medicationsList.isEmpty ? 0 : getDataValue(medicationPercentage * 100);
     int nutritionData = getNutritionData(nutritionValue, nutritionNPValue);
-    int activityData = getDataValue(activitiesPercentage * 100);
+    int activityData =
+        activitiesList.isEmpty ? 0 : getDataValue(activitiesPercentage * 100);
     int examsData = getExamsData(examsValue);
     int smokingData = userData.smoking == "Fumo" ? 4 : 0;
     int a1 = int.parse(surveyData[DATA_PREGUNTA1_KEY]);
