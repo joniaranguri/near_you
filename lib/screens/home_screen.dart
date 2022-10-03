@@ -70,6 +70,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     HomeScreen.screenWidth = MediaQuery.of(context).size.width;
     HomeScreen.screenHeight = MediaQuery.of(context).size.height;
+    double iconsSize = HomeScreen.screenHeight / 40;
     publicShrinkHome = shrinkOffset;
     return Container(
       color: const Color(0xff2F8F9D),
@@ -115,29 +116,31 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
             top: 0,
             left: 0,
             child: IconButton(
-                padding: const EdgeInsets.only(left: 25, top: 30, bottom: 25),
+                padding: EdgeInsets.only(
+                    left: iconsSize, top: iconsSize, bottom: iconsSize),
                 constraints: const BoxConstraints(),
                 icon: SvgPicture.asset(
                   'assets/images/log_out.svg',
+                  height: iconsSize,
                 ),
                 onPressed: () {
                   showLogoutModal(context);
                 }),
           ),
           Positioned(
-            top: 0,
-            right: 0,
-            height: 80,
-            child: IconButton(
-                padding: const EdgeInsets.only(right: 25, top: 30, bottom: 25),
-                constraints: const BoxConstraints(),
-                icon: SvgPicture.asset(
-                  'assets/images/refresh_icon.svg',
-                ),
-                onPressed: () {
-                  initAllData();
-                }),
-          ),
+              top: 0,
+              right: 0,
+              child: IconButton(
+                  padding: EdgeInsets.only(
+                      right: iconsSize, top: iconsSize, bottom: iconsSize),
+                  constraints: const BoxConstraints(),
+                  icon: SvgPicture.asset(
+                    'assets/images/refresh_icon.svg',
+                    height: iconsSize,
+                  ),
+                  onPressed: () {
+                    initAllData();
+                  })),
         ],
       ),
     );
@@ -169,7 +172,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     double maxExtent,
   ) {
-    if (shrinkOffset > (maxExtent * 0.1)) {
+    if (shrinkOffset > (maxExtent * 0.01)) {
       return SizedBox.shrink();
     } else {
       return Stack(
@@ -390,7 +393,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   getImageUser(BuildContext context, double shrinkOffset, double maxExtent) {
-    if (shrinkOffset > (maxExtent * 0.1)) {
+    if (shrinkOffset > (maxExtent * 0.01)) {
       return const SizedBox.shrink();
     }
     return Align(
@@ -538,7 +541,7 @@ class _HomeScreenState extends State<HomeScreen>
           ]),
         ),
         bottomNavigationBar: _buildBottomBar(),
-        /*  floatingActionButton: /* _getEmptyFABDial() */
+        floatingActionButton: /* _getEmptyFABDial() */
             GestureDetector(
           child: Container(
             padding: const EdgeInsets.only(top: 40),
@@ -546,12 +549,13 @@ class _HomeScreenState extends State<HomeScreen>
               notifier.value
                   ? 'assets/images/tab_close_selected.svg'
                   : 'assets/images/tab_plus_selected.svg',
+              height: HomeScreen.screenHeight/9,
             ),
           ),
           onTap: () {
             executeMainAction();
           },
-        ),*/
+        ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       )
     ]);
