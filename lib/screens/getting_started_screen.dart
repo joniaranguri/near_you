@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:near_you/screens/home_screen.dart';
 
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
@@ -16,90 +17,94 @@ class GettingStartedScreen extends StatefulWidget {
 class _GettingStartedScreenState extends State<GettingStartedScreen> {
   @override
   Widget build(BuildContext context) {
+    var screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Container(
         color: Colors.white,
         child: Stack(
           children: [
             const Circles1(),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                      padding: EdgeInsets.fromLTRB(0, 100, 0, 20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                              width: double.maxFinite,
-                              height: 255,
-                              child:
-                                  SvgPicture.asset('assets/images/logo.svg')),
-                          SizedBox(
-                            height: 40,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(right: 60, left: 60),
-                            child: Html(
-                              data:
-                                  'Monitorea <span style="color:#2F8F9D">el seguimiento a la<br> adherencia con</span> una rutina diaria.',
-                              style: {
-                                "body": Style(
-                                  fontSize: FontSize(14),
-                                  textAlign: TextAlign.center,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xffd555555),
-                                ),
-                              },
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                        padding:
+                            EdgeInsets.fromLTRB(0, screenHeight / 7, 0, 20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Container(
+                                width: double.maxFinite,
+                                height: 255,
+                                child:
+                                    SvgPicture.asset('assets/images/logo.svg')),
+                            SizedBox(
+                              height: screenHeight / 20,
                             ),
-                          )
-                        ],
-                      )),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      FlatButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.all(15),
-                        color: const Color(0xff3BACB6),
-                        textColor: Colors.white,
-                        onPressed: () {
-                          onClickStart();
-                        },
-                        child: const Text(
-                          'Empezar',
-                          style: TextStyle(
-                            fontSize: 16,
+                            Padding(
+                              padding: EdgeInsets.only(right: 60, left: 60),
+                              child: Html(
+                                data:
+                                    'Monitorea <span style="color:#2F8F9D">el seguimiento a la<br> adherencia con</span> una rutina diaria.',
+                                style: {
+                                  "body": Style(
+                                    fontSize: FontSize(14),
+                                    textAlign: TextAlign.center,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xffd555555),
+                                  ),
+                                },
+                              ),
+                            )
+                          ],
+                        )),
+                    SizedBox(
+                      height: screenHeight / 20,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: const EdgeInsets.all(15),
+                          color: const Color(0xff3BACB6),
+                          textColor: Colors.white,
+                          onPressed: () {
+                            onClickStart();
+                          },
+                          child: const Text(
+                            'Empezar',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
                           ),
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(left: 20),
-                            //apply padding to all four sides
-                            child: Text(
-                              'Ya tengo una cuenta',
-                              style: TextStyle(
-                                fontSize: 14,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: const <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(left: 20),
+                              //apply padding to all four sides
+                              child: Text(
+                                'Ya tengo una cuenta',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
-                          ),
-                          LoginButton()
-                        ],
-                      ),
-                    ],
-                  )
-                ],
+                            LoginButton()
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ],
@@ -155,45 +160,6 @@ class Circles1 extends StatelessWidget {
       height: MediaQuery.of(context).size.height,
       child: SvgPicture.asset('assets/images/backgroundLogin.svg',
           fit: BoxFit.fill),
-    );
-  }
-}
-
-class TreatmentAdherenceDesign extends StatelessWidget {
-  const TreatmentAdherenceDesign({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-            height: 200,
-            width: 273,
-            child: SvgPicture.asset('assets/images/logo.svg')),
-        SizedBox(
-          width: 300,
-          height: 60,
-          child: Center(
-            child: RichText(
-              textAlign: TextAlign.center,
-              text: const TextSpan(
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xff555555),
-                  fontWeight: FontWeight.w500,
-                ),
-                children: <TextSpan>[
-                  TextSpan(text: 'Monitorea '),
-                  TextSpan(
-                      text: 'el seguimiento a la adherencia con ',
-                      style: TextStyle(color: Color(0xff2F8F9D))),
-                  TextSpan(text: 'una rutina diaria.'),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -72,6 +72,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   getFirstScreen() {
+    var screenHeight = MediaQuery.of(context).size.height;
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints viewportConstraints) {
         return Container(
@@ -88,8 +89,8 @@ class _LoginWidgetState extends State<LoginWidget> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  const SizedBox(
-                    height: 200,
+                   SizedBox(
+                    height: screenHeight/3.5,
                   ),
                   const Text(
                     "Iniciar Sesion",

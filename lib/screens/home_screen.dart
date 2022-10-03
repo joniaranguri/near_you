@@ -32,10 +32,11 @@ class HomeScreen extends StatefulWidget {
     if (HomeScreen.screenHeight > 600) {
       percentage += 0.05;
     }
-   var result = HomeScreen.screenHeight * percentage +
+    var result = HomeScreen.screenHeight * percentage +
         (MySliverHeaderDelegate.publicShrinkHome >
-            (MySliverHeaderDelegate._maxExtent / 2) ? MySliverHeaderDelegate
-            ._maxExtent / 2 : MySliverHeaderDelegate.publicShrinkHome);
+                (MySliverHeaderDelegate._maxExtent / 2)
+            ? MySliverHeaderDelegate._maxExtent / 2
+            : MySliverHeaderDelegate.publicShrinkHome);
     return result;
   }
 
@@ -44,7 +45,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
-  static  final double _maxExtent = HomeScreen.screenHeight * 0.3;
+  static final double _maxExtent = HomeScreen.screenHeight * 0.3;
   final VoidCallback onActionTap;
   static double publicShrinkHome = 0;
   user.User? currentUser;
@@ -56,24 +57,19 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   int notificationsCounter = 0;
 
-  MySliverHeaderDelegate({required this.onActionTap,
-    required this.currentUser,
-    required this.initAllData,
-    required this.patientsCounter,
-    required this.notificationsCounter,
-    required this.showNotificationsModal});
+  MySliverHeaderDelegate(
+      {required this.onActionTap,
+      required this.currentUser,
+      required this.initAllData,
+      required this.patientsCounter,
+      required this.notificationsCounter,
+      required this.showNotificationsModal});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset,
-      bool overlapsContent) {
-    HomeScreen.screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    HomeScreen.screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    HomeScreen.screenWidth = MediaQuery.of(context).size.width;
+    HomeScreen.screenHeight = MediaQuery.of(context).size.height;
     publicShrinkHome = shrinkOffset;
     return Container(
       color: const Color(0xff2F8F9D),
@@ -82,25 +78,29 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
         children: [
           Align(
               alignment: const Alignment(
-                //little padding
+                  //little padding
                   0,
-                  100),
+                  0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                      padding: EdgeInsets.only(
-                          top: getPaddingTopTitle(shrinkOffset, maxExtent)),
+                    padding: EdgeInsets.only(top: 25),
+                    child: getImageUser(context, shrinkOffset, _maxExtent),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      //getPaddingTopTitle(shrinkOffset, maxExtent)),
                       child: Text(
                           currentUser != null
                               ? currentUser?.fullName ??
-                              currentUser?.type ??
-                              "Nombre"
+                                  currentUser?.type ??
+                                  "Nombre"
                               : "Nombre",
                           style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 20,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold))),
                   //apply padding to all four sides
                   Text(
@@ -110,7 +110,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                   getButtonVinculation(context, shrinkOffset, _maxExtent)
                 ],
               )),
-          getImageUser(context, shrinkOffset, _maxExtent),
+          //getImageUser(context, shrinkOffset, _maxExtent),
           Positioned(
             top: 0,
             left: 0,
@@ -164,9 +164,11 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     );
   }
 
-  Widget getButtonVinculation(context,
-      double shrinkOffset,
-      double maxExtent,) {
+  Widget getButtonVinculation(
+    context,
+    double shrinkOffset,
+    double maxExtent,
+  ) {
     if (shrinkOffset > (maxExtent * 0.1)) {
       return SizedBox.shrink();
     } else {
@@ -177,38 +179,38 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
-            padding: EdgeInsets.only(left: 30, right: 30, top: 5, bottom: 5),
+            padding: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
             color: Colors.white,
             onPressed: () {
               currentUser!.isPatient()
                   ? (isNotEmtpy(currentUser!.medicoId)
-                  ? showDialogDevinculation(
-                  context, currentUser!.userId!, true, () {
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            HomeScreen()));
-              })
-                  : showDialogVinculation(
-                  currentUser!.fullName ?? "Nombre",
-                  currentUser!.email!,
-                  context,
-                  currentUser!.isPatient(),
-                      () {}, () {
-                Navigator.pop(context);
-                dialogWaitVinculation(context, () {
-                  Navigator.pop(context);
-                }, currentUser!.isPatient());
-              }))
+                      ? showDialogDevinculation(
+                          context, currentUser!.userId!, true, () {
+                          Navigator.pop(context);
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      HomeScreen()));
+                        })
+                      : showDialogVinculation(
+                          currentUser!.fullName ?? "Nombre",
+                          currentUser!.email!,
+                          context,
+                          currentUser!.isPatient(),
+                          () {}, () {
+                          Navigator.pop(context);
+                          dialogWaitVinculation(context, () {
+                            Navigator.pop(context);
+                          }, currentUser!.isPatient());
+                        }))
                   : showNotificationsModal(context);
             },
             child: Text(
               currentUser!.isPatient()
                   ? (isNotEmtpy(currentUser!.medicoId)
-                  ? 'Desvincular'
-                  : 'Vincular')
+                      ? 'Desvincular'
+                      : 'Vincular')
                   : 'Notificaciones',
               style: TextStyle(
                   fontSize: getFontSizeVinculation(shrinkOffset, maxExtent),
@@ -218,38 +220,39 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
           ),
           currentUser!.isPatient()
               ? const SizedBox(
-            height: 0,
-          )
+                  height: 0,
+                )
               : Positioned(
-            right: 0,
-            top: 7,
-            child: new Container(
-              padding: EdgeInsets.all(2),
-              decoration: new BoxDecoration(
-                color:
-                notificationsCounter > 0 ? Colors.red : Colors.grey,
-                borderRadius: BorderRadius.circular(100),
-              ),
-              constraints: BoxConstraints(
-                minWidth: 12,
-                minHeight: 12,
-              ),
-              child: new Text(
-                notificationsCounter.toString(),
-                style: new TextStyle(
-                  color: Colors.white,
-                  fontSize: 8,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          )
+                  right: 0,
+                  top: 7,
+                  child: new Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: new BoxDecoration(
+                      color:
+                          notificationsCounter > 0 ? Colors.red : Colors.grey,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 12,
+                      minHeight: 12,
+                    ),
+                    child: new Text(
+                      notificationsCounter.toString(),
+                      style: new TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
         ],
       );
     }
   }
 
   getPaddingTopTitle(double shrinkOffset, double maxExtent) {
+    return 0.0;
     var result = maxExtent - (110 + shrinkOffset);
     if (result < 0) {
       result = 0;
@@ -392,7 +395,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     }
     return Align(
         alignment: Alignment(
-          //little padding
+            //little padding
             shrinkOffset / _maxExtent,
             0),
         child: Padding(
@@ -400,7 +403,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                 left: 30,
                 top: (shrinkOffset / _maxExtent) * 35,
                 right: 30,
-                bottom: 20),
+                bottom: 0),
             child: InkWell(
               onTap: () {
                 Navigator.push(
@@ -427,11 +430,11 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                     height: HomeScreen.screenHeight / 15,
                   )),
             ))
-      /*SvgPicture.asset(
+        /*SvgPicture.asset(
               'assets/images/tab_plus_selected.svg',
               height: 70,
             )*/
-    );
+        );
   }
 }
 
@@ -458,18 +461,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    HomeScreen.screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    HomeScreen.screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
-    final expandedHeight = MediaQuery
-        .of(context)
-        .size
-        .height * 0.2;
+    HomeScreen.screenWidth = MediaQuery.of(context).size.width;
+    HomeScreen.screenHeight = MediaQuery.of(context).size.height;
+    final expandedHeight = MediaQuery.of(context).size.height * 0.2;
     return Stack(children: <Widget>[
       Scaffold(
         body: NestedScrollView(
@@ -508,8 +502,8 @@ class _HomeScreenState extends State<HomeScreen>
                       BoxConstraints viewportConstraints) {
                     return ConstrainedBox(
                       constraints: BoxConstraints(
-                        // minHeight: HomeScreen.screenHeight *0.5,
-                      ),
+                          // minHeight: HomeScreen.screenHeight *0.5,
+                          ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -778,9 +772,8 @@ class _HomeScreenState extends State<HomeScreen>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            SurveyScreen(
-                currentUser!.userId!, currentUser!.fullName ?? "Paciente"),
+        builder: (context) => SurveyScreen(
+            currentUser!.userId!, currentUser!.fullName ?? "Paciente"),
       ),
     );
   }
@@ -819,7 +812,7 @@ class _HomeScreenState extends State<HomeScreen>
     List<PendingVinculation> vinculations = <PendingVinculation>[];
     for (var element in future.docs) {
       PendingVinculation currentVinculation =
-      PendingVinculation.fromSnapshot(element);
+          PendingVinculation.fromSnapshot(element);
       vinculations.add(currentVinculation);
     }
     return vinculations;
@@ -848,7 +841,7 @@ class _HomeScreenState extends State<HomeScreen>
     List<PendingVinculation> vinculations = <PendingVinculation>[];
     for (var element in future.docs) {
       PendingVinculation currentVinculation =
-      PendingVinculation.fromSnapshot(element);
+          PendingVinculation.fromSnapshot(element);
       vinculations.add(currentVinculation);
     }
     return vinculations;
@@ -877,7 +870,7 @@ class _HomeScreenState extends State<HomeScreen>
     List<PendingVinculation> vinculations = <PendingVinculation>[];
     for (var element in future.docs) {
       PendingVinculation currentVinculation =
-      PendingVinculation.fromSnapshot(element);
+          PendingVinculation.fromSnapshot(element);
       vinculations.add(currentVinculation);
     }
     return vinculations;
@@ -915,8 +908,7 @@ class _HomeScreenState extends State<HomeScreen>
                         height: 10,
                       ),
                       Text(
-                          'El médico ${pendingVinculation
-                              .namePending}\n desea vincular su cuenta\n con usted',
+                          'El médico ${pendingVinculation.namePending}\n desea vincular su cuenta\n con usted',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                               fontSize: 14,
@@ -988,8 +980,8 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Future<void> acceptVinculationWithDoctor(String? medicoId, String? patientId,
-      String pendingVinculationId) async {
+  Future<void> acceptVinculationWithDoctor(
+      String? medicoId, String? patientId, String pendingVinculationId) async {
     final db = FirebaseFirestore.instance;
     if (patientId == null || medicoId == null) {
       return;
@@ -1000,18 +992,15 @@ class _HomeScreenState extends State<HomeScreen>
     await postDocRef.update({
       MEDICO_ID_KEY: medicoId,
       // ....rest of your data
-    }).then((value) =>
-        showDialogSuccessVinculation(context,
-            '¡Todo listo!\nSu ${currentUser!.isPatient()
-                ? "médico"
-                : "paciente"} fue vinculado \ncorrectamente.',
-                () {
-              Navigator.pop(context);
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => HomeScreen()));
-            }));
+    }).then((value) => showDialogSuccessVinculation(context,
+            '¡Todo listo!\nSu ${currentUser!.isPatient() ? "médico" : "paciente"} fue vinculado \ncorrectamente.',
+            () {
+          Navigator.pop(context);
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => HomeScreen()));
+        }));
   }
 
   void noAcceptVinculation(String pendingVinculationId) {
@@ -1020,8 +1009,8 @@ class _HomeScreenState extends State<HomeScreen>
         VINCULATION_STATUS_REFUSED, pendingVinculationId);
   }
 
-  Future<void> updatePendingVinculationStatus(String status,
-      String pendingVinculationId) async {
+  Future<void> updatePendingVinculationStatus(
+      String status, String pendingVinculationId) async {
     final db = FirebaseFirestore.instance;
     await db
         .collection(PENDING_VINCULATIONS_COLLECTION_KEY)
@@ -1059,52 +1048,47 @@ class _HomeScreenState extends State<HomeScreen>
         .parse(dateNextSurveyString ?? SURVEY_DISABLED_DEFAULT_DATE);
     disabledSurvey = DateTime.now().isBefore(dateNextSurvey);
     futureUser = getUserById(FirebaseAuth.instance.currentUser!.uid);
-    futureUser?.then((value) =>
-    {
-      setState(() {
-        currentUser = user.User.fromSnapshot(value);
-        notifier = ValueNotifier(false);
-        pendingVinculationsFuture = getPendingVinculations();
-        pendingVinculationsFuture?.then((pendingResult) =>
-        {
+    futureUser?.then((value) => {
           setState(() {
-            if (pendingResult.isEmpty) {
-              return;
-            }
-            pendingVinculationList = pendingResult;
-            notificationsCounter = pendingResult.length;
-            print("patients: $notificationsCounter");
-            if (currentUser!.isPatient()) {
-              showNotificationPendingVinculation(
-                  pendingVinculationList[0]);
-            }
-          })
-        });
+            currentUser = user.User.fromSnapshot(value);
+            notifier = ValueNotifier(false);
+            pendingVinculationsFuture = getPendingVinculations();
+            pendingVinculationsFuture?.then((pendingResult) => {
+                  setState(() {
+                    if (pendingResult.isEmpty) {
+                      return;
+                    }
+                    pendingVinculationList = pendingResult;
+                    notificationsCounter = pendingResult.length;
+                    if (currentUser!.isPatient()) {
+                      showNotificationPendingVinculation(
+                          pendingVinculationList[0]);
+                    }
+                  })
+                });
 
-        getRefusedVinculations().then((refusedList) =>
-        {
-          setState(() {
-            for (int i = 0; i < refusedList.length; i++) {
-              deleteVinculation(refusedList[i].databaseId!);
-            }
-          })
-        });
+            getRefusedVinculations().then((refusedList) => {
+                  setState(() {
+                    for (int i = 0; i < refusedList.length; i++) {
+                      deleteVinculation(refusedList[i].databaseId!);
+                    }
+                  })
+                });
 
-        getAcceptedVinculations().then((acceptedList) =>
-        {
-          setState(() {
-            if (acceptedList.isEmpty) {
-              return;
-            }
-            if (currentUser!.isPatient()) {
-              dialogSuccessDoctorAccepts(context);
-              deleteVinculation(acceptedList.first.databaseId!);
-            }
+            getAcceptedVinculations().then((acceptedList) => {
+                  setState(() {
+                    if (acceptedList.isEmpty) {
+                      return;
+                    }
+                    if (currentUser!.isPatient()) {
+                      dialogSuccessDoctorAccepts(context);
+                      deleteVinculation(acceptedList.first.databaseId!);
+                    }
+                  })
+                });
+            saveUserNameSharedPref();
           })
         });
-        saveUserNameSharedPref();
-      })
-    });
   }
 
   void showNOtificationsModal(context) {
@@ -1227,19 +1211,19 @@ class _HomeScreenState extends State<HomeScreen>
                             children: [
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Padding(
                                       padding: EdgeInsets.only(left: 10),
                                       child: Column(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.start,
+                                            MainAxisAlignment.start,
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             pendingVinculationList[index]
-                                                .namePending ??
+                                                    .namePending ??
                                                 "Paciente x",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w600,
@@ -1248,7 +1232,7 @@ class _HomeScreenState extends State<HomeScreen>
                                           ),
                                           Text(
                                               pendingVinculationList[index]
-                                                  .emailPending ??
+                                                      .emailPending ??
                                                   "email",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w500,
