@@ -32,14 +32,14 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
                   children: <Widget>[
                     Padding(
                         padding:
-                            EdgeInsets.fromLTRB(0, screenHeight / 7, 0, 20),
+                            EdgeInsets.fromLTRB(0, screenHeight / 4, 0, 20),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
                             Container(
                                 width: double.maxFinite,
-                                height: 255,
+                                height: screenHeight * 0.3,
                                 child:
                                     SvgPicture.asset('assets/images/logo.svg')),
                             SizedBox(

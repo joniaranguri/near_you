@@ -2,10 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:near_you/main.dart';
 import 'package:near_you/model/routine.dart';
 import 'package:near_you/screens/home_screen.dart';
-import 'package:near_you/screens/routine_detail_screen.dart.dart';
 
 import '../Constants.dart';
 import '../widgets/calendar_timeline.dart';
@@ -150,7 +148,9 @@ class _RoutineScreenState extends State<RoutineScreen> {
                 child: Container(
                   padding: EdgeInsets.only(top: 40),
                   child:
-                      SvgPicture.asset('assets/images/tab_plus_selected.svg'),
+                      SvgPicture.asset('assets/images/tab_plus_selected.svg',
+                        height: HomeScreen.screenHeight/9,
+                      ),
                 ),
                 onTap: () {
                   setState(() {
@@ -212,7 +212,7 @@ class _RoutineScreenState extends State<RoutineScreen> {
             Wrap(
               children: [
                 SizedBox(
-                  width: HomeScreen.screenWidth* 0.8,
+                  width: HomeScreen.screenWidth* 0.79,
                   child: Card(
                       margin: EdgeInsets.all(20),
                       child: ClipPath(
