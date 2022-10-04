@@ -1762,11 +1762,17 @@ class PatientDetailState extends State<PatientDetail> {
     double examsSum = 0;
     double adherenceTotalSum = 0;
     int cantCounter = 0;
+    bool firstFound = false;
+    DateTime? firstRangeDate;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
       DateTime currentDate = currentBarChart.dateTime!;
       if (today.subtract(const Duration(days: 7)).isAfter(currentDate)) {
         continue; // skip if is invalid range
+      }
+      if (!firstFound) {
+        firstFound = true;
+        firstRangeDate = currentDate;
       }
       if (today.day == currentDate.day &&
           today.month == currentDate.month &&
@@ -1781,7 +1787,9 @@ class PatientDetailState extends State<PatientDetail> {
       activitiesSum += currentBarChart.activitiesPercentage ?? 0;
       examsSum += currentBarChart.examsPercentage ?? 0;
       adherenceTotalSum += currentBarChart.adherence ?? 0;
-      cantCounter++;
+    }
+    if (firstFound) {
+      cantCounter = daysBetween(firstRangeDate!, today);
     }
     periodMedicationPercentages[0] =
         ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
@@ -1840,33 +1848,66 @@ class PatientDetailState extends State<PatientDetail> {
     double adherenceTotalSum = 0;
     double examsSum = 0;
     int cantCounter = 0;
+    bool firstFound = false;
+    DateTime? firstRangeDate;
+    bool firstWeek1 = false;
+    bool firstWeek2 = false;
+    bool firstWeek3 = false;
+    bool firstWeek4 = false;
+    DateTime? firstRange1;
+    DateTime? firstRange2;
+    DateTime? firstRange3;
+    DateTime? firstRange4;
+
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
       DateTime currentDate = currentBarChart.dateTime!;
       if (today.subtract(const Duration(days: 30)).isAfter(currentDate)) {
         continue; // skip if is invalid range
       }
+      if (!firstFound) {
+        firstFound = true;
+        firstRangeDate = currentDate;
+      }
       int day = currentDate.day;
       double currentAdherence = currentBarChart.adherence!;
       if (day > 7 && day <= 15) {
         cant2++;
         sum2 += currentAdherence;
+        if (!firstWeek2) {
+          firstWeek2 = true;
+          firstRange2 = currentDate;
+        }
       } else if (day > 15 && day <= 21) {
         cant3++;
         sum3 += currentAdherence;
+        if (!firstWeek3) {
+          firstWeek3 = true;
+          firstRange3 = currentDate;
+        }
       } else if (day > 21) {
         cant4++;
         sum4 += currentAdherence;
+        if (!firstWeek4) {
+          firstWeek4 = true;
+          firstRange4 = currentDate;
+        }
       } else {
         cant1++;
         sum1 += currentAdherence;
+        if (!firstWeek1) {
+          firstWeek1 = true;
+          firstRange1 = currentDate;
+        }
       }
       medicationSum += currentBarChart.medicationPercentage ?? 0;
       nutritionSum += currentBarChart.nutritionPercentage ?? 0;
       activitiesSum += currentBarChart.activitiesPercentage ?? 0;
       examsSum += currentBarChart.examsPercentage ?? 0;
       adherenceTotalSum += currentBarChart.adherence ?? 0;
-      cantCounter++;
+    }
+    if (firstFound) {
+      cantCounter = daysBetween(firstRangeDate!, today);
     }
     periodMedicationPercentages[1] =
         ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
@@ -1878,6 +1919,17 @@ class PatientDetailState extends State<PatientDetail> {
         ((cantCounter > 0 ? examsSum / cantCounter : 0) * 100).toInt();
     periodAdherences[1] =
         ((cantCounter > 0 ? adherenceTotalSum / cantCounter : 0) * 100).toInt();
+
+    int todayDay = today.day;
+    if (todayDay > 7 && todayDay <= 15 && firstWeek2) {
+      cant2 = daysBetween(firstRange2!, today);
+    } else if (todayDay > 15 && todayDay <= 21 && firstWeek3) {
+      cant3 = daysBetween(firstRange3!, today);
+    } else if (todayDay > 21 && firstWeek4) {
+      cant4 = daysBetween(firstRange3!, today);
+    } else if (firstWeek1) {
+      cant1 = daysBetween(firstRange1!, today);
+    }
 
     result[0].adherence = cant1 > 0 ? sum1 / cant1 : 0;
     result[1].adherence = cant2 > 0 ? sum2 / cant2 : 0;
@@ -1910,11 +1962,17 @@ class PatientDetailState extends State<PatientDetail> {
     double examsSum = 0;
     double adherenceSum = 0;
     int cantCounter = 0;
+    bool firstFound = false;
+    DateTime? firstRangeDate;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
       DateTime currentDate = currentBarChart.dateTime!;
       if (today.subtract(const Duration(days: 365)).isAfter(currentDate)) {
         continue; // skip if is invalid range
+      }
+      if (!firstFound) {
+        firstFound = true;
+        firstRangeDate = currentDate;
       }
       double sum = currentBarChart.adherence ?? 0;
       medicationSum += currentBarChart.medicationPercentage ?? 0;
@@ -1922,9 +1980,9 @@ class PatientDetailState extends State<PatientDetail> {
       activitiesSum += currentBarChart.activitiesPercentage ?? 0;
       examsSum += currentBarChart.examsPercentage ?? 0;
       adherenceSum += currentBarChart.adherence ?? 0;
-      cantCounter++;
       int cantCounterMonth = 1;
       int month = currentDate.month;
+      DateTime? firstOfMonth = currentDate;
       while (i + 1 < barcharListGlobal!.length &&
           month == barcharListGlobal![i + 1].dateTime!.month) {
         i++;
@@ -1937,14 +1995,21 @@ class PatientDetailState extends State<PatientDetail> {
         activitiesSum += currentBarChart.activitiesPercentage ?? 0;
         examsSum += currentBarChart.examsPercentage ?? 0;
         adherenceSum += currentBarChart.adherence ?? 0;
-        cantCounter++;
         cantCounterMonth++;
+      }
+      if (month == today.month) {
+        cantCounterMonth = daysBetween(firstOfMonth, today);
+      } else {
+        cantCounterMonth =
+            DateTime(currentDate.year, currentDate.month + 1, 0).day;
       }
       currentBarChart = result[month - 1];
       currentBarChart.adherence =
           cantCounterMonth > 0 ? sum / cantCounterMonth : 0;
     }
-
+    if (firstFound) {
+      cantCounter = daysBetween(firstRangeDate!, today);
+    }
     periodMedicationPercentages[2] =
         ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
     periodNutritionPercentages[2] =
@@ -1969,6 +2034,8 @@ class PatientDetailState extends State<PatientDetail> {
     double examsSum = 0;
     double adherenceTotalSum = 0;
     int cantCounter = 0;
+    bool firstFound = false;
+    DateTime? firstRangeDate;
     for (int i = firstIndex; i < (barcharListGlobal?.length ?? 0); i++) {
       BarCharData currentBarChart = barcharListGlobal![i];
       DateTime currentDate = currentBarChart.dateTime!;
@@ -1980,7 +2047,11 @@ class PatientDetailState extends State<PatientDetail> {
       activitiesSum += currentBarChart.activitiesPercentage ?? 0;
       examsSum += currentBarChart.examsPercentage ?? 0;
       adherenceTotalSum += currentBarChart.adherence ?? 0;
-      cantCounter++;
+      if (!firstFound) {
+        firstFound = true;
+        firstRangeDate = currentDate;
+      }
+      DateTime? firstOfYear = currentDate;
       while (i + 1 < barcharListGlobal!.length &&
           year == barcharListGlobal![i + 1].dateTime!.year) {
         i++;
@@ -1994,7 +2065,11 @@ class PatientDetailState extends State<PatientDetail> {
         activitiesSum += currentBarChart.activitiesPercentage ?? 0;
         examsSum += currentBarChart.examsPercentage ?? 0;
         adherenceTotalSum += currentBarChart.adherence ?? 0;
-        cantCounter++;
+      }
+      if (year == today.year) {
+        cantCounterYear = daysBetween(firstOfYear, today);
+      } else if (cantCounterYear < 365) {
+        cantCounterYear = 365;
       }
       currentBarChart = BarCharData(
           dateTime: null,
@@ -2006,6 +2081,9 @@ class PatientDetailState extends State<PatientDetail> {
       currentBarChart.adherence =
           cantCounterYear > 0 ? sum / cantCounterYear : 0;
       result.add(currentBarChart);
+    }
+    if (firstFound) {
+      cantCounter = daysBetween(firstRangeDate!, today);
     }
     periodMedicationPercentages[3] =
         ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
@@ -2702,8 +2780,8 @@ class PatientDetailState extends State<PatientDetail> {
   }
 
   getPatientHeight() {
-    if(isDoctorView) {
-      return HomeScreen.screenHeight* 0.8;
+    if (isDoctorView) {
+      return HomeScreen.screenHeight * 0.8;
     }
     double percentage = 0.55;
     var maxExtent = HomeScreen.screenHeight * 0.3;
@@ -2712,5 +2790,11 @@ class PatientDetailState extends State<PatientDetail> {
             ? maxExtent / 1.4
             : MySliverHeaderDelegate.publicShrinkHome);
     return result;
+  }
+
+  int daysBetween(DateTime from, DateTime to) {
+    from = DateTime(from.year, from.month, from.day);
+    to = DateTime(to.year, to.month, to.day);
+    return (to.difference(from).inHours / 24).round() + 1;
   }
 }

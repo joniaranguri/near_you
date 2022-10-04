@@ -32,7 +32,6 @@ class _SurveyScreenState extends State<SurveyScreen> {
   String userId;
   String userName;
   late final Future<List<SurveyData>> futureSurvey;
-  var _currentIndex = 1;
 
   double percentageProgress = 0;
 
@@ -488,8 +487,18 @@ class _SurveyScreenState extends State<SurveyScreen> {
   Future<void> saveSharedPreferencesDate() async {
     MyApp.dateNextSurvey = DateFormat('dd-MM-yyyy')
         .format(DateTime.now().add(const Duration(days: 7)));
+    updateDateInFirebase();
     FirebaseMessaging.instance.subscribeToTopic(MyApp.dateNextSurvey!);
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setString(PREF_NEXT_SURVEY_DATE, MyApp.dateNextSurvey!);
+  }
+
+  Future<void> updateDateInFirebase() async {
+    FirebaseFirestore.instance
+        .collection(USERS_COLLECTION_KEY)
+        .doc(userId)
+        .update({
+      USER_DATE_NEXT_SURVEY_KEY: MyApp.dateNextSurvey,
+    });
   }
 }

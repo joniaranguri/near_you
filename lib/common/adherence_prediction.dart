@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:age_calculator/age_calculator.dart';
@@ -35,6 +36,12 @@ class AdherencePrediction {
     }
   }
 
+  static int daysBetween(DateTime from, DateTime to) {
+    from = DateTime(from.year, from.month, from.day);
+    to = DateTime(to.year, to.month, to.day);
+    return (to.difference(from).inHours / 24).round() + 1;
+  }
+
   static getRequestBody(user.User patient) async {
     final db = FirebaseFirestore.instance;
     var future = await db
@@ -54,10 +61,17 @@ class AdherencePrediction {
     double nutritionValue = 0;
     double activitiesValue = 0;
     double examsValue = 0; // not used?
-    final int sizeDocs = future.docs.length;
+    DateTime firstDate = DateTime.now();
+    int sizeDocs = future.docs.length;
     for (var element in future.docs) {
       //TODO: Review this to not calculate again and again
       var data = element.data();
+      List<String> dateIdList = element.id.split('-');
+      String dateString = "${dateIdList[1]}-${dateIdList[2]}-${dateIdList[3]}";
+      DateTime currentDate = DateFormat('dd-MMM-yyyy').parse(dateString);
+      if (currentDate.isBefore(firstDate)) {
+        firstDate = currentDate;
+      }
       question1 += data[DATA_PREGUNTA1_KEY];
       question2 += data[DATA_PREGUNTA2_KEY];
       question3 += data[DATA_PREGUNTA3_KEY];
@@ -69,6 +83,11 @@ class AdherencePrediction {
       activitiesValue += data[DATA_ACTIVIDAD_FISICA_KEY];
       examsValue += data[DATA_EXAMENES_KEY];
     }
+    int totalDays = daysBetween(firstDate, DateTime.now());
+    medicationValue += (totalDays - sizeDocs) * 4;
+    nutritionValue += (totalDays - sizeDocs) * 4;
+    activitiesValue += (totalDays - sizeDocs) * 4;
+    examsValue += (totalDays - sizeDocs) * 4;
     String? birthday = patient.birthDay!;
     int age = isNotEmtpy(birthday)
         ? AgeCalculator.age(DateFormat.yMMMMd("en_US").parse(birthday)).years
@@ -91,9 +110,9 @@ class AdherencePrediction {
           "SAMS_item6": question4 ~/ sizeDocs,
           "SAMS_item15": question5 ~/ sizeDocs,
           "SAMS_item19": question6 ~/ sizeDocs,
-          "SAMS_item1": medicationValue ~/ sizeDocs,
-          "SAMS_item16": activitiesValue ~/ sizeDocs,
-          "SAMS_item17": nutritionValue ~/ sizeDocs,
+          "SAMS_item1": medicationValue ~/ totalDays,
+          "SAMS_item16": activitiesValue ~/ totalDays,
+          "SAMS_item17": nutritionValue ~/ totalDays,
         }
       ]
     };
