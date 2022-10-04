@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:near_you/main.dart';
 import 'package:near_you/screens/login_screen.dart';
 import 'package:near_you/screens/my_profile_screen.dart';
@@ -12,7 +13,6 @@ import 'package:near_you/screens/routine_screen.dart';
 import 'package:near_you/screens/survey_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 
 import '../Constants.dart';
 import '../common/static_common_functions.dart';
@@ -408,36 +408,35 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                 right: 30,
                 bottom: 0),
             child: InkWell(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            MyProfileScreen(currentUser)));
-              },
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xff7c94b6),
-                    image: const DecorationImage(
-                      image: NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: const BorderRadius.all(Radius.circular(50.0)),
-                    border: Border.all(
-                      color: const Color(0xff47B4AC),
-                      width: 4.0,
-                    ),
-                  ),
-                  child: Image.asset(
-                    'assets/images/person_default.png',
-                    height: HomeScreen.screenHeight / 15,
-                  )),
-            ))
-        /*SvgPicture.asset(
-              'assets/images/tab_plus_selected.svg',
-              height: 70,
-            )*/
-        );
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              MyProfileScreen(currentUser)));
+                },
+                child: Material(
+                    elevation: 10,
+                    borderRadius: BorderRadius.all(Radius.circular(100)),
+                    child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xff7c94b6),
+                          image: const DecorationImage(
+                            image:
+                                NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(50.0)),
+                          border: Border.all(
+                            color: const Color(0xff47B4AC),
+                            width: 4.0,
+                          ),
+                        ),
+                        child: Image.asset(
+                          'assets/images/person_default.png',
+                          height: HomeScreen.screenHeight / 15,
+                        ))))));
   }
 }
 
@@ -549,7 +548,7 @@ class _HomeScreenState extends State<HomeScreen>
               notifier.value
                   ? 'assets/images/tab_close_selected.svg'
                   : 'assets/images/tab_plus_selected.svg',
-              height: HomeScreen.screenHeight/9,
+              height: HomeScreen.screenHeight / 9,
             ),
           ),
           onTap: () {
