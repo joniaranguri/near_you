@@ -1743,7 +1743,7 @@ class PatientDetailState extends State<PatientDetail> {
     DateTime today = DateTime.now();
     int firstIndex = 0;
     if ((barcharListGlobal?.length ?? 0) > 7) {
-      firstIndex = barcharListGlobal?.length ?? 7 - 7;
+      firstIndex = (barcharListGlobal?.length ?? 7) - 7;
     }
     for (int i = 0; i < daysList.length; i++) {
       BarCharData currentBarChart = BarCharData(
