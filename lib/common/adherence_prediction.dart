@@ -62,6 +62,7 @@ class AdherencePrediction {
     double activitiesValue = 0;
     double examsValue = 0; // not used?
     DateTime firstDate = DateTime.now();
+    int sizeDocs = future.docs.length;
     for (var element in future.docs) {
       //TODO: Review this to not calculate again and again
       var data = element.data();
@@ -83,6 +84,10 @@ class AdherencePrediction {
       examsValue += data[DATA_EXAMENES_KEY];
     }
     int totalDays = daysBetween(firstDate, DateTime.now());
+    medicationValue += (totalDays - sizeDocs) * 4;
+    nutritionValue += (totalDays - sizeDocs) * 4;
+    activitiesValue += (totalDays - sizeDocs) * 4;
+    examsValue += (totalDays - sizeDocs) * 4;
     String? birthday = patient.birthDay!;
     int age = isNotEmtpy(birthday)
         ? AgeCalculator.age(DateFormat.yMMMMd("en_US").parse(birthday)).years
@@ -99,12 +104,12 @@ class AdherencePrediction {
           "Education": educationalLevel,
           "Medication_preparation_by": VINCULATED_KEY,
           "medication": 0, //String is not of expected type: int64
-          "SAMS_item3": question1 ~/ totalDays,
-          "SAMS_item10": question2 ~/ totalDays,
-          "SAMS_item11": question3 ~/ totalDays,
-          "SAMS_item6": question4 ~/ totalDays,
-          "SAMS_item15": question5 ~/ totalDays,
-          "SAMS_item19": question6 ~/ totalDays,
+          "SAMS_item3": question1 ~/ sizeDocs,
+          "SAMS_item10": question2 ~/ sizeDocs,
+          "SAMS_item11": question3 ~/ sizeDocs,
+          "SAMS_item6": question4 ~/ sizeDocs,
+          "SAMS_item15": question5 ~/ sizeDocs,
+          "SAMS_item19": question6 ~/ sizeDocs,
           "SAMS_item1": medicationValue ~/ totalDays,
           "SAMS_item16": activitiesValue ~/ totalDays,
           "SAMS_item17": nutritionValue ~/ totalDays,
