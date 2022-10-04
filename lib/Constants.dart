@@ -39,6 +39,7 @@ const String ATTACHED_PATIENTS = "attachedPatients";
 const String MEDICO_ID_KEY = "medicoId";
 const String PATIENT_ID_KEY = "patientId";
 const String USER_ID_KEY = "userId";
+const String USER_DATE_NEXT_SURVEY_KEY = "nextSurveyDate";
 const String VINCULATIONS_KEY = "vinculations";
 const String ADHERENCE_LEVEL_KEY = "adherenceLevel";
 const String PATIENT_CURRENT_TREATMENT_KEY = "currentTreatment";

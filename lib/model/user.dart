@@ -26,12 +26,14 @@ class User {
       required this.adherenceLevel,
       required this.address,
       required this.reference,
+      required this.dateNextSurvey,
       required this.medicoId});
 
   String? attachedPatients;
   String? fullName;
   String? userId;
   String? email;
+  String? dateNextSurvey;
   double? adherenceLevel;
   String? birthDay;
   String? phone;
@@ -78,6 +80,7 @@ class User {
         adherenceLevel: realData[ADHERENCE_LEVEL_KEY],
         address: realData[ADDRESS_KEY],
         reference: realData[REFERENCE_KEY],
+        dateNextSurvey: realData[USER_DATE_NEXT_SURVEY_KEY],
         medicoId: realData[MEDICO_ID_KEY]);
   }
 

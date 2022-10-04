@@ -1045,16 +1045,14 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> initAllData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    String? dateNextSurveyString = pref.getString(PREF_NEXT_SURVEY_DATE);
-    DateTime dateNextSurvey = DateFormat('dd-MM-yyyy')
-        .parse(dateNextSurveyString ?? SURVEY_DISABLED_DEFAULT_DATE);
-    disabledSurvey = DateTime.now().isBefore(dateNextSurvey);
     futureUser = getUserById(FirebaseAuth.instance.currentUser!.uid);
     futureUser?.then((value) => {
           setState(() {
             currentUser = user.User.fromSnapshot(value);
             notifier = ValueNotifier(false);
+            DateTime dateNextSurvey = DateFormat('dd-MM-yyyy').parse(
+                currentUser?.dateNextSurvey ?? SURVEY_DISABLED_DEFAULT_DATE);
+            disabledSurvey = DateTime.now().isBefore(dateNextSurvey);
             pendingVinculationsFuture = getPendingVinculations();
             pendingVinculationsFuture?.then((pendingResult) => {
                   setState(() {
