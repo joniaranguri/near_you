@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:near_you/main.dart';
 import 'package:near_you/screens/login_screen.dart';
 import 'package:near_you/screens/my_profile_screen.dart';
@@ -12,7 +13,6 @@ import 'package:near_you/screens/routine_screen.dart';
 import 'package:near_you/screens/survey_screen.dart';
 import 'package:near_you/widgets/firebase_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 
 import '../Constants.dart';
 import '../common/static_common_functions.dart';
@@ -27,12 +27,25 @@ class HomeScreen extends StatefulWidget {
   static double screenWidth = 0;
   static double screenHeight = 0;
 
+  static getBodyHeight() {
+    double percentage = 0.5;
+    if (HomeScreen.screenHeight > 600) {
+      percentage += 0.05;
+    }
+    var result = HomeScreen.screenHeight * percentage +
+        (MySliverHeaderDelegate.publicShrinkHome >
+                (MySliverHeaderDelegate._maxExtent / 2)
+            ? MySliverHeaderDelegate._maxExtent / 2
+            : MySliverHeaderDelegate.publicShrinkHome);
+    return result;
+  }
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
-  static const double _maxExtent = 240;
+  static final double _maxExtent = HomeScreen.screenHeight * 0.3;
   final VoidCallback onActionTap;
   static double publicShrinkHome = 0;
   user.User? currentUser;
@@ -57,6 +70,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     HomeScreen.screenWidth = MediaQuery.of(context).size.width;
     HomeScreen.screenHeight = MediaQuery.of(context).size.height;
+    double iconsSize = HomeScreen.screenHeight / 40;
     publicShrinkHome = shrinkOffset;
     return Container(
       color: const Color(0xff2F8F9D),
@@ -67,14 +81,18 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
               alignment: const Alignment(
                   //little padding
                   0,
-                  100),
+                  0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                      padding: EdgeInsets.only(
-                          top: getPaddingTopTitle(shrinkOffset, maxExtent)),
+                    padding: EdgeInsets.only(top: 25),
+                    child: getImageUser(context, shrinkOffset, _maxExtent),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      //getPaddingTopTitle(shrinkOffset, maxExtent)),
                       child: Text(
                           currentUser != null
                               ? currentUser?.fullName ??
@@ -83,7 +101,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                               : "Nombre",
                           style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 20,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold))),
                   //apply padding to all four sides
                   Text(
@@ -93,34 +111,36 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                   getButtonVinculation(context, shrinkOffset, _maxExtent)
                 ],
               )),
-          getImageUser(context, shrinkOffset, _maxExtent),
+          //getImageUser(context, shrinkOffset, _maxExtent),
           Positioned(
             top: 0,
             left: 0,
             child: IconButton(
-                padding: const EdgeInsets.only(left: 25, top: 30, bottom: 25),
+                padding: EdgeInsets.only(
+                    left: iconsSize, top: iconsSize, bottom: iconsSize),
                 constraints: const BoxConstraints(),
                 icon: SvgPicture.asset(
                   'assets/images/log_out.svg',
+                  height: iconsSize,
                 ),
                 onPressed: () {
                   showLogoutModal(context);
                 }),
           ),
           Positioned(
-            top: 0,
-            right: 0,
-            height: 80,
-            child: IconButton(
-                padding: const EdgeInsets.only(right: 25, top: 30, bottom: 25),
-                constraints: const BoxConstraints(),
-                icon: SvgPicture.asset(
-                  'assets/images/refresh_icon.svg',
-                ),
-                onPressed: () {
-                  initAllData();
-                }),
-          ),
+              top: 0,
+              right: 0,
+              child: IconButton(
+                  padding: EdgeInsets.only(
+                      right: iconsSize, top: iconsSize, bottom: iconsSize),
+                  constraints: const BoxConstraints(),
+                  icon: SvgPicture.asset(
+                    'assets/images/refresh_icon.svg',
+                    height: iconsSize,
+                  ),
+                  onPressed: () {
+                    initAllData();
+                  })),
         ],
       ),
     );
@@ -130,7 +150,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => _maxExtent;
 
   @override
-  double get minExtent => kToolbarHeight * 2;
+  double get minExtent => HomeScreen.screenHeight * 0.15;
 
   @override
   bool shouldRebuild(covariant MySliverHeaderDelegate oldDelegate) {
@@ -152,7 +172,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     double maxExtent,
   ) {
-    if (shrinkOffset > (maxExtent * 0.1)) {
+    if (shrinkOffset > (maxExtent * 0.01)) {
       return SizedBox.shrink();
     } else {
       return Stack(
@@ -162,7 +182,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
-            padding: EdgeInsets.only(left: 30, right: 30, top: 5, bottom: 5),
+            padding: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
             color: Colors.white,
             onPressed: () {
               currentUser!.isPatient()
@@ -235,6 +255,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   getPaddingTopTitle(double shrinkOffset, double maxExtent) {
+    return 0.0;
     var result = maxExtent - (110 + shrinkOffset);
     if (result < 0) {
       result = 0;
@@ -372,7 +393,7 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   getImageUser(BuildContext context, double shrinkOffset, double maxExtent) {
-    if (shrinkOffset > (maxExtent * 0.1)) {
+    if (shrinkOffset > (maxExtent * 0.01)) {
       return const SizedBox.shrink();
     }
     return Align(
@@ -385,38 +406,37 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
                 left: 30,
                 top: (shrinkOffset / _maxExtent) * 35,
                 right: 30,
-                bottom: 20),
+                bottom: 0),
             child: InkWell(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            MyProfileScreen(currentUser)));
-              },
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xff7c94b6),
-                    image: const DecorationImage(
-                      image: NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: const BorderRadius.all(Radius.circular(50.0)),
-                    border: Border.all(
-                      color: const Color(0xff47B4AC),
-                      width: 4.0,
-                    ),
-                  ),
-                  child: Image.asset(
-                    'assets/images/person_default.png',
-                    height: 50,
-                  )),
-            ))
-        /*SvgPicture.asset(
-              'assets/images/tab_plus_selected.svg',
-              height: 70,
-            )*/
-        );
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              MyProfileScreen(currentUser)));
+                },
+                child: Material(
+                    elevation: 10,
+                    borderRadius: BorderRadius.all(Radius.circular(100)),
+                    child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xff7c94b6),
+                          image: const DecorationImage(
+                            image:
+                                NetworkImage('http://i.imgur.com/QSev0hg.jpg'),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(50.0)),
+                          border: Border.all(
+                            color: const Color(0xff47B4AC),
+                            width: 4.0,
+                          ),
+                        ),
+                        child: Image.asset(
+                          'assets/images/person_default.png',
+                          height: HomeScreen.screenHeight / 15,
+                        ))))));
   }
 }
 
@@ -482,42 +502,37 @@ class _HomeScreenState extends State<HomeScreen>
                 body: LayoutBuilder(
                   builder: (BuildContext context,
                       BoxConstraints viewportConstraints) {
-                    return SizedBox(
-                      width: double.infinity,
-                      child: SingleChildScrollView(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: viewportConstraints.maxHeight,
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(
+                          // minHeight: HomeScreen.screenHeight *0.5,
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          SizedBox(
+                            height: getTopPaddingBody(),
+                          ),
+                          FutureBuilder(
+                            future: futureUser,
+                            builder: (context, AsyncSnapshot snapshot) {
+                              //currentUser = user.User.fromSnapshot(snapshot.data);
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                return getScreenType();
+                              }
+                              return Padding(
+                                  padding: EdgeInsets.only(
+                                      top: HomeScreen.screenHeight * 0.3),
+                                  child: CircularProgressIndicator());
+                            },
+                          ),
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              SizedBox(
-                                height: getTopPaddingBody(),
-                              ),
-                              FutureBuilder(
-                                future: futureUser,
-                                builder: (context, AsyncSnapshot snapshot) {
-                                  //currentUser = user.User.fromSnapshot(snapshot.data);
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.done) {
-                                    return getScreenType();
-                                  }
-                                  return Padding(
-                                      padding: EdgeInsets.only(
-                                          top: HomeScreen.screenHeight * 0.3),
-                                      child: CircularProgressIndicator());
-                                },
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [_getFABDial()],
-                              )
-                            ],
-                          ),
-                        ),
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [_getFABDial()],
+                          )
+                        ],
                       ),
                     );
                   },
@@ -533,6 +548,7 @@ class _HomeScreenState extends State<HomeScreen>
               notifier.value
                   ? 'assets/images/tab_close_selected.svg'
                   : 'assets/images/tab_plus_selected.svg',
+              height: HomeScreen.screenHeight / 9,
             ),
           ),
           onTap: () {
@@ -697,8 +713,8 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   )
                 ]),
-            SizedBox(
-                height: 500,
+            Container(
+                height: HomeScreen.getBodyHeight(),
                 child: PatientsListLayout((int cant) {
                   setState(() {
                     patientsCounter = cant;
@@ -1047,7 +1063,6 @@ class _HomeScreenState extends State<HomeScreen>
                     }
                     pendingVinculationList = pendingResult;
                     notificationsCounter = pendingResult.length;
-                    print("patients: $notificationsCounter");
                     if (currentUser!.isPatient()) {
                       showNotificationPendingVinculation(
                           pendingVinculationList[0]);

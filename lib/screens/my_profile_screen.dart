@@ -11,6 +11,7 @@ import '../Constants.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/firebase_utils.dart';
 import '../widgets/static_components.dart';
+import 'home_screen.dart';
 
 class MyProfileScreen extends StatefulWidget {
   user.User? currentUser;
@@ -208,7 +209,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             : Container(
                 padding: EdgeInsets.only(top: 40),
                 child:
-                    SvgPicture.asset('assets/images/person_tab_selected.svg'),
+                    SvgPicture.asset('assets/images/person_tab_selected.svg',
+                      height: HomeScreen.screenHeight/9),
               ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       )
