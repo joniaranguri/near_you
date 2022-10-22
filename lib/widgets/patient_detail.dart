@@ -1922,13 +1922,13 @@ class PatientDetailState extends State<PatientDetail> {
 
     int todayDay = today.day;
     if (todayDay > 7 && todayDay <= 15 && firstWeek2) {
-      cant2 = daysBetween(firstRange2!, today);
+      cant2 = daysBetween(firstRange2, today);
     } else if (todayDay > 15 && todayDay <= 21 && firstWeek3) {
-      cant3 = daysBetween(firstRange3!, today);
+      cant3 = daysBetween(firstRange3, today);
     } else if (todayDay > 21 && firstWeek4) {
-      cant4 = daysBetween(firstRange3!, today);
+      cant4 = daysBetween(firstRange4, today);
     } else if (firstWeek1) {
-      cant1 = daysBetween(firstRange1!, today);
+      cant1 = daysBetween(firstRange1, today);
     }
 
     result[0].adherence = cant1 > 0 ? sum1 / cant1 : 0;
@@ -2008,7 +2008,7 @@ class PatientDetailState extends State<PatientDetail> {
           cantCounterMonth > 0 ? sum / cantCounterMonth : 0;
     }
     if (firstFound) {
-      cantCounter = daysBetween(firstRangeDate!, today);
+      cantCounter = daysBetween(firstRangeDate, today);
     }
     periodMedicationPercentages[2] =
         ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
@@ -2083,7 +2083,7 @@ class PatientDetailState extends State<PatientDetail> {
       result.add(currentBarChart);
     }
     if (firstFound) {
-      cantCounter = daysBetween(firstRangeDate!, today);
+      cantCounter = daysBetween(firstRangeDate, today);
     }
     periodMedicationPercentages[3] =
         ((cantCounter > 0 ? medicationSum / cantCounter : 0) * 100).toInt();
@@ -2557,7 +2557,12 @@ class PatientDetailState extends State<PatientDetail> {
                                                   child: Text(
                                                       "${periodMedicationPercentages[barChartPeriodIndex]}%",
                                                       style: TextStyle(
-                                                          fontSize: 42,
+                                                          fontSize:
+                                                              periodMedicationPercentages[
+                                                                          barChartPeriodIndex] !=
+                                                                      100
+                                                                  ? 42
+                                                                  : 35,
                                                           fontWeight:
                                                               FontWeight.w900)),
                                                 ),
@@ -2618,7 +2623,12 @@ class PatientDetailState extends State<PatientDetail> {
                                                   child: Text(
                                                       "${periodNutritionPercentages[barChartPeriodIndex]}%",
                                                       style: TextStyle(
-                                                          fontSize: 42,
+                                                          fontSize:
+                                                              periodNutritionPercentages[
+                                                                          barChartPeriodIndex] !=
+                                                                      100
+                                                                  ? 42
+                                                                  : 35,
                                                           fontWeight:
                                                               FontWeight.w900)),
                                                 ),
@@ -2688,7 +2698,12 @@ class PatientDetailState extends State<PatientDetail> {
                                                   child: Text(
                                                       "${periodActivityPercentages[barChartPeriodIndex]}%",
                                                       style: TextStyle(
-                                                          fontSize: 42,
+                                                          fontSize:
+                                                              periodActivityPercentages[
+                                                                          barChartPeriodIndex] !=
+                                                                      100
+                                                                  ? 42
+                                                                  : 35,
                                                           fontWeight:
                                                               FontWeight.w900)),
                                                 ),
@@ -2750,7 +2765,12 @@ class PatientDetailState extends State<PatientDetail> {
                                                   child: Text(
                                                       "${periodExamsPercentages[barChartPeriodIndex]}%",
                                                       style: TextStyle(
-                                                          fontSize: 42,
+                                                          fontSize:
+                                                              periodExamsPercentages[
+                                                                          barChartPeriodIndex] !=
+                                                                      100
+                                                                  ? 42
+                                                                  : 35,
                                                           fontWeight:
                                                               FontWeight.w900)),
                                                 ),
@@ -2792,7 +2812,8 @@ class PatientDetailState extends State<PatientDetail> {
     return result;
   }
 
-  int daysBetween(DateTime from, DateTime to) {
+  int daysBetween(DateTime? from, DateTime to) {
+    if (from == null) return 0;
     from = DateTime(from.year, from.month, from.day);
     to = DateTime(to.year, to.month, to.day);
     return (to.difference(from).inHours / 24).round() + 1;
