@@ -1,3 +1,7 @@
+const String FIREBASE_NOT_FOUND_USER = "user-not-found";
+const String FIREBASE_WRONG_PASSWORD = "wrong-password";
+const String FIREBASE_EMAIL_ALREDY_IN_USE = "email-already-in-use";
+
 const String SHOW_INTRO_SLIDE = "SHOW_INTRO_SLIDE";
 const String SHOW_ROLE_SELECTION = "SHOW_ROLE_SELECTION";
 const String PREF_USER_NAME = "PREF_USER_NAME";
