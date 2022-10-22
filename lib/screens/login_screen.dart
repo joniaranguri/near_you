@@ -5,8 +5,10 @@ import 'package:near_you/screens/home_screen.dart';
 import 'package:near_you/screens/role_selection_screen.dart';
 import 'package:near_you/screens/signup_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
+import '../widgets/firebase_utils.dart';
+import '../model/user.dart' as user;
 import '../widgets/static_components.dart';
 import 'getting_started_screen.dart';
 
@@ -33,16 +35,11 @@ class _LoginWidgetState extends State<LoginWidget> {
   final GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
   bool userNotFound = false;
   bool wrongPassword = false;
+  bool sessionStarted = false;
 
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((prefValue) => {
-          setState(() {
-            showSelectRole = !prefValue.containsKey(SHOW_ROLE_SELECTION);
-            prefValue.setString(SHOW_ROLE_SELECTION, SHOW_ROLE_SELECTION);
-          })
-        });
   }
 
   static StaticComponents staticComponents = StaticComponents();
@@ -234,6 +231,9 @@ class _LoginWidgetState extends State<LoginWidget> {
                           if (wrongPassword) {
                             return "El email y la contraseña no coinciden";
                           }
+                          if (sessionStarted) {
+                            return "Ya existe una sesión iniciada para esta cuenta en otro dispositivo";
+                          }
                         },
                         style: const TextStyle(fontSize: 14),
                         decoration: staticComponents
@@ -316,16 +316,17 @@ class _LoginWidgetState extends State<LoginWidget> {
     final FormState? form = loginFormKey.currentState;
     wrongPassword = false;
     userNotFound = false;
+    sessionStarted = false;
     if (!(form?.validate() ?? false)) {
       return;
     }
-    User? user;
+    User? authUser;
     try {
       var credential = (await _auth.signInWithEmailAndPassword(
         email: emailValue,
         password: passwordValue,
       ));
-      user = credential.user;
+      authUser = credential.user;
     } on FirebaseException catch (e, _) {
       if (e.code == FIREBASE_NOT_FOUND_USER) {
         userNotFound = true;
@@ -338,13 +339,28 @@ class _LoginWidgetState extends State<LoginWidget> {
         return;
       }
     }
-    if (user != null) {
-      SharedPreferences.getInstance().then((prefValue) => {
-            setState(() {
-              showSelectRole = !prefValue.containsKey(user!.uid);
-              prefValue.setString(user.uid, user.uid);
-            })
-          });
+    if (authUser != null) {
+      var futureUser = await getUserById(authUser.uid);
+      user.User dbUser = user.User.fromSnapshot(futureUser);
+      showSelectRole = dbUser.type == null || dbUser.type == EMPTY_STRING_VALUE;
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      String androidUniqueId = androidInfo.id;
+      if (dbUser.deviceLogged != null &&
+          dbUser.deviceLogged != USER_DEVICE_LOGGED_EMPTY &&
+          dbUser.deviceLogged != androidUniqueId) {
+        //QSR1.210802.001
+        sessionStarted = true;
+        form?.validate();
+        return;
+      }
+      await futureUser.reference.update({
+        USER_DEVICE_LOGGED: androidUniqueId,
+      });
+      /*
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      print('Running on ${iosInfo.utsname.machine}');
+    */
       Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute<void>(

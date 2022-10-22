@@ -27,6 +27,7 @@ class User {
       required this.address,
       required this.reference,
       required this.dateNextSurvey,
+      required this.deviceLogged,
       required this.medicoId});
 
   String? attachedPatients;
@@ -56,6 +57,7 @@ class User {
   String? allergies;
 
   String? type;
+  String? deviceLogged;
   String? diabetesType;
   String? currentTreatment;
 
@@ -81,6 +83,7 @@ class User {
         address: realData[ADDRESS_KEY],
         reference: realData[REFERENCE_KEY],
         dateNextSurvey: realData[USER_DATE_NEXT_SURVEY_KEY],
+        deviceLogged: realData[USER_DEVICE_LOGGED],
         medicoId: realData[MEDICO_ID_KEY]);
   }
 
