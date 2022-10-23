@@ -158,6 +158,13 @@ class MySliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   Future<void> logOut(BuildContext context) async {
+    final db = FirebaseFirestore.instance;
+    var userDocRef = db
+        .collection(USERS_COLLECTION_KEY)
+        .doc(FirebaseAuth.instance.currentUser!.uid);
+    await userDocRef.update({
+      USER_DEVICE_LOGGED: USER_DEVICE_LOGGED_EMPTY,
+    });
     await FirebaseAuth.instance.signOut();
     Navigator.pushReplacement<void, void>(
       context,

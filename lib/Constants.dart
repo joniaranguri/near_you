@@ -1,5 +1,8 @@
+const String FIREBASE_NOT_FOUND_USER = "user-not-found";
+const String FIREBASE_WRONG_PASSWORD = "wrong-password";
+const String FIREBASE_EMAIL_ALREDY_IN_USE = "email-already-in-use";
+
 const String SHOW_INTRO_SLIDE = "SHOW_INTRO_SLIDE";
-const String SHOW_ROLE_SELECTION = "SHOW_ROLE_SELECTION";
 const String PREF_USER_NAME = "PREF_USER_NAME";
 const String PREF_NEXT_SURVEY_DATE = "PREF_NEXT_SURVEY_DATE";
 const String PUSH_TOPIC_ALL = "all";
@@ -31,6 +34,8 @@ const String REFERENCE_KEY = "reference";
 const String USERS_COLLECTION_KEY = "users";
 const String PENDING_VINCULATIONS_COLLECTION_KEY = "pendingVinculations";
 const String USER_TYPE = "type";
+const String USER_DEVICE_LOGGED = "deviceLogged";
+const String USER_DEVICE_LOGGED_EMPTY = "NO_DEVICE_LOGGED";
 const String USER_TYPE_MEDICO = "MEDICO";
 const String USER_TYPE_PACIENTE = "PACIENTE";
 const String TREATMENTS_KEY = "treatments";
